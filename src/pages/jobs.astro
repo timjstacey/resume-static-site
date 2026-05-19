@@ -1,8 +1,103 @@
 ---
 import Base from '../layouts/Base.astro';
+import JobCard from '../components/JobCard.astro';
+import type { JobStatus } from '../lib/schemas';
+import { getJobs } from '../lib/data';
+
+const jobs = getJobs().sort((a, b) => b.applied.localeCompare(a.applied));
+
+const total = jobs.length;
+const pipeline = jobs.filter((j) => ['Applied', 'Screening', 'Interviewing'].includes(j.status)).length;
+const offered = jobs.filter((j) => j.status === 'Offered').length;
+const closed = jobs.filter((j) => ['Rejected', 'Withdrawn', 'Ghosted'].includes(j.status)).length;
+
+const STATUS_ORDER: JobStatus[] = [
+  'Applied',
+  'Screening',
+  'Interviewing',
+  'Offered',
+  'Rejected',
+  'Withdrawn',
+  'Ghosted',
+];
+
+const presentStatuses = STATUS_ORDER.filter((s) => jobs.some((j) => j.status === s));
 ---
 
 <Base title="Jobs">
-  <h1 class="text-3xl font-bold text-ctp-text">Jobs</h1>
-  <p class="mt-2 text-ctp-subtext1">Placeholder — issue #6.</p>
+  <h1 class="text-3xl font-bold text-ctp-text">Job Applications</h1>
+  <p class="mt-1 text-ctp-subtext1">Tracking applications and pipeline status.</p>
+
+  <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-text">{total}</p>
+      <p class="text-sm text-ctp-subtext0">Total</p>
+    </div>
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-peach">{pipeline}</p>
+      <p class="text-sm text-ctp-subtext0">In Pipeline</p>
+    </div>
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-green">{offered}</p>
+      <p class="text-sm text-ctp-subtext0">Offered</p>
+    </div>
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-overlay2">{closed}</p>
+      <p class="text-sm text-ctp-subtext0">Closed</p>
+    </div>
+  </div>
+
+  <div class="mt-6 flex flex-wrap gap-2">
+    <button
+      data-filter="all"
+      class="filter-btn rounded-full bg-ctp-surface1 px-3 py-1 text-sm font-medium text-ctp-text"
+    >
+      All ({total})
+    </button>
+    {
+      presentStatuses.map((status) => {
+        const count = jobs.filter((j) => j.status === status).length;
+        return (
+          <button
+            data-filter={status}
+            class="filter-btn rounded-full px-3 py-1 text-sm font-medium text-ctp-subtext1 hover:bg-ctp-surface0 hover:text-ctp-text"
+          >
+            {status} ({count})
+          </button>
+        );
+      })
+    }
+  </div>
+
+  <div class="mt-6 grid gap-4 sm:grid-cols-2">
+    {
+      jobs.map((job) => (
+        <div data-status={job.status}>
+          <JobCard job={job} />
+        </div>
+      ))
+    }
+  </div>
 </Base>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
+  const cards = document.querySelectorAll<HTMLElement>('[data-status]');
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const filter = btn.dataset.filter!;
+
+      buttons.forEach((b) => {
+        b.classList.remove('bg-ctp-surface1', 'text-ctp-text');
+        b.classList.add('text-ctp-subtext1');
+      });
+      btn.classList.remove('text-ctp-subtext1');
+      btn.classList.add('bg-ctp-surface1', 'text-ctp-text');
+
+      cards.forEach((card) => {
+        card.style.display = filter === 'all' || card.dataset.status === filter ? '' : 'none';
+      });
+    });
+  });
+</script>

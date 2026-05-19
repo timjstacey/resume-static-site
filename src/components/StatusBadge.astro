@@ -1,0 +1,25 @@
+---
+import type { JobStatus } from '../lib/schemas';
+
+interface Props {
+  status: JobStatus;
+}
+
+const { status } = Astro.props;
+
+const statusColour: Record<JobStatus, string> = {
+  Applied: 'text-ctp-blue',
+  Screening: 'text-ctp-sapphire',
+  Interviewing: 'text-ctp-peach',
+  Offered: 'text-ctp-green',
+  Rejected: 'text-ctp-red',
+  Withdrawn: 'text-ctp-overlay2',
+  Ghosted: 'text-ctp-mauve',
+};
+---
+
+<span
+  class={`inline-flex shrink-0 rounded-full bg-ctp-surface1 px-2.5 py-0.5 text-xs font-medium ${statusColour[status]}`}
+>
+  {status}
+</span>
