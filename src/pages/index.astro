@@ -8,6 +8,16 @@ const jobs = getJobs();
 
 const activeStatuses = new Set(['Applied', 'Screening', 'Interviewing', 'Offered']);
 const activePipeline = jobs.filter((j) => activeStatuses.has(j.status)).length;
+
+const earliestStart = resume.experience.map((e) => new Date(e.start + '-01')).reduce((a, b) => (a < b ? a : b));
+const yearsOfExp = Math.floor((Date.now() - earliestStart.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+
+const currentRole = resume.experience[0]!;
+const formatYearMonth = (ym: string) =>
+  new Date(+ym.slice(0, 4), +ym.slice(5, 7) - 1).toLocaleDateString('en-AU', {
+    month: 'short',
+    year: 'numeric',
+  });
 ---
 
 <Base title="Home" description={`${resume.name} — ${resume.tagline}`}>
@@ -48,16 +58,20 @@ const activePipeline = jobs.filter((j) => activeStatuses.has(j.status)).length;
     </div>
   </section>
 
-  <section class="mb-12">
-    <h2 class="mb-3 text-xl font-semibold text-ctp-text">About</h2>
-    <p class="leading-relaxed text-ctp-subtext1">
-      Lead Quality Engineer. Builds test automation from scratch across web, API, and mobile. Owned frameworks
-      end-to-end at startups, scale-ups, and enterprise: architecture, CI integration, tooling, and team capability.
-      Currently leads three testers while staying hands-on in a delivery squad.
-    </p>
-  </section>
+  {
+    resume.bio && (
+      <section class="mb-12">
+        <h2 class="mb-3 text-xl font-semibold text-ctp-text">About</h2>
+        <p class="leading-relaxed text-ctp-subtext1">{resume.bio}</p>
+      </section>
+    )
+  }
 
-  <section class="mb-12 grid grid-cols-3 gap-4">
+  <section class="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
+      <p class="text-3xl font-bold text-ctp-mauve">{yearsOfExp}</p>
+      <p class="mt-1 text-sm text-ctp-subtext1">Years experience</p>
+    </div>
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
       <p class="text-3xl font-bold text-ctp-blue">{projects.length}</p>
       <p class="mt-1 text-sm text-ctp-subtext1">Projects</p>
@@ -69,6 +83,34 @@ const activePipeline = jobs.filter((j) => activeStatuses.has(j.status)).length;
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
       <p class="text-3xl font-bold text-ctp-peach">{activePipeline}</p>
       <p class="mt-1 text-sm text-ctp-subtext1">Active pipeline</p>
+    </div>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="mb-3 text-xl font-semibold text-ctp-text">Current Role</h2>
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6">
+      <p class="font-semibold text-ctp-text">{currentRole.role}</p>
+      <p class="mt-1 text-sm text-ctp-subtext1">
+        {currentRole.company} &middot; {formatYearMonth(currentRole.start)} &ndash; Present
+      </p>
+    </div>
+  </section>
+
+  <section class="mb-12">
+    <h2 class="mb-4 text-xl font-semibold text-ctp-text">Skills</h2>
+    <div class="flex flex-col gap-5">
+      {
+        resume.skills.map((group) => (
+          <div>
+            <p class="mb-2 text-sm text-ctp-subtext1">{group.category}</p>
+            <div class="flex flex-wrap gap-2">
+              {group.items.map((item) => (
+                <span class="rounded-full bg-ctp-surface0 px-3 py-1 text-sm text-ctp-text">{item}</span>
+              ))}
+            </div>
+          </div>
+        ))
+      }
     </div>
   </section>
 
