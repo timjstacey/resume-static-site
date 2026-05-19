@@ -4,22 +4,40 @@ Personal resume + job-application tracker. Static site, hosted on GitHub Pages o
 
 ## Tech Stack
 
-| Tool | Purpose |
-|---|---|
-| Astro 4.x | Static site framework |
-| Tailwind CSS 3.x | Utility-first styling |
-| @catppuccin/tailwindcss | Catppuccin Mocha colour plugin |
-| TypeScript 5.x + Zod | Type-safe data schemas |
+### Dependencies
 
-Tailwind config — `tailwind.config.mjs`:
-```js
-import catppuccin from "@catppuccin/tailwindcss"
-export default {
-  plugins: [catppuccin({ defaultFlavour: "mocha" })]
-}
+| Package | Version | Purpose |
+|---|---|---|
+| astro | 6.3.5 | Static site framework |
+| tailwindcss | 4.3.0 | Utility-first styling |
+| @tailwindcss/vite | 4.3.0 | Tailwind 4 Vite plugin (Astro integration) |
+| @catppuccin/tailwindcss | 1.0.0 | Catppuccin Mocha colour theme |
+| zod | 4.4.3 | Data schema validation |
+
+### Dev Dependencies
+
+| Package | Version | Purpose |
+|---|---|---|
+| pnpm | 10.33.0 | Package manager |
+| typescript | 6.0.3 | Type safety |
+| prettier | 3.8.3 | Code formatter |
+| prettier-plugin-astro | 0.14.1 | Prettier support for .astro files |
+| prettier-plugin-tailwindcss | 0.8.0 | Tailwind class sorting (TW4, official Tailwind Labs) |
+| eslint | 10.4.0 | Linter |
+| typescript-eslint | 8.59.4 | TypeScript ESLint rules |
+| eslint-plugin-astro | 1.7.0 | ESLint rules for .astro files |
+
+### Tailwind setup
+
+Tailwind 4 CSS-first — no `tailwind.config.js`. Wired via `@tailwindcss/vite` in `astro.config.mjs`.
+
+Global CSS at `src/styles/global.css`:
+```css
+@import "tailwindcss";
+@import "@catppuccin/tailwindcss/mocha.css";
 ```
 
-Use `ctp-` prefixed utilities everywhere (`bg-ctp-base`, `text-ctp-text`, etc). No raw hex values in components.
+Import this file in `src/layouts/Base.astro`. Use `ctp-` prefixed utilities everywhere (`bg-ctp-base`, `text-ctp-text`, etc). No raw hex values in components.
 
 ## Pages
 
@@ -102,8 +120,10 @@ skills:
 
 ```
 src/
+  styles/
+    global.css          # @import tailwindcss + catppuccin mocha
   layouts/
-    Base.astro          # <html>, <head>, nav, footer
+    Base.astro          # <html>, <head>, nav, footer — imports global.css
   components/
     Nav.astro           # top nav, active-page highlight
     StatusBadge.astro   # coloured pill for job status
@@ -142,20 +162,22 @@ Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
 ## Commands
 
 ```bash
-npm run dev       # dev server at localhost:4321
-npm run build     # static output → dist/
-npm run preview   # preview built site locally
+pnpm dev          # dev server at localhost:4321
+pnpm build        # static output → dist/
+pnpm preview      # preview built site locally
+pnpm lint         # run ESLint
+pnpm lint:fix     # run ESLint with auto-fix
 ```
 
 ## Verification Checklist
 
-- [ ] `npm run dev` starts with no console errors
+- [ ] `pnpm dev` starts with no console errors
 - [ ] `bg-ctp-base` / `text-ctp-text` resolve in Tailwind
 - [ ] All 4 nav links route correctly, active state visible
 - [ ] All 7 job statuses render with correct Catppuccin colours
 - [ ] Dashboard stats bar counts match data file entries
 - [ ] Status filter works without page reload
 - [ ] Resume prints cleanly (`Cmd+P`)
-- [ ] Build passes: `npm run build` exits 0
+- [ ] Build passes: `pnpm build` exits 0
 - [ ] Mobile layout: nav, cards, resume sections all readable
 - [ ] Deploy: push to `main` triggers build + publishes to Pages URL
