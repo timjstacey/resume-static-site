@@ -1,0 +1,41 @@
+name: Tim Stacey
+tagline: Software Engineer
+contact:
+  email: tim@example.com
+  github: https://github.com/timjstacey
+  linkedin: https://linkedin.com/in/timstacey
+experience:
+  - company: Acme Corp
+    role: Senior Software Engineer
+    start: '2022-03'
+    end: present
+    bullets:
+      - Led migration from monolith to microservices, reducing deploy time by 60%
+      - Built internal developer tooling used by 50+ engineers daily
+      - Introduced observability stack (OpenTelemetry + Grafana) across 12 services
+  - company: Widgets Ltd
+    role: Software Engineer
+    start: '2019-06'
+    end: '2022-02'
+    bullets:
+      - Developed customer-facing React dashboard serving 10k monthly active users
+      - Drove TypeScript adoption across the frontend, eliminating a class of runtime errors
+      - Reduced API p99 latency by 40% through query optimisation and caching
+  - company: Startup Inc
+    role: Junior Developer
+    start: '2017-09'
+    end: '2019-05'
+    bullets:
+      - Built REST APIs with Node.js and Express
+      - Maintained and extended legacy PHP codebase
+education:
+  - institution: University of Example
+    degree: BSc Computer Science
+    year: 2017
+skills:
+  - category: Languages
+    items: [TypeScript, Python, Go, SQL]
+  - category: Frameworks
+    items: [React, Astro, Node.js, FastAPI]
+  - category: Tools
+    items: [Git, Docker, PostgreSQL, Redis]
