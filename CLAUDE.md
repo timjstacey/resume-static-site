@@ -171,6 +171,16 @@ Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
 #8  Deployment setup             (after all pages done)
 ```
 
+## Playwright Screenshots
+
+When using the `mcp__playwright__browser_take_screenshot` tool, always save to `.playwright-mcp/` — it is gitignored. Use a relative filename with that prefix:
+
+```
+filename: ".playwright-mcp/my-screenshot.png"
+```
+
+Never save screenshots to the repo root or any other directory.
+
 ## Commands
 
 ```bash
