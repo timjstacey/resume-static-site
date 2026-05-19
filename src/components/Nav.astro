@@ -1,4 +1,6 @@
 ---
+import { isActivePath } from '../lib/nav';
+
 const currentPath = Astro.url.pathname;
 
 const links = [
@@ -15,7 +17,7 @@ const links = [
     <ul class="flex gap-4">
       {
         links.map(({ href, label }) => {
-          const isActive = href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+          const isActive = isActivePath(href, currentPath);
           return (
             <li>
               <a
