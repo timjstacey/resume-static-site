@@ -4,13 +4,6 @@ import JobCard from '../components/JobCard.astro';
 import type { JobStatus } from '../lib/schemas';
 import { getJobs } from '../lib/data';
 
-const jobs = getJobs().sort((a, b) => b.applied.localeCompare(a.applied));
-
-const total = jobs.length;
-const pipeline = jobs.filter((j) => ['Applied', 'Screening', 'Interviewing'].includes(j.status)).length;
-const offered = jobs.filter((j) => j.status === 'Offered').length;
-const closed = jobs.filter((j) => ['Rejected', 'Withdrawn', 'Ghosted'].includes(j.status)).length;
-
 const STATUS_ORDER: JobStatus[] = [
   'Applied',
   'Screening',
@@ -21,6 +14,24 @@ const STATUS_ORDER: JobStatus[] = [
   'Ghosted',
 ];
 
+const statusTextColour: Record<JobStatus, string> = {
+  Applied: 'text-ctp-blue',
+  Screening: 'text-ctp-sapphire',
+  Interviewing: 'text-ctp-peach',
+  Offered: 'text-ctp-green',
+  Rejected: 'text-ctp-red',
+  Withdrawn: 'text-ctp-overlay2',
+  Ghosted: 'text-ctp-mauve',
+};
+
+const jobs = getJobs().sort((a, b) => b.applied.localeCompare(a.applied));
+
+const total = jobs.length;
+
+const statusCounts = Object.fromEntries(
+  STATUS_ORDER.map((s) => [s, jobs.filter((j) => j.status === s).length])
+) as Record<JobStatus, number>;
+
 const presentStatuses = STATUS_ORDER.filter((s) => jobs.some((j) => j.status === s));
 ---
 
@@ -28,23 +39,19 @@ const presentStatuses = STATUS_ORDER.filter((s) => jobs.some((j) => j.status ===
   <h1 class="text-3xl font-bold text-ctp-text">Job Applications</h1>
   <p class="mt-1 text-ctp-subtext1">Tracking applications and pipeline status.</p>
 
-  <div class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+  <div class="mt-6 grid grid-cols-4 gap-3">
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
       <p class="text-2xl font-bold text-ctp-text">{total}</p>
-      <p class="text-sm text-ctp-subtext0">Total</p>
+      <p class="text-xs text-ctp-subtext0">Total</p>
     </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-peach">{pipeline}</p>
-      <p class="text-sm text-ctp-subtext0">In Pipeline</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-green">{offered}</p>
-      <p class="text-sm text-ctp-subtext0">Offered</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-overlay2">{closed}</p>
-      <p class="text-sm text-ctp-subtext0">Closed</p>
-    </div>
+    {
+      STATUS_ORDER.map((status) => (
+        <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+          <p class={`text-2xl font-bold ${statusTextColour[status]}`}>{statusCounts[status]}</p>
+          <p class="text-xs text-ctp-subtext0">{status}</p>
+        </div>
+      ))
+    }
   </div>
 
   <div class="mt-6 flex flex-wrap gap-2">
