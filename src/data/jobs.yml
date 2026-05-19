@@ -58,6 +58,12 @@
   status: Applied
   notes: ''
 
+- company: ABC
+  role: Quality Assurance Engineer
+  applied: '2026-04-30'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
 - company: Auto & General
   role: Senior Automation Analyst
   applied: '2026-04-24'
