@@ -1,0 +1,73 @@
+---
+const flavors = [
+  { id: 'latte', label: 'Latte', bg: '#eff1f5' },
+  { id: 'frappe', label: 'Frappé', bg: '#303446' },
+  { id: 'macchiato', label: 'Macchiato', bg: '#24273a' },
+  { id: 'mocha', label: 'Mocha', bg: '#1e1e2e' },
+] as const;
+---
+
+<div class="flex items-center gap-1.5" role="group" aria-label="Color theme">
+  {
+    flavors.map(({ id, label, bg }) => (
+      <button
+        data-flavor={id}
+        aria-label={`${label} theme`}
+        aria-pressed="false"
+        class="h-5 w-5 cursor-pointer rounded-full border border-ctp-surface1 transition-shadow focus:outline-none"
+        style={`background-color: ${bg};`}
+        title={label}
+      />
+    ))
+  }
+</div>
+
+<style>
+  button[aria-pressed='true'] {
+    box-shadow:
+      0 0 0 2px var(--color-ctp-mantle),
+      0 0 0 4px var(--color-ctp-lavender);
+  }
+</style>
+
+<script is:inline>
+  const VALID = ['latte', 'frappe', 'macchiato', 'mocha'];
+
+  function applyFlavor(flavor) {
+    VALID.forEach(function (f) {
+      document.documentElement.classList.remove(f);
+    });
+    document.documentElement.classList.add(flavor);
+    localStorage.setItem('ctp-flavor', flavor);
+    syncPicker(flavor);
+  }
+
+  function syncPicker(flavor) {
+    document.querySelectorAll('[data-flavor]').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', btn.dataset.flavor === flavor ? 'true' : 'false');
+    });
+  }
+
+  function activeFlavor() {
+    return (
+      VALID.find(function (f) {
+        return document.documentElement.classList.contains(f);
+      }) || 'mocha'
+    );
+  }
+
+  function initPicker() {
+    syncPicker(activeFlavor());
+    document.querySelectorAll('[data-flavor]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        applyFlavor(btn.dataset.flavor);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPicker);
+  } else {
+    initPicker();
+  }
+</script>

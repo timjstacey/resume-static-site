@@ -1,5 +1,6 @@
 ---
 import Nav from '../components/Nav.astro';
+import ThemePicker from '../components/ThemePicker.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -13,13 +14,27 @@ const { title, description = 'Tim Stacey — software engineer' } = Astro.props;
 <!doctype html>
 <html lang="en">
   <head>
+    <script is:inline>
+      (function () {
+        const valid = ['latte', 'frappe', 'macchiato', 'mocha'];
+        const stored = localStorage.getItem('ctp-flavor');
+        const flavor = valid.includes(stored)
+          ? stored
+          : window.matchMedia('(prefers-color-scheme: light)').matches
+            ? 'latte'
+            : 'mocha';
+        document.documentElement.classList.add(flavor);
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <title>{title} | Tim Stacey</title>
   </head>
   <body class="min-h-screen bg-ctp-base text-ctp-text">
-    <Nav />
+    <Nav>
+      <ThemePicker />
+    </Nav>
     <main class="mx-auto max-w-4xl px-4 py-8">
       <slot />
     </main>
