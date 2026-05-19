@@ -1,8 +1,16 @@
 ---
 import Base from '../layouts/Base.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getProjects } from '../lib/data';
+
+const projects = getProjects();
 ---
 
 <Base title="Projects">
   <h1 class="text-3xl font-bold text-ctp-text">Projects</h1>
-  <p class="mt-2 text-ctp-subtext1">Placeholder — issue #5.</p>
+  <p class="mt-2 text-ctp-subtext1">Things I've built.</p>
+
+  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {projects.map((project) => <ProjectCard project={project} />)}
+  </div>
 </Base>

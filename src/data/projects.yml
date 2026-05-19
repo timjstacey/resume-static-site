@@ -5,23 +5,16 @@
   tags: [Astro, TypeScript, Tailwind]
   status: active
 
-- name: CLI Todo App
-  description: Minimal command-line task manager written in Go with local file persistence.
+- name: LinkedIn Post Generator
+  description: Claude researches a topic weekly, writes a LinkedIn post, and opens a PR for review. Merge to publish.
   url: ''
-  repo: https://github.com/timjstacey/todo-cli
-  tags: [Go, CLI]
+  repo: https://github.com/timjstacey/linkedin-post-generator
+  tags: [TypeScript, Claude API, GitHub Actions, LinkedIn API]
   status: active
 
-- name: Data Pipeline Tool
-  description: ETL pipeline for transforming CSV exports into a normalised SQLite database.
+- name: Funny Animal Videos
+  description: Pulls funny animal clips from Reddit, stitches landscape videos into 10-minute compilations, and uploads portrait clips as YouTube Shorts.
   url: ''
-  repo: https://github.com/timjstacey/data-pipeline
-  tags: [Python, SQLite, ETL]
-  status: wip
-
-- name: Old Portfolio
-  description: Previous portfolio site built with Jekyll. Superseded by this site.
-  url: ''
-  repo: https://github.com/timjstacey/old-portfolio
-  tags: [Jekyll, Ruby]
-  status: archived
+  repo: https://github.com/timjstacey/youtube-funny-videos
+  tags: [Python, YouTube API, ffmpeg, Reddit, Docker]
+  status: active
