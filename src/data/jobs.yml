@@ -10,14 +10,20 @@
   status: Applied
   notes: ''
 
-- company: AutoGuru Australia
-  role: Automation Test Engineer
+- company: Heritage and People's Choice
+  role: Test Analyst - Cards
+  applied: '2026-05-06'
+  status: Applied
+  notes: ''
+
+- company: Lime Recruitment
+  role: Test Architect – Automation & Quality Engineering
   applied: '2026-05-05'
   status: Applied
   notes: ''
 
-- company: nib health funds limited
-  role: QA Engineer
+- company: AutoGuru Australia Pty Ltd
+  role: Automation Test Engineer
   applied: '2026-05-05'
   status: Applied
   notes: ''
@@ -28,7 +34,19 @@
   status: Applied
   notes: ''
 
-- company: Micromine
+- company: nib health funds limited
+  role: QA Engineer
+  applied: '2026-05-05'
+  status: Applied
+  notes: ''
+
+- company: Heritage and People's Choice
+  role: Program Test Manager
+  applied: '2026-05-05'
+  status: Applied
+  notes: ''
+
+- company: Micromine Australia Pty Ltd
   role: Automation Tester
   applied: '2026-05-05'
   status: Applied
@@ -40,8 +58,20 @@
   status: Applied
   notes: ''
 
-- company: ABC
-  role: Quality Assurance Engineer
-  applied: '2026-04-30'
+- company: Auto & General
+  role: Senior Automation Analyst
+  applied: '2026-04-24'
+  status: Applied
+  notes: ''
+
+- company: Forever New Clothing
+  role: Senior AI Automation Engineer – QA
+  applied: '2026-04-22'
+  status: Applied
+  notes: ''
+
+- company: KJR
+  role: Enterprise Testing Program - Hybrid WFH
+  applied: '2026-04-22'
   status: Applied
   notes: ''
