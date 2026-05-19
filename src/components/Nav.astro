@@ -1,0 +1,36 @@
+---
+const currentPath = Astro.url.pathname;
+
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/resume', label: 'Resume' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/jobs', label: 'Jobs' },
+];
+---
+
+<nav class="border-b border-ctp-surface1 bg-ctp-mantle">
+  <div class="mx-auto flex max-w-4xl items-center gap-6 px-4 py-3">
+    <span class="font-semibold text-ctp-lavender">Tim Stacey</span>
+    <ul class="flex gap-4">
+      {
+        links.map(({ href, label }) => {
+          const isActive = href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+          return (
+            <li>
+              <a
+                href={href}
+                class:list={[
+                  'text-sm transition-colors',
+                  isActive ? 'font-medium text-ctp-text' : 'text-ctp-subtext0 hover:text-ctp-text',
+                ]}
+              >
+                {label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</nav>
