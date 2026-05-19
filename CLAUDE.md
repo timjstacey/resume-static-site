@@ -156,8 +156,8 @@ Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
 
 ```
 #1  Project setup (Astro + Tailwind + Catppuccin)       ✓ done
-#2  Base layout and navigation                           ✓ done
-#3  Data schemas and sample content
+#3  Base layout and navigation                           ✓ done
+#2  Data schemas and sample content
       ↓ unblock all page issues
 #4  Resume page          ─┐
 #5  Projects page         ├─ parallel
