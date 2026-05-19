@@ -13,6 +13,7 @@ Personal resume + job-application tracker. Static site, hosted on GitHub Pages o
 | @tailwindcss/vite       | 4.3.0   | Tailwind 4 Vite plugin (Astro integration) |
 | @catppuccin/tailwindcss | 1.0.0   | Catppuccin Mocha colour theme              |
 | zod                     | 4.4.3   | Data schema validation                     |
+| yaml                    | 2.9.0   | YAML parser for data file loading          |
 
 ### Dev Dependencies
 
@@ -29,6 +30,8 @@ Personal resume + job-application tracker. Static site, hosted on GitHub Pages o
 | @astrojs/check              | 0.9.9   | Astro + TS type checking (`astro check`)             |
 | husky                       | 9.1.7   | Git hooks                                            |
 | lint-staged                 | 17.0.5  | Run linters on staged files only                     |
+| vitest                      | 4.1.6   | Unit test runner                                     |
+| @types/node                 | 25.9.0  | Node.js type definitions                             |
 
 ### Tailwind setup
 
@@ -83,7 +86,7 @@ Zod schemas in `src/lib/schemas.ts` validate all three at build time. Build fail
 - company: Acme Corp
   role: Senior Engineer
   url: https://acme.com
-  applied: 2026-05-01
+  applied: '2026-05-01' # must be quoted — bare dates parse as JS Date objects
   status: Interviewing
   notes: ''
 ```
@@ -147,7 +150,9 @@ src/
     projects.yml
     jobs.yml
   lib/
-    schemas.ts          # Zod schemas for all data files
+    schemas.ts          # Zod schemas + inferred types for all data files
+    data.ts             # getResume() / getProjects() / getJobs() loaders
+    nav.ts              # isActivePath() helper
 ```
 
 ## Implementation Order
@@ -157,7 +162,7 @@ Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
 ```
 #1  Project setup (Astro + Tailwind + Catppuccin)       ✓ done
 #3  Base layout and navigation                           ✓ done
-#2  Data schemas and sample content
+#2  Data schemas and sample content                      ✓ done
       ↓ unblock all page issues
 #4  Resume page          ─┐
 #5  Projects page         ├─ parallel
@@ -173,6 +178,7 @@ pnpm dev          # dev server at localhost:4321
 pnpm build        # static output → dist/
 pnpm preview      # preview built site locally
 pnpm typecheck    # astro check — full TS diagnostics across all .astro/.ts files
+pnpm test         # vitest run — unit tests (schemas, nav logic)
 pnpm lint         # run ESLint
 pnpm lint:fix     # run ESLint with auto-fix
 ```
