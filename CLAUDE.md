@@ -171,6 +171,14 @@ Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
 #8  Deployment setup             (after all pages done)
 ```
 
+## Content Writing
+
+Always invoke the `stop-slop` skill before writing or finalising any user-facing prose: project descriptions, page copy, bio text, taglines, card content, or any other text a visitor will read. This removes AI writing patterns (filler adverbs, passive voice, em dashes, formulaic structures) before the content lands in a file.
+
+```
+/stop-slop <draft text>
+```
+
 ## Playwright Screenshots
 
 When using the `mcp__playwright__browser_take_screenshot` tool, always save to `.playwright-mcp/` — it is gitignored. Use a relative filename with that prefix:
