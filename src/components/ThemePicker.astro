@@ -38,7 +38,9 @@ const flavors = [
       document.documentElement.classList.remove(f);
     });
     document.documentElement.classList.add(flavor);
-    localStorage.setItem('ctp-flavor', flavor);
+    try {
+      localStorage.setItem('ctp-flavor', flavor);
+    } catch {}
     syncPicker(flavor);
   }
 
