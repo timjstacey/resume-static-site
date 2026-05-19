@@ -1,41 +1,106 @@
 name: Tim Stacey
-tagline: Software Engineer
+tagline: Lead Quality Engineer — Test Automation & Engineering Standards
 contact:
-  email: tim@example.com
   github: https://github.com/timjstacey
   linkedin: https://linkedin.com/in/timstacey
 experience:
-  - company: Acme Corp
-    role: Senior Software Engineer
-    start: '2022-03'
+  - company: Sony Interactive Entertainment
+    role: Lead Quality Engineer
+    start: '2022-10'
     end: present
     bullets:
-      - Led migration from monolith to microservices, reducing deploy time by 60%
-      - Built internal developer tooling used by 50+ engineers daily
-      - Introduced observability stack (OpenTelemetry + Grafana) across 12 services
-  - company: Widgets Ltd
-    role: Software Engineer
-    start: '2019-06'
-    end: '2022-02'
+      - Built company E2E automation capability from scratch — TypeScript framework covering web, API, and mobile across 11 repositories
+      - Shifted complex validation out of brittle UI tests into API and service layers using database and messaging integrations
+      - Grew automated E2E coverage from zero across 11 repos with dedicated CI pipelines per microservice
+      - Cut release progression time from days to hours through automation coverage and tighter release validation
+      - Migrated the team from Cypress to Playwright and introduced performance testing with Grafana k6
+      - Set engineering standards across the QE function — strict typing, ESLint, Prettier, git hooks, and PR review
+      - Leads a team of 3 testers while staying hands-on in a delivery squad
+  - company: Entain Australia
+    role: Lead Quality Engineer
+    start: '2022-03'
+    end: '2022-10'
     bullets:
-      - Developed customer-facing React dashboard serving 10k monthly active users
-      - Drove TypeScript adoption across the frontend, eliminating a class of runtime errors
-      - Reduced API p99 latency by 40% through query optimisation and caching
-  - company: Startup Inc
-    role: Junior Developer
-    start: '2017-09'
-    end: '2019-05'
+      - Built automated regression capability for a Vue-based application with no existing E2E coverage
+      - Designed an API-stubbing approach enabling the full app and test suite to run locally without a live backend
+      - Embedded Cypress into the UI codebase and integrated it into GitLab pipelines
+      - Brought parallel execution down to under 5 minutes per run
+      - Added LCOV reporting to make test coverage visible and actionable
+      - Mentored manual testers into automation practice
+  - company: Aurizon
+    role: Lead Quality Engineer
+    start: '2021-06'
+    end: '2022-03'
     bullets:
-      - Built REST APIs with Node.js and Express
-      - Maintained and extended legacy PHP codebase
-education:
-  - institution: University of Example
-    degree: BSc Computer Science
-    year: 2017
+      - Led QE for a greenfield programme through backend stack shifts from JavaScript to TypeScript to C#
+      - Built a Cypress suite mocking unavailable APIs, maintaining frontend regression coverage against a stubbed environment
+      - Supported existing API schema validation with Supertest and Joi, and consumer-driven contract testing with Pact
+      - Integrated regression into CI via GitHub Actions and Jenkins with webhook-driven execution on deployment
+      - Used Kubernetes cluster access, log tailing, and port forwarding for hands-on environment troubleshooting
+  - company: CitrusAd
+    role: Quality Engineer
+    start: '2020-07'
+    end: '2021-05'
+    bullets:
+      - Joined a newly formed QA capability in an early-stage startup — built automated coverage from scratch using Selenium, Java, and REST Assured
+      - Built E2E flows combining PostgreSQL data setup, API execution, and Selenium UI validation
+      - Stood up an on-prem Jenkins instance for regression scheduling before any CI pipeline existed
+      - Migrated to Jenkins on Google Cloud with CTO sign-off, codifying pipelines in Groovy
+      - Added initial performance testing capability using Gatling
+  - company: Repeat.gg
+    role: Quality Engineer (Contract)
+    start: '2020-04'
+    end: '2020-05'
+    bullets:
+      - Delivered a working Cypress framework, baseline coverage across core workflows, and a structured handover in a 4-week engagement
+  - company: Flight Centre
+    role: Quality Engineer
+    start: '2018-03'
+    end: '2020-03'
+    bullets:
+      - Maintained and extended Selenium/Java/Cucumber regression coverage across 3 Agile streams on the SOAR booking engine
+      - Supported multiple Flight Centre brands across AU, NZ, and CA in a Jenkins CI environment
+  - company: Ministry of Business, Innovation and Employment
+    role: Senior Test Analyst
+    start: '2016-03'
+    end: '2018-03'
+    bullets:
+      - Transitioned from manual testing into automation — built Selenium WebDriver and Cucumber coverage across government registry platforms
+      - Coordinated test activities with vendors and project managers
 skills:
-  - category: Languages
-    items: [TypeScript, Python, Go, SQL]
-  - category: Frameworks
-    items: [React, Astro, Node.js, FastAPI]
-  - category: Tools
-    items: [Git, Docker, PostgreSQL, Redis]
+  - category: Quality Engineering
+    items:
+      [
+        Test Automation,
+        End-to-End Testing,
+        API Testing,
+        Mobile Testing,
+        Performance Testing,
+        Contract Testing,
+        CI/CD Test Integration,
+        Automation Framework Design,
+        Release Validation,
+      ]
+  - category: Automation Tools
+    items:
+      [
+        Playwright,
+        Cypress,
+        Appium,
+        WebdriverIO,
+        Selenium WebDriver,
+        Cucumber,
+        REST Assured,
+        Supertest,
+        Pact,
+        Grafana k6,
+        Gatling,
+      ]
+  - category: Languages & Frameworks
+    items: [TypeScript, JavaScript, Java, Node.js, Scala, SQL, Groovy]
+  - category: CI/CD & DevOps
+    items: [GitHub Actions, GitLab CI/CD, Bitbucket Pipelines, Jenkins, Terraform, Kubernetes, Docker]
+  - category: Cloud & Data
+    items: [AWS, EC2, Lambda, API Gateway, Google Cloud Platform, PostgreSQL, MySQL, MongoDB, Kafka, Firebase]
+  - category: Collaboration
+    items: [Jira, Confluence, Git, Agile/Scrum]

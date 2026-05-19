@@ -49,7 +49,7 @@ export const ProjectsSchema = z.array(ProjectSchema);
 // --- Resume ---
 
 const ContactSchema = z.object({
-  email: z.email(),
+  email: z.email().optional(),
   github: z.string().optional(),
   linkedin: z.string().optional(),
 });
@@ -78,7 +78,7 @@ export const ResumeSchema = z.object({
   tagline: z.string(),
   contact: ContactSchema,
   experience: z.array(ExperienceSchema),
-  education: z.array(EducationSchema),
+  education: z.array(EducationSchema).optional(),
   skills: z.array(SkillCategorySchema),
 });
 
