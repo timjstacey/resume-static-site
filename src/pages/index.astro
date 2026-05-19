@@ -91,7 +91,8 @@ const formatYearMonth = (ym: string) =>
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6">
       <p class="font-semibold text-ctp-text">{currentRole.role}</p>
       <p class="mt-1 text-sm text-ctp-subtext1">
-        {currentRole.company} &middot; {formatYearMonth(currentRole.start)} &ndash; Present
+        {currentRole.company} &middot; {formatYearMonth(currentRole.start)} &ndash;
+        {currentRole.end === 'present' ? 'Present' : formatYearMonth(currentRole.end)}
       </p>
     </div>
   </section>
