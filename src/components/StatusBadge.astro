@@ -7,19 +7,17 @@ interface Props {
 
 const { status } = Astro.props;
 
-const statusColour: Record<JobStatus, string> = {
-  Applied: 'text-ctp-blue',
-  Screening: 'text-ctp-sapphire',
-  Interviewing: 'text-ctp-peach',
-  Offered: 'text-ctp-green',
-  Rejected: 'text-ctp-red',
-  Withdrawn: 'text-ctp-overlay2',
-  Ghosted: 'text-ctp-mauve',
+const statusClass: Record<JobStatus, string> = {
+  Applied: 'bg-ctp-blue/10 text-ctp-blue',
+  Screening: 'bg-ctp-sapphire/10 text-ctp-sapphire',
+  Interviewing: 'bg-ctp-peach/10 text-ctp-peach',
+  Offered: 'bg-ctp-green/10 text-ctp-green',
+  Rejected: 'bg-ctp-red/10 text-ctp-red',
+  Withdrawn: 'bg-ctp-overlay2/10 text-ctp-overlay2',
+  Ghosted: 'bg-ctp-mauve/10 text-ctp-mauve',
 };
 ---
 
-<span
-  class={`inline-flex shrink-0 rounded-full bg-ctp-surface1 px-2.5 py-0.5 text-xs font-medium ${statusColour[status]}`}
->
+<span class={`inline-flex shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${statusClass[status]}`}>
   {status}
 </span>
