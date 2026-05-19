@@ -76,6 +76,7 @@ const SkillCategorySchema = z.object({
 export const ResumeSchema = z.object({
   name: z.string().min(1),
   tagline: z.string(),
+  bio: z.string().optional(),
   contact: ContactSchema,
   experience: z.array(ExperienceSchema),
   education: z.array(EducationSchema).optional(),
