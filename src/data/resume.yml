@@ -1,11 +1,10 @@
 name: Tim Stacey
 tagline: Lead Quality Engineer — Test Automation & Engineering Standards
 bio: >-
-  Quality Engineer with 8 years building automation from scratch across web, API, and mobile at startups and
-  enterprise. Pushes test coverage to the right layer: API and service contracts over brittle UI flows. Sets
-  engineering standards across QE functions: strict typing, linting, git hooks, PR practice. Currently leads
-  three testers at Sony Interactive Entertainment while staying hands-on in a delivery squad, cutting release
-  progression from days to hours.
+  Quality Engineer building test automation across web, API, and mobile at startups and enterprise. Prefers
+  contract and API tests over UI flows. Owns engineering standards across QE: strict typing, linting, git
+  hooks, PR practice. At Sony Interactive Entertainment, leads three testers while shipping in a delivery
+  squad; release cycles run in hours, not days.
 contact:
   github: https://github.com/timjstacey
   linkedin: https://linkedin.com/in/timstacey
