@@ -16,6 +16,12 @@
   status: Applied
   notes: 'Applied via Seek'
 
+- company: Discovered People
+  role: Senior Quality Engineer
+  applied: '2026-05-06'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
 - company: Lime Recruitment
   role: Test Architect – Automation & Quality Engineering
   applied: '2026-05-05'
@@ -63,6 +69,12 @@
   applied: '2026-04-30'
   status: Applied
   notes: 'Applied via LinkedIn'
+
+- company: Jobgether
+  role: QA & Verifications Engineer
+  applied: '2026-04-29'
+  status: Applied
+  notes: 'Applied via Jobgether'
 
 - company: Auto & General
   role: Senior Automation Analyst
