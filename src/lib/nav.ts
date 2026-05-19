@@ -1,3 +1,4 @@
 export function isActivePath(href: string, currentPath: string): boolean {
-  return href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+  if (href === '/') return currentPath === '/';
+  return currentPath === href || currentPath.startsWith(href + '/');
 }
