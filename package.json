@@ -20,13 +20,13 @@
     "@catppuccin/tailwindcss": "1.0.0",
     "@tailwindcss/vite": "4.3.0",
     "astro": "6.3.5",
-    "sharp": "^0.34.5",
     "tailwindcss": "4.3.0",
     "yaml": "^2.9.0",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",
+    "sharp": "0.34.5",
     "@types/node": "^25.9.0",
     "eslint": "10.4.0",
     "eslint-plugin-astro": "1.7.0",
