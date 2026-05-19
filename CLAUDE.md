@@ -6,59 +6,63 @@ Personal resume + job-application tracker. Static site, hosted on GitHub Pages o
 
 ### Dependencies
 
-| Package | Version | Purpose |
-|---|---|---|
-| astro | 6.3.5 | Static site framework |
-| tailwindcss | 4.3.0 | Utility-first styling |
-| @tailwindcss/vite | 4.3.0 | Tailwind 4 Vite plugin (Astro integration) |
-| @catppuccin/tailwindcss | 1.0.0 | Catppuccin Mocha colour theme |
-| zod | 4.4.3 | Data schema validation |
+| Package                 | Version | Purpose                                    |
+| ----------------------- | ------- | ------------------------------------------ |
+| astro                   | 6.3.5   | Static site framework                      |
+| tailwindcss             | 4.3.0   | Utility-first styling                      |
+| @tailwindcss/vite       | 4.3.0   | Tailwind 4 Vite plugin (Astro integration) |
+| @catppuccin/tailwindcss | 1.0.0   | Catppuccin Mocha colour theme              |
+| zod                     | 4.4.3   | Data schema validation                     |
 
 ### Dev Dependencies
 
-| Package | Version | Purpose |
-|---|---|---|
-| pnpm | 10.33.0 | Package manager |
-| typescript | 6.0.3 | Type safety |
-| prettier | 3.8.3 | Code formatter |
-| prettier-plugin-astro | 0.14.1 | Prettier support for .astro files |
-| prettier-plugin-tailwindcss | 0.8.0 | Tailwind class sorting (TW4, official Tailwind Labs) |
-| eslint | 10.4.0 | Linter |
-| typescript-eslint | 8.59.4 | TypeScript ESLint rules |
-| eslint-plugin-astro | 1.7.0 | ESLint rules for .astro files |
+| Package                     | Version | Purpose                                              |
+| --------------------------- | ------- | ---------------------------------------------------- |
+| pnpm                        | 10.33.0 | Package manager                                      |
+| typescript                  | 6.0.3   | Type safety                                          |
+| prettier                    | 3.8.3   | Code formatter                                       |
+| prettier-plugin-astro       | 0.14.1  | Prettier support for .astro files                    |
+| prettier-plugin-tailwindcss | 0.8.0   | Tailwind class sorting (TW4, official Tailwind Labs) |
+| eslint                      | 10.4.0  | Linter                                               |
+| typescript-eslint           | 8.59.4  | TypeScript ESLint rules                              |
+| eslint-plugin-astro         | 1.7.0   | ESLint rules for .astro files                        |
+| @astrojs/check              | 0.9.9   | Astro + TS type checking (`astro check`)             |
+| husky                       | 9.1.7   | Git hooks                                            |
+| lint-staged                 | 17.0.5  | Run linters on staged files only                     |
 
 ### Tailwind setup
 
 Tailwind 4 CSS-first — no `tailwind.config.js`. Wired via `@tailwindcss/vite` in `astro.config.mjs`.
 
 Global CSS at `src/styles/global.css`:
+
 ```css
-@import "tailwindcss";
-@import "@catppuccin/tailwindcss/mocha.css";
+@import 'tailwindcss';
+@import '@catppuccin/tailwindcss/mocha.css';
 ```
 
 Import this file in `src/layouts/Base.astro`. Use `ctp-` prefixed utilities everywhere (`bg-ctp-base`, `text-ctp-text`, etc). No raw hex values in components.
 
 ## Pages
 
-| Route | File | Purpose |
-|---|---|---|
-| `/` | `src/pages/index.astro` | Hero, bio, quick stats, CTA links |
-| `/resume` | `src/pages/resume.astro` | Full resume from data |
-| `/projects` | `src/pages/projects.astro` | Project portfolio from data |
-| `/jobs` | `src/pages/jobs.astro` | Job application dashboard |
+| Route       | File                       | Purpose                           |
+| ----------- | -------------------------- | --------------------------------- |
+| `/`         | `src/pages/index.astro`    | Hero, bio, quick stats, CTA links |
+| `/resume`   | `src/pages/resume.astro`   | Full resume from data             |
+| `/projects` | `src/pages/projects.astro` | Project portfolio from data       |
+| `/jobs`     | `src/pages/jobs.astro`     | Job application dashboard         |
 
 ## Job Application Statuses
 
-| Status | Catppuccin colour | Meaning |
-|---|---|---|
-| Applied | Blue `#89b4fa` | Submitted, awaiting response |
-| Screening | Sapphire `#74c7ec` | Recruiter/phone screen |
-| Interviewing | Peach `#fab387` | Active interview rounds |
-| Offered | Green `#a6e3a1` | Offer received |
-| Rejected | Red `#f38ba8` | Application declined |
-| Withdrawn | Overlay2 `#9399b2` | User withdrew |
-| Ghosted | Mauve `#cba6f7` | No response after follow-ups |
+| Status       | Catppuccin colour  | Meaning                      |
+| ------------ | ------------------ | ---------------------------- |
+| Applied      | Blue `#89b4fa`     | Submitted, awaiting response |
+| Screening    | Sapphire `#74c7ec` | Recruiter/phone screen       |
+| Interviewing | Peach `#fab387`    | Active interview rounds      |
+| Offered      | Green `#a6e3a1`    | Offer received               |
+| Rejected     | Red `#f38ba8`      | Application declined         |
+| Withdrawn    | Overlay2 `#9399b2` | User withdrew                |
+| Ghosted      | Mauve `#cba6f7`    | No response after follow-ups |
 
 ## Data Files
 
@@ -74,32 +78,34 @@ src/data/
 Zod schemas in `src/lib/schemas.ts` validate all three at build time. Build fails on invalid data.
 
 ### jobs.yml entry shape
+
 ```yaml
 - company: Acme Corp
   role: Senior Engineer
   url: https://acme.com
   applied: 2026-05-01
   status: Interviewing
-  notes: ""
+  notes: ''
 ```
 
 ### resume.yml shape
+
 ```yaml
-name: ""
-tagline: ""
+name: ''
+tagline: ''
 contact:
-  email: ""
-  github: ""
-  linkedin: ""
+  email: ''
+  github: ''
+  linkedin: ''
 experience:
-  - company: ""
-    role: ""
+  - company: ''
+    role: ''
     start: 2023-01
     end: present
     bullets: []
 education:
-  - institution: ""
-    degree: ""
+  - institution: ''
+    degree: ''
     year: 2020
 skills:
   - category: Languages
@@ -107,13 +113,14 @@ skills:
 ```
 
 ### projects.yml entry shape
+
 ```yaml
-- name: ""
-  description: ""
-  url: ""
-  repo: ""
+- name: ''
+  description: ''
+  url: ''
+  repo: ''
   tags: []
-  status: active   # active | wip | archived
+  status: active # active | wip | archived
 ```
 
 ## Component Architecture
@@ -148,8 +155,8 @@ src/
 Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
 
 ```
-#1  Project setup (Astro + Tailwind + Catppuccin)
-#2  Base layout and navigation
+#1  Project setup (Astro + Tailwind + Catppuccin)       ✓ done
+#2  Base layout and navigation                           ✓ done
 #3  Data schemas and sample content
       ↓ unblock all page issues
 #4  Resume page          ─┐
@@ -165,9 +172,19 @@ Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
 pnpm dev          # dev server at localhost:4321
 pnpm build        # static output → dist/
 pnpm preview      # preview built site locally
+pnpm typecheck    # astro check — full TS diagnostics across all .astro/.ts files
 pnpm lint         # run ESLint
 pnpm lint:fix     # run ESLint with auto-fix
 ```
+
+## Git Hooks
+
+Managed by husky.
+
+| Hook       | Runs            | What                                                                                                                                               |
+| ---------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| pre-commit | on `git commit` | lint-staged: `eslint --fix` + `prettier --write` on staged `.astro`/`.ts`/`.tsx`; `prettier --write` on staged `.css`/`.json`/`.md`/`.yaml`/`.yml` |
+| pre-push   | on `git push`   | `pnpm typecheck` — blocks push on type errors                                                                                                      |
 
 ## Verification Checklist
 
