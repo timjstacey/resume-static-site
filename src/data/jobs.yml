@@ -1,0 +1,48 @@
+- company: Tech Corp
+  role: Senior Software Engineer
+  url: https://techcorp.example.com
+  applied: '2026-05-10'
+  status: Interviewing
+  notes: 'Three rounds completed, final panel interview next week'
+
+- company: Cloud Inc
+  role: Staff Engineer
+  url: https://cloudinc.example.com
+  applied: '2026-05-08'
+  status: Screening
+  notes: 'Phone screen with recruiter scheduled for 2026-05-22'
+
+- company: Startup XYZ
+  role: Lead Engineer
+  url: https://startupxyz.example.com
+  applied: '2026-05-05'
+  status: Applied
+  notes: ''
+
+- company: Big Tech Co
+  role: Software Engineer III
+  url: https://bigtech.example.com
+  applied: '2026-04-28'
+  status: Offered
+  notes: 'Offer received — decision deadline 2026-05-25'
+
+- company: Legacy Systems Ltd
+  role: Backend Engineer
+  url: ''
+  applied: '2026-04-20'
+  status: Rejected
+  notes: 'Position filled internally'
+
+- company: Remote First Inc
+  role: Full Stack Engineer
+  url: ''
+  applied: '2026-04-15'
+  status: Withdrawn
+  notes: 'Compensation below expectations after offer stage'
+
+- company: Hot Startup Co
+  role: Senior Engineer
+  url: ''
+  applied: '2026-04-01'
+  status: Ghosted
+  notes: 'No response after two follow-up emails'
