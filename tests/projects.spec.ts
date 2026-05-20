@@ -27,11 +27,11 @@ test.describe('Projects page', () => {
         const label = statusLabel[project.status];
         expect(label, `statusLabel missing entry for status '${project.status}'`).toBeDefined();
 
-        const card = page.getByLabel(project.name);
+        const card = page.locator(`[aria-label="${project.name}"]`);
         await expect(card.getByText(project.name)).toBeVisible();
         await expect(card.getByText(label!)).toBeVisible();
         for (const tag of project.tags) {
-          await expect(card.getByRole('listitem').filter({ hasText: new RegExp(`^${tag}$`) })).toBeVisible();
+          await expect(card.getByText(tag, { exact: true })).toBeVisible();
         }
       });
     }
