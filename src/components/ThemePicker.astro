@@ -7,23 +7,36 @@ const flavors = [
 ] as const;
 ---
 
-<div class="flex items-center gap-1.5" role="group" aria-label="Color theme">
-  {
-    flavors.map(({ id, label, bg }) => (
-      <button
-        data-flavor={id}
-        aria-label={`${label} theme`}
-        aria-pressed="false"
-        class="h-5 w-5 cursor-pointer rounded-full border border-ctp-surface1 transition-shadow focus:outline-none"
-        style={`background-color: ${bg};`}
-        title={label}
-      />
-    ))
-  }
+<div class="relative flex items-center" role="group" aria-label="Color theme">
+  <button
+    id="theme-trigger"
+    aria-label="Color theme"
+    aria-haspopup="true"
+    aria-expanded="false"
+    class="h-5 w-5 cursor-pointer rounded-full border border-ctp-surface1 transition-shadow focus:outline-none"
+    title="Color theme"></button>
+  <div
+    id="theme-dropdown"
+    class="absolute top-7 right-0 z-50 hidden flex-col gap-1 rounded-lg border border-ctp-surface1 bg-ctp-mantle p-2 shadow-lg"
+  >
+    {
+      flavors.map(({ id, label, bg }) => (
+        <button
+          data-flavor={id}
+          aria-label={`${label} theme`}
+          aria-pressed="false"
+          class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm text-ctp-subtext0 transition-colors hover:text-ctp-text focus:outline-none"
+        >
+          <span class="h-4 w-4 shrink-0 rounded-full border border-ctp-surface1" style={`background-color: ${bg};`} />
+          {label}
+        </button>
+      ))
+    }
+  </div>
 </div>
 
 <style>
-  button[aria-pressed='true'] {
+  button[aria-pressed='true'] span:first-child {
     box-shadow:
       0 0 0 2px var(--color-ctp-mantle),
       0 0 0 4px var(--color-ctp-lavender);
@@ -32,6 +45,12 @@ const flavors = [
 
 <script is:inline>
   const VALID = ['latte', 'frappe', 'macchiato', 'mocha'];
+  const COLORS = {
+    latte: '#eff1f5',
+    frappe: '#303446',
+    macchiato: '#24273a',
+    mocha: '#1e1e2e',
+  };
 
   function applyFlavor(flavor) {
     VALID.forEach(function (f) {
@@ -42,6 +61,13 @@ const flavors = [
       localStorage.setItem('ctp-flavor', flavor);
     } catch {}
     syncPicker(flavor);
+    syncTrigger(flavor);
+    closeDropdown();
+  }
+
+  function syncTrigger(flavor) {
+    const trigger = document.getElementById('theme-trigger');
+    if (trigger) trigger.style.backgroundColor = COLORS[flavor] || '';
   }
 
   function syncPicker(flavor) {
@@ -58,12 +84,60 @@ const flavors = [
     );
   }
 
+  function openDropdown() {
+    const dropdown = document.getElementById('theme-dropdown');
+    const trigger = document.getElementById('theme-trigger');
+    if (!dropdown || !trigger) return;
+    dropdown.classList.remove('hidden');
+    dropdown.classList.add('flex');
+    trigger.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeDropdown() {
+    const dropdown = document.getElementById('theme-dropdown');
+    const trigger = document.getElementById('theme-trigger');
+    if (!dropdown || !trigger) return;
+    dropdown.classList.add('hidden');
+    dropdown.classList.remove('flex');
+    trigger.setAttribute('aria-expanded', 'false');
+  }
+
   function initPicker() {
-    syncPicker(activeFlavor());
+    const flavor = activeFlavor();
+    syncPicker(flavor);
+    syncTrigger(flavor);
+
+    const trigger = document.getElementById('theme-trigger');
+    if (trigger) {
+      trigger.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('theme-dropdown');
+        if (dropdown) {
+          if (dropdown.classList.contains('hidden')) {
+            openDropdown();
+          } else {
+            closeDropdown();
+          }
+        }
+      });
+    }
+
     document.querySelectorAll('[data-flavor]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         applyFlavor(btn.dataset.flavor);
       });
+    });
+
+    document.addEventListener('click', function (e) {
+      const dropdown = document.getElementById('theme-dropdown');
+      const trigger = document.getElementById('theme-trigger');
+      if (dropdown && !dropdown.contains(e.target) && e.target !== trigger) {
+        closeDropdown();
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeDropdown();
     });
   }
 

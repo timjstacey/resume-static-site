@@ -14,7 +14,9 @@ const links = [
 <nav class="border-b border-ctp-surface1 bg-ctp-mantle">
   <div class="mx-auto flex max-w-4xl items-center gap-6 px-4 py-3">
     <span class="font-semibold text-ctp-lavender">Tim Stacey</span>
-    <ul class="flex gap-4">
+
+    <!-- Desktop nav links -->
+    <ul class="flex gap-4 max-[425px]:hidden">
       {
         links.map(({ href, label }) => {
           const isActive = isActivePath(href, currentPath);
@@ -34,8 +36,91 @@ const links = [
         })
       }
     </ul>
-    <div class="ml-auto">
+
+    <div class="ml-auto flex items-center gap-3">
       <slot />
+
+      <!-- Hamburger button: mobile only -->
+      <button
+        id="nav-toggle"
+        class="hidden items-center justify-center text-ctp-subtext0 hover:text-ctp-text focus:outline-none max-[425px]:flex"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="nav-mobile"
+      >
+        <svg
+          id="nav-icon-open"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg
+          id="nav-icon-close"
+          class="hidden h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
     </div>
   </div>
+
+  <!-- Mobile drawer: CSS hides it at desktop regardless of JS state -->
+  <div id="nav-mobile" class="hidden border-t border-ctp-surface1 min-[426px]:hidden">
+    <ul class="mx-auto flex max-w-4xl flex-col px-4 py-2">
+      {
+        links.map(({ href, label }) => {
+          const isActive = isActivePath(href, currentPath);
+          return (
+            <li>
+              <a
+                href={href}
+                class:list={[
+                  'block py-2 text-sm transition-colors',
+                  isActive ? 'font-medium text-ctp-text' : 'text-ctp-subtext0 hover:text-ctp-text',
+                ]}
+              >
+                {label}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
 </nav>
+
+<script is:inline>
+  (function () {
+    const toggle = document.getElementById('nav-toggle');
+    const drawer = document.getElementById('nav-mobile');
+    const iconOpen = document.getElementById('nav-icon-open');
+    const iconClose = document.getElementById('nav-icon-close');
+
+    if (!toggle || !drawer) return;
+
+    toggle.addEventListener('click', function () {
+      const isOpen = !drawer.classList.contains('hidden');
+      if (isOpen) {
+        drawer.classList.add('hidden');
+        toggle.setAttribute('aria-expanded', 'false');
+        iconOpen.classList.remove('hidden');
+        iconClose.classList.add('hidden');
+      } else {
+        drawer.classList.remove('hidden');
+        toggle.setAttribute('aria-expanded', 'true');
+        iconOpen.classList.add('hidden');
+        iconClose.classList.remove('hidden');
+      }
+    });
+  })();
+</script>
