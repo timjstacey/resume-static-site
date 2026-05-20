@@ -36,14 +36,14 @@ test.describe('Home page', () => {
     const main = page.getByRole('main');
 
     await main.getByRole('link', { name: 'Resume' }).click();
-    await expect(page).toHaveURL('/resume');
+    await expect(page).toHaveURL(/\/resume\/?$/);
 
     await page.goto('/');
     await main.getByRole('link', { name: 'Projects' }).click();
-    await expect(page).toHaveURL('/projects');
+    await expect(page).toHaveURL(/\/projects\/?$/);
 
     await page.goto('/');
     await main.getByRole('link', { name: 'Job Board' }).click();
-    await expect(page).toHaveURL('/jobs');
+    await expect(page).toHaveURL(/\/jobs\/?$/);
   });
 });
