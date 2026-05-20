@@ -79,7 +79,7 @@ const presentStatuses = STATUS_ORDER.filter((s) => jobs.some((j) => j.status ===
   <div class="mt-6 grid gap-4 sm:grid-cols-2">
     {
       jobs.map((job) => (
-        <div data-status={job.status}>
+        <div data-status={job.status} aria-label={`${job.company} — ${job.role}`}>
           <JobCard job={job} />
         </div>
       ))

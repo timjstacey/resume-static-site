@@ -24,6 +24,7 @@ const links = [
             <li>
               <a
                 href={href}
+                aria-current={isActive ? 'page' : undefined}
                 class:list={[
                   'text-sm transition-colors',
                   isActive ? 'font-medium text-ctp-text' : 'text-ctp-subtext0 hover:text-ctp-text',
@@ -84,6 +85,7 @@ const links = [
             <li>
               <a
                 href={href}
+                aria-current={isActive ? 'page' : undefined}
                 class:list={[
                   'block py-2 text-sm transition-colors',
                   isActive ? 'font-medium text-ctp-text' : 'text-ctp-subtext0 hover:text-ctp-text',
