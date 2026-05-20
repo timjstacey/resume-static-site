@@ -2,10 +2,20 @@ name: Playwright E2E
 
 on:
   deployment_status:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: 'URL to run tests against'
+        required: true
 
 jobs:
   playwright:
-    if: github.event.deployment_status.state == 'success'
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event.deployment_status.state == 'success' &&
+        github.event.deployment.environment != 'Production'
+      )
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +35,7 @@ jobs:
 
       - run: pnpm exec playwright test
         env:
-          PLAYWRIGHT_BASE_URL: ${{ github.event.deployment_status.environment_url }}
+          PLAYWRIGHT_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || github.event.deployment_status.environment_url }}
 
       - uses: actions/upload-artifact@v4
         if: failure()
