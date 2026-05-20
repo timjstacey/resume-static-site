@@ -2,18 +2,11 @@
 import Base from '../layouts/Base.astro';
 import ResumeSection from '../components/ResumeSection.astro';
 import { getResume } from '../lib/data';
+import { fmtYM } from '../lib/format';
 import { Image } from 'astro:assets';
 import profilePhoto from '../assets/profile.jpg';
 
 const resume = getResume();
-
-function fmtYM(ym: string): string {
-  const [year, month] = ym.split('-');
-  return new Date(Number(year), Number(month) - 1).toLocaleDateString('en-GB', {
-    month: 'short',
-    year: 'numeric',
-  });
-}
 ---
 
 <Base title="Resume">

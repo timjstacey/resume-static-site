@@ -1,23 +1,17 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getResume, getProjects, getJobs } from '../lib/data';
+import { fmtYM } from '../lib/format';
+import { activePipeline, yearsOfExp } from '../lib/stats';
 
 const resume = getResume();
 const projects = getProjects();
 const jobs = getJobs();
 
-const activeStatuses = new Set(['Applied', 'Screening', 'Interviewing', 'Offered']);
-const activePipeline = jobs.filter((j) => activeStatuses.has(j.status)).length;
-
-const earliestStart = resume.experience.map((e) => new Date(e.start + '-01')).reduce((a, b) => (a < b ? a : b));
-const yearsOfExp = Math.floor((Date.now() - earliestStart.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+const activePipelineCount = activePipeline(jobs);
+const yearsOfExpCount = yearsOfExp(resume.experience);
 
 const currentRole = resume.experience[0]!;
-const formatYearMonth = (ym: string) =>
-  new Date(+ym.slice(0, 4), +ym.slice(5, 7) - 1).toLocaleDateString('en-AU', {
-    month: 'short',
-    year: 'numeric',
-  });
 ---
 
 <Base title="Home" description={`${resume.name} — ${resume.tagline}`}>
@@ -69,7 +63,7 @@ const formatYearMonth = (ym: string) =>
 
   <section class="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
-      <p class="text-3xl font-bold text-ctp-mauve">{yearsOfExp}</p>
+      <p class="text-3xl font-bold text-ctp-mauve">{yearsOfExpCount}</p>
       <p class="mt-1 text-sm text-ctp-subtext1">Years experience</p>
     </div>
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
@@ -81,7 +75,7 @@ const formatYearMonth = (ym: string) =>
       <p class="mt-1 text-sm text-ctp-subtext1">Jobs applied</p>
     </div>
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
-      <p class="text-3xl font-bold text-ctp-peach">{activePipeline}</p>
+      <p class="text-3xl font-bold text-ctp-peach">{activePipelineCount}</p>
       <p class="mt-1 text-sm text-ctp-subtext1">Active pipeline</p>
     </div>
   </section>
@@ -91,8 +85,8 @@ const formatYearMonth = (ym: string) =>
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6">
       <p class="font-semibold text-ctp-text">{currentRole.role}</p>
       <p class="mt-1 text-sm text-ctp-subtext1">
-        {currentRole.company} &middot; {formatYearMonth(currentRole.start)} &ndash;
-        {currentRole.end === 'present' ? 'Present' : formatYearMonth(currentRole.end)}
+        {currentRole.company} &middot; {fmtYM(currentRole.start)} &ndash;
+        {currentRole.end === 'present' ? 'Present' : fmtYM(currentRole.end)}
       </p>
     </div>
   </section>
