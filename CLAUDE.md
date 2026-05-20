@@ -197,6 +197,7 @@ pnpm build        # static output → dist/
 pnpm preview      # preview built site locally
 pnpm typecheck    # astro check — full TS diagnostics across all .astro/.ts files
 pnpm test         # vitest run — unit tests (schemas, nav logic)
+pnpm test:e2e     # playwright — E2E tests (requires dev server or auto-starts it)
 pnpm lint         # run ESLint
 pnpm lint:fix     # run ESLint with auto-fix
 ```
