@@ -33,9 +33,11 @@ export default defineConfig({
       use: { ...devices['Desktop Safari'] },
     },
   ],
-  webServer: {
-    command: 'pnpm dev',
-    url: baseURL,
-    reuseExistingServer: !process.env.CI,
-  },
+  webServer: process.env.CI
+    ? undefined
+    : {
+        command: 'pnpm dev',
+        url: baseURL,
+        reuseExistingServer: true,
+      },
 });
