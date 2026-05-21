@@ -33,7 +33,7 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
 
       - name: Compute branch preview URL
         if: github.event_name != 'workflow_dispatch'
