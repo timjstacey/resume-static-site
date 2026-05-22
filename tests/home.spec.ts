@@ -12,17 +12,11 @@ test.describe('Home page', () => {
   });
 
   test('shows name and tagline from resume data', async ({ page }) => {
-    expect(resume.name, 'resume.yml: name must be non-empty').toBeTruthy();
-    expect(resume.tagline, 'resume.yml: tagline must be non-empty').toBeTruthy();
-
     await expect(page.getByRole('heading', { name: resume.name })).toBeVisible();
     await expect(page.getByText(resume.tagline)).toBeVisible();
   });
 
   test('stats grid shows project and job counts from data', async ({ page }) => {
-    expect(projects.length, 'projects.yml must have at least one project').toBeGreaterThan(0);
-    expect(jobs.length, 'jobs.yml must have at least one job').toBeGreaterThan(0);
-
     const stats = page.getByRole('region', { name: 'Stats' });
 
     const projectStat = stats.locator('div').filter({ hasText: 'Projects' });

@@ -16,6 +16,13 @@ describe('getResume', () => {
       expect(exp.start).toMatch(/^\d{4}-\d{2}$/);
     }
   });
+
+  it('each skill category has at least one item', () => {
+    const resume = getResume();
+    for (const group of resume.skills) {
+      expect(group.items.length, `skills["${group.category}"] must have at least one item`).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe('getProjects', () => {
@@ -37,5 +44,17 @@ describe('getJobs', () => {
       expect(j.company).toBeTruthy();
       expect(j.applied).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     }
+  });
+
+  // The Playwright filter spec needs both an Applied and a Rejected entry to
+  // exercise the hide/show flow. Treat their presence as a fixture invariant.
+  it('contains at least one Applied entry (filter spec fixture)', () => {
+    const jobs = getJobs();
+    expect(jobs.some((j) => j.status === 'Applied')).toBe(true);
+  });
+
+  it('contains at least one Rejected entry (filter spec fixture)', () => {
+    const jobs = getJobs();
+    expect(jobs.some((j) => j.status === 'Rejected')).toBe(true);
   });
 });
