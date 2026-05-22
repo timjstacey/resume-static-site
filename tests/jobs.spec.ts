@@ -7,7 +7,7 @@ const jobs = getJobs();
 
 test.describe('Jobs page', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/jobs');
+    await page.goto('/job-hunt');
   });
 
   test('shows heading and total stat', async ({ page }) => {

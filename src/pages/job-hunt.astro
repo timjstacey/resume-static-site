@@ -36,9 +36,9 @@ const statusCounts = Object.fromEntries(
 const presentStatuses = STATUS_ORDER.filter((s) => jobs.some((j) => j.status === s));
 ---
 
-<Base title="Jobs">
+<Base title="Job Hunt">
   <h1 class="text-3xl font-bold text-ctp-text">{JOBS_HEADING}</h1>
-  <p class="mt-1 text-ctp-subtext1">Tracking applications and pipeline status.</p>
+  <p class="mt-1 text-ctp-subtext1">Live search dashboard: roles applied, pipeline stage, and results.</p>
 
   <div class="mt-6 grid grid-cols-4 gap-3">
     <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
