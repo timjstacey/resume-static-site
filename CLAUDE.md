@@ -172,20 +172,23 @@ tests/                  # Playwright E2E specs (one per page + responsive + nav)
 
 Open work is tracked at https://github.com/timjstacey/resume-static-site/issues. Initial build issues (#1–#8: setup, layout, schemas, pages, dashboard, deployment) are all closed; new work lands as fresh issues.
 
-## Keeping CLAUDE.md in sync
+## Keeping CLAUDE.md and README.md in sync
 
-Treat CLAUDE.md as part of the change, not separate docs work. The following triggers are scoped to concrete actions — when the action fires, update CLAUDE.md in the same commit:
+`CLAUDE.md` (this file) is the canonical guide for AI assistants and contributors making changes. `README.md` is the public-facing summary for visitors and new contributors. Treat both as part of the change, not separate docs work. The triggers below are scoped to concrete actions — when the action fires, update both files in the same commit.
 
-- **Dep added / removed / version-bumped** in `package.json` → update the matching row in the Dependencies or Dev Dependencies table.
-- **File added / removed / renamed** under `src/components/`, `src/layouts/`, `src/lib/`, `src/pages/`, `src/data/`, `src/styles/`, or `src/assets/` → update the Component Architecture block.
-- **New / removed workflow** under `.github/workflows/` → update the CI table.
-- **New / removed `pnpm` script** in `package.json` → update the Commands block.
-- **New / changed git hook** in `.husky/` → update the Git Hooks table.
-- **Schema change** in `src/lib/schemas.ts` (new field, optional → required, enum value added) → update the matching `*.yml` shape block under Data Files.
-- **New page route** under `src/pages/` → update the Pages table.
-- **New `JobStatus` or `ProjectStatus` enum value** → update the Job Application Statuses table (status, colour, meaning).
+| Trigger                                                                                       | `CLAUDE.md`                                                         | `README.md`                                                               |
+| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| Dep added / removed / version-bumped in `package.json`                                        | Update the matching row in Dependencies / Dev Dependencies          | Update the Stack line if it's a top-level technology                      |
+| File added / removed / renamed under `src/{components,layouts,lib,pages,data,styles,assets}/` | Update the Component Architecture block                             | Update the Project Structure block if the directory is listed             |
+| New / removed workflow under `.github/workflows/`                                             | Update the CI table                                                 | Update the CI and Deployment table                                        |
+| New / removed `pnpm` script in `package.json`                                                 | Update the Commands block                                           | Update the Commands table                                                 |
+| New / changed git hook in `.husky/`                                                           | Update the Git Hooks table                                          | Update the Contributing section if the hook user-facing behaviour changes |
+| Schema change in `src/lib/schemas.ts` (new field, optional → required, enum added)            | Update the matching `*.yml` shape block under Data Files            | No change (README links to `CLAUDE.md#data-files`)                        |
+| New page route under `src/pages/`                                                             | Update the Pages table                                              | Update the Pages table                                                    |
+| New `JobStatus` / `ProjectStatus` enum value                                                  | Update the Job Application Statuses table (status, colour, meaning) | No change                                                                 |
+| Hosting / domain change (e.g. switch from CF Pages)                                           | Update intro paragraph + CI section                                 | Update intro paragraph + Live URL + CI and Deployment section             |
 
-`scripts/ci/check-claude-md.sh` runs in CI on every PR and fails the build when deps, lib/component files, or workflows drift from the doc. The script is the safety net for contributors who bypass Claude — the scoped triggers above are the primary mechanism.
+`scripts/ci/check-claude-md.sh` runs in CI on every PR. It fails the build when deps, source files, workflows, husky hooks, or `pnpm` scripts drift from either doc, and when `README.md` is missing entirely. The script is the safety net for contributors who bypass Claude — the scoped triggers above are the primary mechanism.
 
 ## Content Writing
 
