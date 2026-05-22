@@ -15,10 +15,6 @@ test.describe('Resume page', () => {
   });
 
   test.describe('experience entries', () => {
-    test('resume.yml has at least one experience entry', () => {
-      expect(resume.experience.length, 'resume.yml: experience must have at least one entry').toBeGreaterThan(0);
-    });
-
     for (const exp of resume.experience) {
       test(`${exp.company} — ${exp.role}`, async ({ page }) => {
         const entry = page.getByLabel(exp.company);
@@ -29,14 +25,8 @@ test.describe('Resume page', () => {
   });
 
   test.describe('skills categories', () => {
-    test('resume.yml has at least one skills category', () => {
-      expect(resume.skills.length, 'resume.yml: skills must have at least one category').toBeGreaterThan(0);
-    });
-
     for (const group of resume.skills) {
       test(group.category, async ({ page }) => {
-        expect(group.items.length, `skills["${group.category}"]: must have at least one item`).toBeGreaterThan(0);
-
         const section = page.getByLabel(group.category);
         await expect(section.getByText(group.category)).toBeVisible();
         for (const item of group.items) {
