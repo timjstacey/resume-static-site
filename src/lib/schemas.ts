@@ -27,6 +27,7 @@ export const JobSchema = z.object({
   applied: yamlDate,
   status: JobStatusSchema,
   notes: z.string().optional(),
+  lastContact: yamlDate.optional(),
 });
 
 export const JobsSchema = z.array(JobSchema);
