@@ -99,3 +99,7 @@ The pre-commit hook runs lint-staged (ESLint + Prettier on staged files). The pr
 ## For AI assistants
 
 [`CLAUDE.md`](./CLAUDE.md) is the canonical project guide for Claude Code and other AI assistants. It covers the full tech stack with versions, data shapes, component architecture, scoped rules for keeping the docs in sync with the codebase, and the deterministic drift check that CI runs on every PR.
+
+## License
+
+[MIT](./LICENSE) © Tim Stacey. Site code is free to use, modify, and redistribute. Personal content (bio, resume data, profile image) is shared under the same terms but please don't pass it off as your own.
