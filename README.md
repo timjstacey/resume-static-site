@@ -70,11 +70,11 @@ Shape details and field-by-field examples live in [`CLAUDE.md`](./CLAUDE.md#data
 
 ## Testing
 
-Vitest runs unit tests colocated in `src/lib/*.test.ts`. Playwright runs E2E specs from `tests/` across Chromium, Firefox, WebKit, plus mobile Chrome (Pixel 5), mobile Safari (iPhone 13), and tablet Safari (iPad Pro 11).
+Vitest runs unit tests colocated in `src/lib/*.test.ts`. Playwright runs E2E specs from `tests/` across seven projects, each scoped to the specs that benefit from it: content rendering on Chromium, keyboard/focus on Chromium + Firefox + WebKit, and responsive layout on Pixel 5 + iPhone 13 + iPad Pro 11. See [`CLAUDE.md`](./CLAUDE.md#ci) for the full routing table.
 
 ```bash
 pnpm test         # unit
-pnpm test:e2e     # E2E (all 6 browser projects)
+pnpm test:e2e     # E2E (all projects)
 ```
 
 ## CI and deployment
@@ -83,10 +83,10 @@ Push to `main` and Cloudflare Pages builds + publishes to https://tim.sillysamoy
 
 Two GitHub Actions workflows run on every PR:
 
-| Workflow         | Steps                                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------- |
-| `ci.yml`         | `check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`            |
-| `playwright.yml` | Wait for Cloudflare preview → run Playwright against the preview URL (all 6 browser projects) |
+| Workflow         | Steps                                                                               |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| `ci.yml`         | `check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`  |
+| `playwright.yml` | Wait for Cloudflare preview → run Playwright against the preview URL (all projects) |
 
 ## Contributing
 
