@@ -1,6 +1,6 @@
 # Resume Static Site
 
-Personal resume + job-application tracker. Static site, hosted on GitHub Pages or Cloudflare Pages.
+Personal resume + job-application tracker. Static site hosted on Cloudflare Pages at https://tim.sillysamoyed.com (set via `site:` in `astro.config.mjs`).
 
 ## Tech Stack
 
@@ -11,7 +11,7 @@ Personal resume + job-application tracker. Static site, hosted on GitHub Pages o
 | astro                   | 6.3.5   | Static site framework                      |
 | tailwindcss             | 4.3.0   | Utility-first styling                      |
 | @tailwindcss/vite       | 4.3.0   | Tailwind 4 Vite plugin (Astro integration) |
-| @catppuccin/tailwindcss | 1.0.0   | Catppuccin Mocha colour theme              |
+| @catppuccin/tailwindcss | 1.0.0   | Catppuccin themes (all 4 flavours)         |
 | zod                     | 4.4.3   | Data schema validation                     |
 | yaml                    | 2.9.0   | YAML parser for data file loading          |
 
@@ -31,6 +31,9 @@ Personal resume + job-application tracker. Static site, hosted on GitHub Pages o
 | husky                       | 9.1.7   | Git hooks                                            |
 | lint-staged                 | 17.0.5  | Run linters on staged files only                     |
 | vitest                      | 4.1.6   | Unit test runner                                     |
+| @playwright/test            | 1.60.x  | E2E test runner                                      |
+| eslint-plugin-playwright    | 2.10.x  | Lint rules for Playwright tests                      |
+| sharp                       | 0.34.5  | Image processing (Astro asset pipeline)              |
 | @types/node                 | 25.9.0  | Node.js type definitions                             |
 
 ### Tailwind setup
@@ -44,7 +47,9 @@ Global CSS at `src/styles/global.css`:
 @import '@catppuccin/tailwindcss/mocha.css';
 ```
 
-Import this file in `src/layouts/Base.astro`. Use `ctp-` prefixed utilities everywhere (`bg-ctp-base`, `text-ctp-text`, etc). No raw hex values in components.
+The shipped `mocha.css` file defines all four flavour classes (`.latte`, `.frappe`, `.macchiato`, `.mocha`) plus custom variants — one import covers every theme. Active flavour is selected by adding the class to `<html>`; the inline script in `Base.astro` picks from `localStorage` (`ctp-flavor` key) or `prefers-color-scheme`, and `ThemePicker.astro` lets the user switch at runtime.
+
+Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed utilities everywhere (`bg-ctp-base`, `text-ctp-text`, etc). No raw hex values in components.
 
 ## Pages
 
@@ -96,6 +101,7 @@ Zod schemas in `src/lib/schemas.ts` validate all three at build time. Build fail
 ```yaml
 name: ''
 tagline: ''
+bio: '' # optional — longer-form intro for the home page
 contact:
   email: ''
   github: ''
@@ -103,10 +109,10 @@ contact:
 experience:
   - company: ''
     role: ''
-    start: 2023-01
-    end: present
+    start: 2023-01 # YYYY-MM string
+    end: present # YYYY-MM or literal 'present'
     bullets: []
-education:
+education: # optional block
   - institution: ''
     degree: ''
     year: 2020
@@ -130,12 +136,15 @@ skills:
 
 ```
 src/
+  assets/
+    profile.jpg         # hero portrait (Astro asset pipeline / sharp)
   styles/
-    global.css          # @import tailwindcss + catppuccin mocha
+    global.css          # @import tailwindcss + catppuccin (all flavours)
   layouts/
-    Base.astro          # <html>, <head>, nav, footer — imports global.css
+    Base.astro          # <html>, <head>, nav, footer — imports global.css, inline theme bootstrap
   components/
-    Nav.astro           # top nav, active-page highlight
+    Nav.astro           # top nav, active-page highlight, mobile drawer
+    ThemePicker.astro   # Catppuccin flavour selector (latte/frappe/macchiato/mocha)
     StatusBadge.astro   # coloured pill for job status
     JobCard.astro       # single job application card
     ProjectCard.astro   # single project card
@@ -153,23 +162,30 @@ src/
     schemas.ts          # Zod schemas + inferred types for all data files
     data.ts             # getResume() / getProjects() / getJobs() loaders
     nav.ts              # isActivePath() helper
+    format.ts           # fmtYM() — YYYY-MM → "Jan 2023" (en-GB)
+    stats.ts            # activePipeline(), yearsOfExp() — home-page stats
+    *.test.ts           # vitest unit tests colocated with each lib module
+tests/                  # Playwright E2E specs (one per page + responsive + nav)
 ```
 
-## Implementation Order
+## Issue Tracking
 
-Issues are tracked at https://github.com/timjstacey/resume-static-site/issues
+Open work is tracked at https://github.com/timjstacey/resume-static-site/issues. Initial build issues (#1–#8: setup, layout, schemas, pages, dashboard, deployment) are all closed; new work lands as fresh issues.
 
-```
-#1  Project setup (Astro + Tailwind + Catppuccin)       ✓ done
-#3  Base layout and navigation                           ✓ done
-#2  Data schemas and sample content                      ✓ done
-      ↓ unblock all page issues
-#4  Resume page          ─┐
-#5  Projects page         ├─ parallel
-#7  Home / about page    ─┘
-#6  Job application dashboard   (depends on #3 StatusBadge)
-#8  Deployment setup             (after all pages done)
-```
+## Keeping CLAUDE.md in sync
+
+Treat CLAUDE.md as part of the change, not separate docs work. The following triggers are scoped to concrete actions — when the action fires, update CLAUDE.md in the same commit:
+
+- **Dep added / removed / version-bumped** in `package.json` → update the matching row in the Dependencies or Dev Dependencies table.
+- **File added / removed / renamed** under `src/components/`, `src/layouts/`, `src/lib/`, `src/pages/`, `src/data/`, `src/styles/`, or `src/assets/` → update the Component Architecture block.
+- **New / removed workflow** under `.github/workflows/` → update the CI table.
+- **New / removed `pnpm` script** in `package.json` → update the Commands block.
+- **New / changed git hook** in `.husky/` → update the Git Hooks table.
+- **Schema change** in `src/lib/schemas.ts` (new field, optional → required, enum value added) → update the matching `*.yml` shape block under Data Files.
+- **New page route** under `src/pages/` → update the Pages table.
+- **New `JobStatus` or `ProjectStatus` enum value** → update the Job Application Statuses table (status, colour, meaning).
+
+`scripts/ci/check-claude-md.sh` runs in CI on every PR and fails the build when deps, lib/component files, or workflows drift from the doc. The script is the safety net for contributors who bypass Claude — the scoped triggers above are the primary mechanism.
 
 ## Content Writing
 
@@ -210,6 +226,19 @@ Managed by husky.
 | ---------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | pre-commit | on `git commit` | lint-staged: `eslint --fix` + `prettier --write` on staged `.astro`/`.ts`/`.tsx`; `prettier --write` on staged `.css`/`.json`/`.md`/`.yaml`/`.yml` |
 | pre-push   | on `git push`   | `pnpm typecheck` — blocks push on type errors                                                                                                      |
+
+## CI
+
+GitHub Actions workflows live in `.github/workflows/`.
+
+| Workflow         | Trigger                          | What                                                                                                                                                                                       |
+| ---------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `ci.yml`         | `pull_request` → `main`          | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`                                                                                            |
+| `playwright.yml` | `pull_request` → `main` / manual | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead. |
+
+Playwright projects (see `playwright.config.ts`): `chromium`, `firefox`, `webkit`, `mobile-chrome` (Pixel 5), `mobile-safari` (iPhone 13), `tablet-safari` (iPad Pro 11). Locally `pnpm test:e2e` reuses an existing dev server or starts one; in CI `PLAYWRIGHT_BASE_URL` is injected and the auto-start `webServer` block is skipped.
+
+Node version is pinned via `.nvmrc` (currently `v24.13.0`); pnpm version is pinned via `packageManager` in `package.json` (`10.33.0`).
 
 ## Verification Checklist
 
