@@ -58,7 +58,7 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 | `/`         | `src/pages/index.astro`    | Hero, bio, quick stats, CTA links                      |
 | `/resume`   | `src/pages/resume.astro`   | Full resume from data                                  |
 | `/projects` | `src/pages/projects.astro` | Project portfolio from data                            |
-| `/jobs`     | `src/pages/jobs.astro`     | Job application dashboard                              |
+| `/job-hunt` | `src/pages/job-hunt.astro` | Job hunt dashboard                                     |
 | `/testing`  | `src/pages/testing.astro`  | Test strategy narrative + build-time stats (portfolio) |
 
 ## Job Application Statuses
@@ -154,7 +154,7 @@ src/
     index.astro
     resume.astro
     projects.astro
-    jobs.astro
+    job-hunt.astro
     testing.astro
   data/
     resume.yml

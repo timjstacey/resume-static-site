@@ -22,7 +22,7 @@ test.describe('Home page', () => {
     const projectStat = stats.locator('div').filter({ hasText: 'Projects' });
     await expect(projectStat.locator('p').first()).toHaveText(String(projects.length));
 
-    const jobStat = stats.locator('div').filter({ hasText: 'Jobs applied' });
+    const jobStat = stats.locator('div').filter({ hasText: 'Roles applied for' });
     await expect(jobStat.locator('p').first()).toHaveText(String(jobs.length));
   });
 
@@ -37,7 +37,7 @@ test.describe('Home page', () => {
     await expect(page).toHaveURL(/\/projects\/?$/);
 
     await page.goto('/');
-    await main.getByRole('link', { name: 'Job Board' }).click();
-    await expect(page).toHaveURL(/\/jobs\/?$/);
+    await main.getByRole('link', { name: 'Job Hunt' }).click();
+    await expect(page).toHaveURL(/\/job-hunt\/?$/);
   });
 });

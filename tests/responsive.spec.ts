@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const allPages = ['/', '/resume', '/projects', '/jobs'];
+const allPages = ['/', '/resume', '/projects', '/job-hunt'];
 
 function hasHorizontalScroll(page: Page): Promise<boolean> {
   return page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
@@ -19,7 +19,7 @@ test.describe('Responsive layout — mobile (375px)', () => {
   });
 
   test('job cards have no horizontal overflow', async ({ page }) => {
-    await page.goto('/jobs');
+    await page.goto('/job-hunt');
     const cards = page.locator('[data-status]');
     const count = await cards.count();
     expect(count).toBeGreaterThan(0);
@@ -32,7 +32,7 @@ test.describe('Responsive layout — mobile (375px)', () => {
   });
 
   test('filter buttons reachable in viewport on jobs page', async ({ page }) => {
-    await page.goto('/jobs');
+    await page.goto('/job-hunt');
     const allButton = page.getByRole('button', { name: /^All/ });
     await expect(allButton).toBeVisible();
     await expect(allButton).toBeInViewport();

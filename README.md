@@ -11,7 +11,7 @@ Live at **https://tim.sillysamoyed.com**.
 | `/`         | Hero, bio, quick stats, links to other pages       |
 | `/resume`   | Full resume rendered from `src/data/resume.yml`    |
 | `/projects` | Project portfolio from `src/data/projects.yml`     |
-| `/jobs`     | Job-application dashboard from `src/data/jobs.yml` |
+| `/job-hunt` | Job hunt dashboard from `src/data/jobs.yml`        |
 | `/testing`  | Test pyramid, project routing, CI pipeline writeup |
 
 ## Stack
@@ -57,7 +57,7 @@ src/
   styles/        global.css — Tailwind + Catppuccin import
   layouts/       Base.astro — html shell, theme bootstrap, nav, footer
   components/    Nav, ThemePicker, StatusBadge, JobCard, ProjectCard, ResumeSection
-  pages/         index, resume, projects, jobs
+  pages/         index, resume, projects, job-hunt, testing
   data/          resume.yml, projects.yml, jobs.yml — content lives here
   lib/           schemas (Zod), data loaders, nav helper, date format, stats
 tests/           Playwright E2E specs

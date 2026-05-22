@@ -1,1 +1,1 @@
-export const JOBS_HEADING = 'Job Applications';
+export const JOBS_HEADING = 'Job Hunt';
