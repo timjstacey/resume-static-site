@@ -73,6 +73,8 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 | Withdrawn    | Overlay2 `#9399b2` | User withdrew                |
 | Ghosted      | Mauve `#cba6f7`    | No response after follow-ups |
 
+`Applied` entries auto-promote to `Ghosted` at render time when `today - applied >= 28 days`. YAML is not mutated — `getJobs()` in `src/lib/data.ts` derives the display status via `effectiveJobStatus(job, now)`. Reserve `lastContact` (optional field, unused in v1) for future mid-funnel auto-ghosting.
+
 ## Data Files
 
 Single source of truth — edit these to update the site. No CMS, no database.
@@ -95,6 +97,7 @@ Zod schemas in `src/lib/schemas.ts` validate all three at build time. Build fail
   applied: '2026-05-01' # must be quoted — bare dates parse as JS Date objects
   status: Interviewing
   notes: ''
+  lastContact: '2026-05-10' # optional; reserved for future mid-funnel auto-ghost logic
 ```
 
 ### resume.yml shape

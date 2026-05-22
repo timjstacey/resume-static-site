@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { getResume, getProjects, getJobs } from './data';
+import { getResume, getProjects, getJobs, effectiveJobStatus } from './data';
+import type { Job } from './schemas';
+
+function makeJob(overrides: Partial<Job> = {}): Job {
+  return { company: 'Acme', role: 'Engineer', applied: '2026-01-01', status: 'Applied', ...overrides };
+}
 
 describe('getResume', () => {
   it('returns valid resume with required fields', () => {
@@ -57,4 +62,30 @@ describe('getJobs', () => {
     const jobs = getJobs();
     expect(jobs.some((j) => j.status === 'Rejected')).toBe(true);
   });
+});
+
+describe('effectiveJobStatus', () => {
+  const now = new Date('2026-01-29');
+
+  it('Applied < 28 days → stays Applied', () => {
+    // 2026-01-02 to 2026-01-29 = 27 days
+    expect(effectiveJobStatus(makeJob({ applied: '2026-01-02' }), now)).toBe('Applied');
+  });
+
+  it('Applied > 28 days → becomes Ghosted', () => {
+    // 2025-12-31 to 2026-01-29 = 29 days
+    expect(effectiveJobStatus(makeJob({ applied: '2025-12-31' }), now)).toBe('Ghosted');
+  });
+
+  it('Applied exactly 28 days → becomes Ghosted (inclusive boundary)', () => {
+    // 2026-01-01 to 2026-01-29 = 28 days
+    expect(effectiveJobStatus(makeJob({ applied: '2026-01-01' }), now)).toBe('Ghosted');
+  });
+
+  it.each(['Screening', 'Interviewing', 'Offered', 'Rejected', 'Withdrawn', 'Ghosted'] as const)(
+    '%s untouched at any age',
+    (status) => {
+      expect(effectiveJobStatus(makeJob({ applied: '2020-01-01', status }), now)).toBe(status);
+    }
+  );
 });
