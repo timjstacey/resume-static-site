@@ -2,6 +2,14 @@ import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4321';
 
+// Specs are routed to projects by file:
+// - content: data-driven rendering. Same DOM across browsers, so one project is enough.
+// - a11y: keyboard / focus behaviour that varies between engines.
+// - responsive: viewport-dependent layout checks; runs only on mobile + tablet devices.
+const contentSpecs = /(home|jobs|projects|resume)\.spec\.ts/;
+const a11ySpecs = /(nav|theme-picker)\.spec\.ts/;
+const responsiveSpecs = /responsive\.spec\.ts/;
+
 export default defineConfig({
   testDir: './tests',
   fullyParallel: true,
@@ -21,27 +29,38 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
+      name: 'content',
+      testMatch: contentSpecs,
       use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: 'firefox',
+      name: 'a11y-chromium',
+      testMatch: a11ySpecs,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'a11y-firefox',
+      testMatch: a11ySpecs,
       use: { ...devices['Desktop Firefox'] },
     },
     {
-      name: 'webkit',
+      name: 'a11y-webkit',
+      testMatch: a11ySpecs,
       use: { ...devices['Desktop Safari'] },
     },
     {
-      name: 'mobile-chrome',
+      name: 'responsive-mobile-chrome',
+      testMatch: responsiveSpecs,
       use: { ...devices['Pixel 5'] },
     },
     {
-      name: 'mobile-safari',
+      name: 'responsive-mobile-safari',
+      testMatch: responsiveSpecs,
       use: { ...devices['iPhone 13'] },
     },
     {
-      name: 'tablet-safari',
+      name: 'responsive-tablet-safari',
+      testMatch: responsiveSpecs,
       use: { ...devices['iPad Pro 11'] },
     },
   ],
