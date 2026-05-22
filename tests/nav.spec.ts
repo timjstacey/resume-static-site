@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
+import { NAV_ITEMS } from '../src/lib/nav';
+import { getResume } from '../src/lib/data';
 
-const pages = [
-  { path: '/', activeLabel: 'Home' },
-  { path: '/resume', activeLabel: 'Resume' },
-  { path: '/projects', activeLabel: 'Projects' },
-  { path: '/jobs', activeLabel: 'Jobs' },
-];
-
-const navLabels = ['Home', 'Resume', 'Projects', 'Jobs'];
+const resume = getResume();
+const siteName = resume.name;
+const navLabels = NAV_ITEMS.map((item) => item.label);
+const pages = NAV_ITEMS.map(({ href, label }) => ({ path: href, activeLabel: label }));
+const firstNavLabel = navLabels[0]!;
+const lastNavLabel = navLabels[navLabels.length - 1]!;
 
 test.describe('Nav — desktop', () => {
   test.use({ viewport: { width: 1280, height: 720 } });
@@ -20,7 +20,7 @@ test.describe('Nav — desktop', () => {
     });
   }
 
-  test('all four links visible in nav bar', async ({ page }) => {
+  test('all nav links visible in nav bar', async ({ page }) => {
     await page.goto('/');
     const nav = page.getByRole('navigation');
     for (const label of navLabels) {
@@ -41,7 +41,7 @@ test.describe('Nav — mobile', () => {
     });
   }
 
-  test('hamburger opens drawer with all four links', async ({ page }) => {
+  test('hamburger opens drawer with all nav links', async ({ page }) => {
     await page.goto('/');
     const nav = page.getByRole('navigation');
     const toggle = nav.getByRole('button', { name: 'Toggle navigation' });
@@ -56,7 +56,7 @@ test.describe('Nav — mobile', () => {
     await page.goto('/');
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: 'Toggle navigation' }).click();
-    await expect(nav.getByRole('link', { name: 'Home' })).toBeFocused();
+    await expect(nav.getByRole('link', { name: firstNavLabel })).toBeFocused();
   });
 
   test('Escape closes drawer and returns focus to toggle', async ({ page }) => {
@@ -76,7 +76,7 @@ test.describe('Nav — mobile', () => {
     const toggle = nav.getByRole('button', { name: 'Toggle navigation' });
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await page.getByRole('heading', { name: 'Tim Stacey', level: 1 }).click();
+    await page.getByRole('heading', { name: siteName, level: 1 }).click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 
@@ -84,12 +84,11 @@ test.describe('Nav — mobile', () => {
     await page.goto('/');
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: 'Toggle navigation' }).click();
-    // Drawer auto-focuses first (Home). 4 links, so 4 tabs to wrap back.
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await page.keyboard.press('Tab');
-    await expect(nav.getByRole('link', { name: 'Home' })).toBeFocused();
+    // Drawer auto-focuses first link; press Tab once per link to wrap back to it.
+    for (let i = 0; i < navLabels.length; i++) {
+      await page.keyboard.press('Tab');
+    }
+    await expect(nav.getByRole('link', { name: firstNavLabel })).toBeFocused();
   });
 
   test('Shift+Tab from first drawer link cycles to last (focus trap)', async ({ page }) => {
@@ -97,6 +96,6 @@ test.describe('Nav — mobile', () => {
     const nav = page.getByRole('navigation');
     await nav.getByRole('button', { name: 'Toggle navigation' }).click();
     await page.keyboard.press('Shift+Tab');
-    await expect(nav.getByRole('link', { name: 'Jobs' })).toBeFocused();
+    await expect(nav.getByRole('link', { name: lastNavLabel })).toBeFocused();
   });
 });

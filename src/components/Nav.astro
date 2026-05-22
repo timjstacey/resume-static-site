@@ -1,14 +1,9 @@
 ---
-import { isActivePath } from '../lib/nav';
+import { isActivePath, NAV_ITEMS } from '../lib/nav';
 
 const currentPath = Astro.url.pathname;
 
-const links = [
-  { href: '/', label: 'Home' },
-  { href: '/resume', label: 'Resume' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/jobs', label: 'Jobs' },
-];
+const links = NAV_ITEMS;
 ---
 
 <nav class="border-b border-ctp-surface1 bg-ctp-mantle">

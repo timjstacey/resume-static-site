@@ -1,20 +1,17 @@
 ---
-const flavors = [
-  { id: 'latte', label: 'Latte', bg: '#eff1f5' },
-  { id: 'frappe', label: 'Frappé', bg: '#303446' },
-  { id: 'macchiato', label: 'Macchiato', bg: '#24273a' },
-  { id: 'mocha', label: 'Mocha', bg: '#1e1e2e' },
-] as const;
+import { FLAVORS, THEME_TRIGGER_LABEL } from '../lib/themes';
+
+const flavors = FLAVORS;
 ---
 
-<div class="relative flex items-center" role="group" aria-label="Color theme">
+<div class="relative flex items-center" role="group" aria-label={THEME_TRIGGER_LABEL}>
   <button
     id="theme-trigger"
-    aria-label="Color theme"
+    aria-label={THEME_TRIGGER_LABEL}
     aria-haspopup="true"
     aria-expanded="false"
     class="h-5 w-5 cursor-pointer rounded-full border border-ctp-surface1 transition-shadow focus:outline-none"
-    title="Color theme"></button>
+    title={THEME_TRIGGER_LABEL}></button>
   <div
     id="theme-dropdown"
     class="absolute top-7 right-0 z-50 hidden flex-col gap-1 rounded-lg border border-ctp-surface1 bg-ctp-mantle p-2 shadow-lg"

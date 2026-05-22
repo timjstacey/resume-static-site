@@ -161,9 +161,12 @@ src/
   lib/
     schemas.ts          # Zod schemas + inferred types for all data files
     data.ts             # getResume() / getProjects() / getJobs() loaders
-    nav.ts              # isActivePath() helper
+    nav.ts              # NAV_ITEMS list + isActivePath() helper
     format.ts           # fmtYM() — YYYY-MM → "Jan 2023" (en-GB)
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
+    themes.ts           # FLAVORS list + THEME_TRIGGER_LABEL — shared by ThemePicker + tests
+    projectStatus.ts    # PROJECT_STATUS_LABEL / _COLOUR maps — shared by ProjectCard + tests
+    copy.ts             # Page heading strings shared between pages + tests
     *.test.ts           # vitest unit tests colocated with each lib module
 tests/                  # Playwright E2E specs (one per page + responsive + nav)
 ```
