@@ -45,6 +45,7 @@ const flavors = [
 
 <script is:inline>
   const VALID = ['latte', 'frappe', 'macchiato', 'mocha'];
+  // Base colors from @catppuccin/tailwindcss — update if palette changes
   const COLORS = {
     latte: '#eff1f5',
     frappe: '#303446',
@@ -108,16 +109,15 @@ const flavors = [
     syncTrigger(flavor);
 
     const trigger = document.getElementById('theme-trigger');
-    if (trigger) {
+    const dropdown = document.getElementById('theme-dropdown');
+
+    if (trigger && dropdown) {
       trigger.addEventListener('click', function (e) {
         e.stopPropagation();
-        const dropdown = document.getElementById('theme-dropdown');
-        if (dropdown) {
-          if (dropdown.classList.contains('hidden')) {
-            openDropdown();
-          } else {
-            closeDropdown();
-          }
+        if (dropdown.classList.contains('hidden')) {
+          openDropdown();
+        } else {
+          closeDropdown();
         }
       });
     }
@@ -129,8 +129,6 @@ const flavors = [
     });
 
     document.addEventListener('click', function (e) {
-      const dropdown = document.getElementById('theme-dropdown');
-      const trigger = document.getElementById('theme-trigger');
       if (dropdown && !dropdown.contains(e.target) && e.target !== trigger) {
         closeDropdown();
       }
@@ -138,6 +136,10 @@ const flavors = [
 
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape') closeDropdown();
+    });
+
+    window.addEventListener('resize', function () {
+      if (dropdown && !dropdown.classList.contains('hidden')) closeDropdown();
     });
   }
 
