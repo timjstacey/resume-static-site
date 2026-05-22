@@ -49,7 +49,9 @@ test.describe('Jobs page', () => {
   });
 
   test.describe('job cards', () => {
-    expect(jobs.length, 'jobs.yml must have at least one entry').toBeGreaterThan(0);
+    test('jobs.yml has at least one entry', () => {
+      expect(jobs.length, 'jobs.yml must have at least one entry').toBeGreaterThan(0);
+    });
 
     for (const job of jobs) {
       test(`${job.company} — ${job.role}`, async ({ page }) => {

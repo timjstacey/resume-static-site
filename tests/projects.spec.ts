@@ -20,7 +20,9 @@ test.describe('Projects page', () => {
   });
 
   test.describe('project cards', () => {
-    expect(projects.length, 'projects.yml must have at least one project').toBeGreaterThan(0);
+    test('projects.yml has at least one entry', () => {
+      expect(projects.length, 'projects.yml must have at least one project').toBeGreaterThan(0);
+    });
 
     for (const project of projects) {
       test(project.name, async ({ page }) => {
