@@ -41,7 +41,7 @@ test.describe('Nav — mobile', () => {
     });
   }
 
-  test('hamburger opens drawer with all nav links', async ({ page }) => {
+  test('hamburger opens drawer, shows all links, focuses first', async ({ page }) => {
     await page.goto('/');
     const nav = page.getByRole('navigation');
     const toggle = nav.getByRole('button', { name: 'Toggle navigation' });
@@ -50,12 +50,6 @@ test.describe('Nav — mobile', () => {
     for (const label of navLabels) {
       await expect(nav.getByRole('link', { name: label })).toBeVisible();
     }
-  });
-
-  test('first drawer link is focused on open', async ({ page }) => {
-    await page.goto('/');
-    const nav = page.getByRole('navigation');
-    await nav.getByRole('button', { name: 'Toggle navigation' }).click();
     await expect(nav.getByRole('link', { name: firstNavLabel })).toBeFocused();
   });
 

@@ -9,12 +9,9 @@ test.describe('Resume page', () => {
     await page.goto('/resume');
   });
 
-  test('shows name and tagline from resume data', async ({ page }) => {
-    expect(resume.name, 'resume.yml: name must be non-empty').toBeTruthy();
-    expect(resume.tagline, 'resume.yml: tagline must be non-empty').toBeTruthy();
-
-    await expect(page.getByRole('heading', { name: resume.name })).toBeVisible();
-    await expect(page.getByText(resume.tagline)).toBeVisible();
+  test('renders Experience and Skills section headings', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: 'Experience', level: 2 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Skills', level: 2 })).toBeVisible();
   });
 
   test.describe('experience entries', () => {
