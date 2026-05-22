@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
+import { FLAVORS, THEME_TRIGGER_LABEL } from '../src/lib/themes';
+import { getResume } from '../src/lib/data';
+
+const siteName = getResume().name;
+const targetFlavor = FLAVORS.find((f) => f.id === 'mocha') ?? FLAVORS[0];
 
 test.describe('ThemePicker', () => {
   test('trigger toggles dropdown open/closed', async ({ page }) => {
     await page.goto('/');
-    const trigger = page.getByRole('button', { name: 'Color theme' });
+    const trigger = page.getByRole('button', { name: THEME_TRIGGER_LABEL });
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
@@ -13,27 +18,27 @@ test.describe('ThemePicker', () => {
 
   test('selecting a flavor applies it, persists, and closes dropdown', async ({ page }) => {
     await page.goto('/');
-    const trigger = page.getByRole('button', { name: 'Color theme' });
+    const trigger = page.getByRole('button', { name: THEME_TRIGGER_LABEL });
     await trigger.click();
-    await page.getByRole('button', { name: 'Mocha theme' }).click();
+    await page.getByRole('button', { name: `${targetFlavor.label} theme` }).click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    await expect(page.locator('html')).toHaveClass(/mocha/);
+    await expect(page.locator('html')).toHaveClass(new RegExp(targetFlavor.id));
     const stored = await page.evaluate(() => localStorage.getItem('ctp-flavor'));
-    expect(stored).toBe('mocha');
+    expect(stored).toBe(targetFlavor.id);
   });
 
   test('outside click closes dropdown', async ({ page }) => {
     await page.goto('/');
-    const trigger = page.getByRole('button', { name: 'Color theme' });
+    const trigger = page.getByRole('button', { name: THEME_TRIGGER_LABEL });
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    await page.getByRole('heading', { name: 'Tim Stacey', level: 1 }).click();
+    await page.getByRole('heading', { name: siteName, level: 1 }).click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
   test('Escape closes dropdown', async ({ page }) => {
     await page.goto('/');
-    const trigger = page.getByRole('button', { name: 'Color theme' });
+    const trigger = page.getByRole('button', { name: THEME_TRIGGER_LABEL });
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
     await page.keyboard.press('Escape');
@@ -43,7 +48,7 @@ test.describe('ThemePicker', () => {
   test('viewport resize closes open dropdown', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
     await page.goto('/');
-    const trigger = page.getByRole('button', { name: 'Color theme' });
+    const trigger = page.getByRole('button', { name: THEME_TRIGGER_LABEL });
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
     await page.setViewportSize({ width: 1200, height: 800 });

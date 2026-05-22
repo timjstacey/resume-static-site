@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { getJobs } from '../src/lib/data';
+import { JOBS_HEADING } from '../src/lib/copy';
 
 // Throws at module load if YAML is missing or fails schema validation
 const jobs = getJobs();
@@ -12,7 +13,7 @@ test.describe('Jobs page', () => {
   test('shows heading and total stat', async ({ page }) => {
     expect(jobs.length, 'jobs.yml must have at least one entry').toBeGreaterThan(0);
 
-    await expect(page.getByRole('heading', { name: 'Job Applications' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: JOBS_HEADING })).toBeVisible();
     await expect(page.getByText('Total')).toBeVisible();
   });
 

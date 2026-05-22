@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import JobCard from '../components/JobCard.astro';
 import type { JobStatus } from '../lib/schemas';
 import { getJobs } from '../lib/data';
+import { JOBS_HEADING } from '../lib/copy';
 
 const STATUS_ORDER: JobStatus[] = [
   'Applied',
@@ -36,7 +37,7 @@ const presentStatuses = STATUS_ORDER.filter((s) => jobs.some((j) => j.status ===
 ---
 
 <Base title="Jobs">
-  <h1 class="text-3xl font-bold text-ctp-text">Job Applications</h1>
+  <h1 class="text-3xl font-bold text-ctp-text">{JOBS_HEADING}</h1>
   <p class="mt-1 text-ctp-subtext1">Tracking applications and pipeline status.</p>
 
   <div class="mt-6 grid grid-cols-4 gap-3">

@@ -1,23 +1,12 @@
 ---
 import type { Project } from '../lib/schemas';
+import { PROJECT_STATUS_LABEL, PROJECT_STATUS_COLOUR } from '../lib/projectStatus';
 
 interface Props {
   project: Project;
 }
 
 const { project } = Astro.props;
-
-const statusColour: Record<string, string> = {
-  active: 'text-ctp-green',
-  wip: 'text-ctp-yellow',
-  archived: 'text-ctp-overlay2',
-};
-
-const statusLabel: Record<string, string> = {
-  active: 'Active',
-  wip: 'WIP',
-  archived: 'Archived',
-};
 ---
 
 <div aria-label={project.name} class="flex flex-col rounded-lg border border-ctp-surface1 bg-ctp-mantle p-5">
@@ -33,8 +22,8 @@ const statusLabel: Record<string, string> = {
         )
       }
     </h2>
-    <span class={`shrink-0 text-sm font-medium ${statusColour[project.status]}`}>
-      {statusLabel[project.status]}
+    <span class={`shrink-0 text-sm font-medium ${PROJECT_STATUS_COLOUR[project.status]}`}>
+      {PROJECT_STATUS_LABEL[project.status]}
     </span>
   </div>
 
