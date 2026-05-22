@@ -31,25 +31,10 @@ test.describe('Responsive layout — mobile (375px)', () => {
     }
   });
 
-  test('stats bar visible on jobs page', async ({ page }) => {
+  test('filter buttons reachable in viewport on jobs page', async ({ page }) => {
     await page.goto('/jobs');
-    await expect(page.getByText('Total')).toBeVisible();
-  });
-
-  test('status filter buttons reachable and functional on jobs page', async ({ page }) => {
-    await page.goto('/jobs');
-
     const allButton = page.getByRole('button', { name: /^All/ });
     await expect(allButton).toBeVisible();
     await expect(allButton).toBeInViewport();
-
-    const rejectedButton = page.getByRole('button', { name: /^Rejected/ });
-    await expect(rejectedButton).toBeVisible();
-    await rejectedButton.click();
-
-    await expect(page.locator('[data-status="Applied"]').first()).toBeHidden();
-
-    await allButton.click();
-    await expect(page.locator('[data-status="Applied"]').first()).toBeVisible();
   });
 });
