@@ -22,20 +22,19 @@ deadline=$(( $(date +%s) + TIMEOUT_SECONDS ))
 url_pattern="https://[a-f0-9]{8}\.${PREVIEW_HOST//./\\.}"
 
 while :; do
-  run=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs" \
-    --jq '.check_runs[] | select(.name=="Cloudflare Pages") | {status, conclusion, summary: .output.summary} | @json' \
-    | head -1)
+  payload=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs")
+  run=$(printf '%s' "$payload" | jq -c '[.check_runs[] | select(.name=="Cloudflare Pages")] | first // empty')
 
   if [ -n "$run" ]; then
-    status=$(printf '%s' "$run" | jq -r 'fromjson | .status')
-    conclusion=$(printf '%s' "$run" | jq -r 'fromjson | .conclusion')
+    status=$(printf '%s' "$run" | jq -r '.status')
+    conclusion=$(printf '%s' "$run" | jq -r '.conclusion')
 
     if [ "$status" = "completed" ]; then
       if [ "$conclusion" != "success" ]; then
         echo "::error::Cloudflare Pages check finished with conclusion=$conclusion"
         exit 1
       fi
-      summary=$(printf '%s' "$run" | jq -r 'fromjson | .summary')
+      summary=$(printf '%s' "$run" | jq -r '.output.summary')
       url=$(printf '%s' "$summary" | grep -oE "$url_pattern" | head -1)
       if [ -z "$url" ]; then
         echo "::error::Could not extract preview URL from Cloudflare check run summary"
