@@ -12,6 +12,7 @@ Live at **https://tim.sillysamoyed.com**.
 | `/resume`   | Full resume rendered from `src/data/resume.yml`    |
 | `/projects` | Project portfolio from `src/data/projects.yml`     |
 | `/jobs`     | Job-application dashboard from `src/data/jobs.yml` |
+| `/testing`  | Test pyramid, project routing, CI pipeline writeup |
 
 ## Stack
 
@@ -36,16 +37,17 @@ pnpm dev   # http://localhost:4321
 
 ### Commands
 
-| Command          | What                                                          |
-| ---------------- | ------------------------------------------------------------- |
-| `pnpm dev`       | Dev server at `localhost:4321` with HMR                       |
-| `pnpm build`     | Static output to `dist/`                                      |
-| `pnpm preview`   | Serve the built site locally                                  |
-| `pnpm typecheck` | `astro check` across all `.astro` / `.ts` files               |
-| `pnpm test`      | Vitest unit tests (`src/lib/*.test.ts`)                       |
-| `pnpm test:e2e`  | Playwright E2E (auto-starts dev server, or reuses if running) |
-| `pnpm lint`      | ESLint                                                        |
-| `pnpm lint:fix`  | ESLint with `--fix`                                           |
+| Command              | What                                                          |
+| -------------------- | ------------------------------------------------------------- |
+| `pnpm dev`           | Dev server at `localhost:4321` with HMR                       |
+| `pnpm build`         | Static output to `dist/`                                      |
+| `pnpm preview`       | Serve the built site locally                                  |
+| `pnpm typecheck`     | `astro check` across all `.astro` / `.ts` files               |
+| `pnpm test`          | Vitest unit tests (`src/lib/*.test.ts`)                       |
+| `pnpm test:e2e`      | Playwright E2E (auto-starts dev server, or reuses if running) |
+| `pnpm lint`          | ESLint                                                        |
+| `pnpm lint:fix`      | ESLint with `--fix`                                           |
+| `pnpm stats:refresh` | Regenerate `src/lib/testStats.ts` from current spec inventory |
 
 ## Project structure
 

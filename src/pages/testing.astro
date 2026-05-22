@@ -1,0 +1,161 @@
+---
+import Base from '../layouts/Base.astro';
+import { TEST_STATS } from '../lib/testStats';
+
+const repoUrl = 'https://github.com/timjstacey/resume-static-site';
+
+const projectRows = [
+  { project: 'content', device: 'Desktop Chrome', specs: 'home, jobs, projects, resume' },
+  { project: 'a11y-chromium', device: 'Desktop Chrome', specs: 'nav, theme-picker' },
+  { project: 'a11y-firefox', device: 'Desktop Firefox', specs: 'nav, theme-picker' },
+  { project: 'a11y-webkit', device: 'Desktop Safari', specs: 'nav, theme-picker' },
+  { project: 'responsive-mobile-chrome', device: 'Pixel 5', specs: 'responsive' },
+  { project: 'responsive-mobile-safari', device: 'iPhone 13', specs: 'responsive' },
+  { project: 'responsive-tablet-safari', device: 'iPad Pro 11', specs: 'responsive' },
+];
+
+const ciRows = [
+  { workflow: 'ci.yml', steps: 'check-claude-md.sh → pnpm lint → pnpm test → pnpm typecheck → pnpm build' },
+  { workflow: 'playwright.yml', steps: 'Wait for Cloudflare Pages preview deploy → run E2E against the preview URL' },
+];
+---
+
+<Base title="Testing" description="Test automation strategy for this site">
+  <h1 class="text-3xl font-bold text-ctp-text">Testing</h1>
+  <p class="mt-2 text-ctp-subtext1">
+    This site is a working demo of how I run test automation. Two layers (vitest for data and logic, Playwright for
+    rendered pages) gate every merge to <code class="text-ctp-mauve">main</code>.
+  </p>
+
+  <section aria-label="Test stats" class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-mauve">{TEST_STATS.unit}</p>
+      <p class="mt-1 text-xs text-ctp-subtext0">Unit tests</p>
+    </div>
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-blue">{TEST_STATS.e2e}</p>
+      <p class="mt-1 text-xs text-ctp-subtext0">E2E specs</p>
+    </div>
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-green">{TEST_STATS.projects}</p>
+      <p class="mt-1 text-xs text-ctp-subtext0">Playwright projects</p>
+    </div>
+    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
+      <p class="text-2xl font-bold text-ctp-peach">{TEST_STATS.engines}</p>
+      <p class="mt-1 text-xs text-ctp-subtext0">Browser engines</p>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="text-xl font-semibold text-ctp-text">Test pyramid</h2>
+    <p class="mt-2 text-ctp-subtext1">
+      Vitest handles the cheap checks. Playwright handles anything needing real DOM, layout, or keyboard input.
+    </p>
+
+    <div class="mt-4 grid gap-4 sm:grid-cols-2">
+      <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-5">
+        <h3 class="font-semibold text-ctp-text">Unit (vitest)</h3>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-ctp-subtext1">
+          <li>
+            Zod schema parsing for <code class="text-ctp-mauve">resume.yml</code>,
+            <code class="text-ctp-mauve">projects.yml</code>, <code class="text-ctp-mauve">jobs.yml</code>
+          </li>
+          <li>Date formatting, pipeline stats, nav active-path logic</li>
+          <li>
+            Fixture invariants (e.g. <code class="text-ctp-mauve">jobs.yml</code> must contain at least one Applied entry,
+            required by the filter E2E spec)
+          </li>
+          <li>Full suite runs in ~300 ms locally</li>
+        </ul>
+      </div>
+
+      <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-5">
+        <h3 class="font-semibold text-ctp-text">E2E (Playwright)</h3>
+        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-ctp-subtext1">
+          <li>Page rendering driven by YAML data, not hardcoded fixtures</li>
+          <li>Mobile drawer focus trap and theme picker keyboard handling</li>
+          <li>Responsive overflow checks at 375 px viewport</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="text-xl font-semibold text-ctp-text">Project routing</h2>
+    <p class="mt-2 text-ctp-subtext1">
+      Running every spec on every browser duplicated work. Splitting by spec type cut total runs from ~415 to
+      {TEST_STATS.e2e}.
+    </p>
+
+    <div class="mt-4 overflow-x-auto">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-ctp-surface1 text-left text-ctp-subtext0">
+            <th class="py-2 pr-4 font-medium">Project</th>
+            <th class="py-2 pr-4 font-medium">Device</th>
+            <th class="py-2 font-medium">Specs</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            projectRows.map((row) => (
+              <tr class="border-b border-ctp-surface0">
+                <td class="py-2 pr-4 font-mono text-ctp-mauve">{row.project}</td>
+                <td class="py-2 pr-4 text-ctp-subtext1">{row.device}</td>
+                <td class="py-2 text-ctp-subtext1">{row.specs}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mt-4 text-sm text-ctp-subtext1">
+      Content DOM is identical across engines, so it runs once. Keyboard and focus differ between engines, so a11y specs
+      run on all three. Layout depends on viewport, so responsive runs on mobile and tablet devices.
+    </p>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="text-xl font-semibold text-ctp-text">Data-driven everything</h2>
+    <p class="mt-2 text-ctp-subtext1">
+      Specs import the same YAML loaders the site uses. Adding a job to <code class="text-ctp-mauve">jobs.yml</code>
+      adds a card-rendering E2E. Renaming a status in the enum breaks the spec at typecheck, not runtime.
+    </p>
+    <p class="mt-2 text-ctp-subtext1">
+      Shared constants between components and tests (theme flavors, nav items, status labels) live in
+      <code class="text-ctp-mauve">src/lib/</code>.
+    </p>
+  </section>
+
+  <section class="mt-10">
+    <h2 class="text-xl font-semibold text-ctp-text">CI gates</h2>
+
+    <div class="mt-4 overflow-x-auto">
+      <table class="w-full border-collapse text-sm">
+        <thead>
+          <tr class="border-b border-ctp-surface1 text-left text-ctp-subtext0">
+            <th class="py-2 pr-4 font-medium">Workflow</th>
+            <th class="py-2 font-medium">Steps</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            ciRows.map((row) => (
+              <tr class="border-b border-ctp-surface0">
+                <td class="py-2 pr-4 font-mono text-ctp-mauve">{row.workflow}</td>
+                <td class="py-2 text-ctp-subtext1">{row.steps}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="mt-10 mb-12">
+    <a href={repoUrl} target="_blank" rel="noopener" class="text-sm text-ctp-blue hover:text-ctp-text">
+      Source on GitHub →
+    </a>
+  </section>
+</Base>
