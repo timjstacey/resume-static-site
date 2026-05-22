@@ -3,6 +3,7 @@ export const NAV_ITEMS = [
   { href: '/resume', label: 'Resume' },
   { href: '/projects', label: 'Projects' },
   { href: '/jobs', label: 'Jobs' },
+  { href: '/testing', label: 'Testing' },
 ] as const;
 
 export function isActivePath(href: string, currentPath: string): boolean {

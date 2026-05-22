@@ -53,12 +53,13 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 
 ## Pages
 
-| Route       | File                       | Purpose                           |
-| ----------- | -------------------------- | --------------------------------- |
-| `/`         | `src/pages/index.astro`    | Hero, bio, quick stats, CTA links |
-| `/resume`   | `src/pages/resume.astro`   | Full resume from data             |
-| `/projects` | `src/pages/projects.astro` | Project portfolio from data       |
-| `/jobs`     | `src/pages/jobs.astro`     | Job application dashboard         |
+| Route       | File                       | Purpose                                                |
+| ----------- | -------------------------- | ------------------------------------------------------ |
+| `/`         | `src/pages/index.astro`    | Hero, bio, quick stats, CTA links                      |
+| `/resume`   | `src/pages/resume.astro`   | Full resume from data                                  |
+| `/projects` | `src/pages/projects.astro` | Project portfolio from data                            |
+| `/jobs`     | `src/pages/jobs.astro`     | Job application dashboard                              |
+| `/testing`  | `src/pages/testing.astro`  | Test strategy narrative + build-time stats (portfolio) |
 
 ## Job Application Statuses
 
@@ -154,6 +155,7 @@ src/
     resume.astro
     projects.astro
     jobs.astro
+    testing.astro
   data/
     resume.yml
     projects.yml
@@ -167,6 +169,7 @@ src/
     themes.ts           # FLAVORS list + THEME_TRIGGER_LABEL — shared by ThemePicker + tests
     projectStatus.ts    # PROJECT_STATUS_LABEL / _COLOUR maps — shared by ProjectCard + tests
     copy.ts             # Page heading strings shared between pages + tests
+    testStats.ts        # Generated test counts surfaced on /testing — refresh with `pnpm stats:refresh`
     *.test.ts           # vitest unit tests colocated with each lib module
 tests/                  # Playwright E2E specs (one per page + responsive + nav)
 ```
@@ -214,14 +217,15 @@ Never save screenshots to the repo root or any other directory.
 ## Commands
 
 ```bash
-pnpm dev          # dev server at localhost:4321
-pnpm build        # static output → dist/
-pnpm preview      # preview built site locally
-pnpm typecheck    # astro check — full TS diagnostics across all .astro/.ts files
-pnpm test         # vitest run — unit tests (schemas, nav logic)
-pnpm test:e2e     # playwright — E2E tests (requires dev server or auto-starts it)
-pnpm lint         # run ESLint
-pnpm lint:fix     # run ESLint with auto-fix
+pnpm dev           # dev server at localhost:4321
+pnpm build         # static output → dist/
+pnpm preview       # preview built site locally
+pnpm typecheck     # astro check — full TS diagnostics across all .astro/.ts files
+pnpm test          # vitest run — unit tests (schemas, nav logic)
+pnpm test:e2e      # playwright — E2E tests (requires dev server or auto-starts it)
+pnpm lint          # run ESLint
+pnpm lint:fix      # run ESLint with auto-fix
+pnpm stats:refresh # regenerate src/lib/testStats.ts from current spec inventory
 ```
 
 ## Git Hooks
