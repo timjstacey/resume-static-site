@@ -20,17 +20,19 @@ const posts = (await getPosts()).slice(0, 3);
 
 const years = yearsOfExp(resume.experience);
 const pipeline = activePipeline(jobs);
-const current = resume.experience[0]!;
+const current = resume.experience[0];
 
 const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 const postAccents = ['peach', 'teal', 'mauve'];
 
-const meta = [
-  ['tenure', `${fmtYM(current.start)} – now`],
-  ['team', 'lead of 3 QEs'],
-  ['stack', 'Playwright · WDIO'],
-  ['cadence', 'ships in hours'],
-];
+const meta = current
+  ? [
+      ['tenure', `${fmtYM(current.start)} – now`],
+      ['team', 'lead of 3 QEs'],
+      ['stack', 'Playwright · WDIO'],
+      ['cadence', 'ships in hours'],
+    ]
+  : [];
 ---
 
 <Base title="Home" description={`${resume.name} — ${resume.tagline}`}>
@@ -114,8 +116,8 @@ const meta = [
     </div>
     <TerminalWindow path="$ whoami --current">
       <span slot="status" class="text-ctp-green">● live</span>
-      <div class="font-display text-3xl font-bold tracking-[-0.02em] text-ctp-text">{current.role}</div>
-      <div class="mt-1 text-ctp-teal">@ {current.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</div>
+      <div class="font-display text-3xl font-bold tracking-[-0.02em] text-ctp-text">{current?.role}</div>
+      <div class="mt-1 text-ctp-teal">@ {current?.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</div>
       <dl class="mt-5 grid grid-cols-2 gap-4 text-[13px]">
         {
           meta.map(([k, v]) => (
@@ -168,6 +170,7 @@ const meta = [
         <div>
           <div class="mono-caption text-ctp-overlay1">unit</div><div
             class="mt-1 font-display text-4xl font-bold text-ctp-green"
+            data-testid="teaser-unit"
           >
             {TEST_STATS.unit}
           </div>
@@ -175,6 +178,7 @@ const meta = [
         <div>
           <div class="mono-caption text-ctp-overlay1">e2e</div><div
             class="mt-1 font-display text-4xl font-bold text-ctp-sapphire"
+            data-testid="teaser-e2e"
           >
             {TEST_STATS.e2e}
           </div>

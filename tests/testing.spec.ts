@@ -21,19 +21,19 @@ test.describe('Testing dashboard', () => {
   });
 
   test('stat strip shows unit + e2e counts', async ({ page }) => {
-    await expect(page.getByText(String(TEST_STATS.unit), { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(String(TEST_STATS.e2e), { exact: true }).first()).toBeVisible();
+    await expect(page.locator('[data-stat-label="unit specs"] [data-stat-value]')).toHaveText(String(TEST_STATS.unit));
+    await expect(page.locator('[data-stat-label="E2E flows"] [data-stat-value]')).toHaveText(String(TEST_STATS.e2e));
   });
 
   test('routing matrix has a row per playwright project', async ({ page }) => {
     for (const r of routing) {
-      await expect(page.getByText(r.project, { exact: true }).first()).toBeVisible();
+      await expect(page.getByText(r.project, { exact: true })).toBeVisible();
     }
   });
 
   test('both CI gate workflows render', async ({ page }) => {
     for (const wf of workflows) {
-      await expect(page.getByText(wf.file, { exact: true }).first()).toBeVisible();
+      await expect(page.getByText(wf.file, { exact: true })).toBeVisible();
     }
   });
 });

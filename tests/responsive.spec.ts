@@ -20,7 +20,7 @@ test.describe('Responsive layout — mobile (375px)', () => {
 
   test('board cards have no horizontal overflow', async ({ page }) => {
     await page.goto('/job-hunt');
-    const cards = page.locator('article[data-column]');
+    const cards = page.getByRole('article');
     const count = await cards.count();
     expect(count).toBeGreaterThan(0);
 
@@ -31,7 +31,7 @@ test.describe('Responsive layout — mobile (375px)', () => {
     }
   });
 
-  test('board title reachable on jobs page', async ({ page }) => {
+  test('board title visible on jobs page', async ({ page }) => {
     await page.goto('/job-hunt');
     await expect(page.getByRole('heading', { name: 'Active Pipeline' })).toBeVisible();
   });

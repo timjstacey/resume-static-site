@@ -10,7 +10,7 @@ import { tagCounts, archive } from '../lib/blog';
 
 const posts = await getPosts();
 const drafts = getDrafts();
-const featured = posts[0]!;
+const featured = posts[0];
 const rest = posts.slice(1);
 
 const postLikes = posts.map((p) => ({ tag: p.data.tag, date: p.data.date }));
@@ -61,49 +61,52 @@ const pad = (n: number) => String(n).padStart(3, '0');
   </header>
 
   <!-- FEATURED -->
-  <section class="px-14 pt-14">
-    <div
-      class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-8"
-      style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--color-ctp-peach) 8%, transparent), transparent 70%), var(--color-ctp-mantle)"
-    >
-      <span class="absolute top-6 right-6 flex items-center gap-2 font-mono text-[11px] text-ctp-green">
-        <span class="h-2 w-2 rounded-full bg-ctp-green"></span>featured · latest
-      </span>
-      <div class="grid gap-14 lg:grid-cols-[1.1fr_1fr]">
-        <div>
-          <SectionLabel color={tagAccent(featured.data.tag)}>// post 001</SectionLabel>
-          <h2
-            class="mt-5 font-display text-4xl leading-[1.02] font-bold tracking-[-0.03em] text-balance text-ctp-text md:text-[56px]"
-          >
-            {featured.data.title}
-          </h2>
-          <p class="mt-5 text-lg leading-relaxed text-ctp-subtext1">{featured.data.excerpt}</p>
-          <div class="mt-5 flex items-center gap-4 font-mono text-[12px] text-ctp-overlay1">
-            <span>{fmtDate(featured.data.date)}</span>
-            <span>~{featured.data.readMins}min</span>
-            <Chip color={tagAccent(featured.data.tag)}>{featured.data.tag}</Chip>
-          </div>
-          <div class="mt-7 flex flex-wrap gap-3">
-            <Button variant="primary" href={`/blog/${featured.id}`}>▸ ./read --post {featured.id}</Button>
-            <Button variant="ghost">⎘ copy link</Button>
+  {
+    featured && (
+      <section class="px-14 pt-14">
+        <div
+          class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-8"
+          style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--color-ctp-peach) 8%, transparent), transparent 70%), var(--color-ctp-mantle)"
+        >
+          <span class="absolute top-6 right-6 flex items-center gap-2 font-mono text-[11px] text-ctp-green">
+            <span class="h-2 w-2 rounded-full bg-ctp-green" />
+            featured · latest
+          </span>
+          <div class="grid gap-14 lg:grid-cols-[1.1fr_1fr]">
+            <div>
+              <SectionLabel color={tagAccent(featured.data.tag)}>// post 001</SectionLabel>
+              <h2 class="mt-5 font-display text-4xl leading-[1.02] font-bold tracking-[-0.03em] text-balance text-ctp-text md:text-[56px]">
+                {featured.data.title}
+              </h2>
+              <p class="mt-5 text-lg leading-relaxed text-ctp-subtext1">{featured.data.excerpt}</p>
+              <div class="mt-5 flex items-center gap-4 font-mono text-[12px] text-ctp-overlay1">
+                <span>{fmtDate(featured.data.date)}</span>
+                <span>~{featured.data.readMins}min</span>
+                <Chip color={tagAccent(featured.data.tag)}>{featured.data.tag}</Chip>
+              </div>
+              <div class="mt-7 flex flex-wrap gap-3">
+                <Button variant="primary" href={`/blog/${featured.id}`}>
+                  ▸ ./read --post {featured.id}
+                </Button>
+                <Button variant="ghost">⎘ copy link</Button>
+              </div>
+            </div>
+            <TerminalWindow path={`cat ${featured.id}.md`}>
+              {featured.data.preview.map(([prefix, text], i) => (
+                <div class="flex gap-3.5">
+                  <span class={`w-2 shrink-0 ${prefixColor(prefix)}`}>{prefix.trim()}</span>
+                  <span class="text-ctp-subtext1">
+                    {text}
+                    {i === featured.data.preview.length - 1 && <span class="terminal-cursor ml-0.5" />}
+                  </span>
+                </div>
+              ))}
+            </TerminalWindow>
           </div>
         </div>
-        <TerminalWindow path={`cat ${featured.id}.md`}>
-          {
-            featured.data.preview.map(([prefix, text], i) => (
-              <div class="flex gap-3.5">
-                <span class={`w-2 shrink-0 ${prefixColor(prefix)}`}>{prefix.trim()}</span>
-                <span class="text-ctp-subtext1">
-                  {text}
-                  {i === featured.data.preview.length - 1 && <span class="terminal-cursor ml-0.5" />}
-                </span>
-              </div>
-            ))
-          }
-        </TerminalWindow>
-      </div>
-    </div>
-  </section>
+      </section>
+    )
+  }
 
   <!-- PUBLISHED + SIDEBAR -->
   <section class="grid gap-14 px-14 pt-18 lg:grid-cols-[1fr_280px]">
@@ -117,6 +120,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
           rest.map((post, i) => (
             <a
               href={`/blog/${post.id}`}
+              data-testid="published-row"
               class="grid grid-cols-[60px_6px_1fr_auto] items-center gap-4 border-b border-ctp-surface0 py-5 transition-colors hover:bg-ctp-mantle"
             >
               <span class="font-mono text-[13px] text-ctp-overlay1">{pad(rest.length - i)}</span>
