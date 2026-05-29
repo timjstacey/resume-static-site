@@ -1,0 +1,51 @@
+---
+// One board column: accent-bordered header with a count pill, a stack of
+// JiraCards, and a cosmetic dashed "+ Create issue" footer. Empty columns
+// show a dashed "no issues" placeholder. On mobile the header doubles as an
+// accordion toggle (enhanced by the page script); on larger screens the body
+// is always shown.
+import JiraCard from './JiraCard.astro';
+import type { CtpAccent } from '../lib/jobhunt';
+import type { Job } from '../lib/schemas';
+
+interface Props {
+  label: string;
+  accent: CtpAccent;
+  jobs: (Job & { key: number })[];
+}
+const { label, accent, jobs } = Astro.props;
+const count = `${jobs.length} ${jobs.length === 1 ? 'issue' : 'issues'}`;
+---
+
+<section class="board-column flex min-w-0 flex-col gap-2 rounded-md bg-ctp-mantle p-2.5" aria-label={`${label} — ${count}`}>
+  <header
+    class="column-header flex items-center justify-between px-1.5 pt-1.5 pb-3"
+    style={`border-bottom: 2px solid var(--color-ctp-${accent})`}
+  >
+    <span class="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-[0.1em] text-ctp-text uppercase">
+      {label}
+      <span class="rounded-[10px] bg-ctp-surface0 px-[7px] py-px text-[10px] font-semibold text-ctp-subtext0">
+        {jobs.length}
+      </span>
+    </span>
+    <span class="column-chevron px-1 font-mono text-[14px] text-ctp-overlay1" aria-hidden="true">⋯</span>
+  </header>
+
+  <div class="column-body flex flex-col gap-2">
+    {
+      jobs.length === 0 ? (
+        <p class="rounded border border-dashed border-ctp-surface1 px-3 py-6 text-center font-mono text-[11px] text-ctp-overlay1">
+          ─ no issues ─
+        </p>
+      ) : (
+        jobs.map((job) => <JiraCard job={job} />)
+      )
+    }
+    <button
+      type="button"
+      class="mt-1 cursor-pointer rounded border border-dashed border-ctp-surface1 px-2.5 py-2 text-left font-mono text-[12px] text-ctp-overlay1 transition-colors hover:border-ctp-overlay0 hover:text-ctp-subtext0"
+    >
+      + Create issue
+    </button>
+  </div>
+</section>
