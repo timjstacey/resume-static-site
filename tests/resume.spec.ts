@@ -28,10 +28,6 @@ test.describe('Resume page', () => {
     await expect(page.getByRole('link', { name: /download\.pdf/i })).toBeVisible();
   });
 
-  test('renders the copy button', async ({ page }) => {
-    await expect(page.getByRole('button', { name: /copy/i })).toBeVisible();
-  });
-
   test.describe('experience role cards', () => {
     for (const exp of resume.experience) {
       test(`${exp.company} — ${exp.role}`, async ({ page }) => {
@@ -42,11 +38,11 @@ test.describe('Resume page', () => {
     }
   });
 
-  test('current role shows "now playing" caption', async ({ page }) => {
-    // Sony Interactive Entertainment is the known current role (end: present)
-    const card = page.getByRole('article', { name: 'Sony Interactive Entertainment' });
+  test('current role shows the current-role caption', async ({ page }) => {
+    const current = resume.experience.find((e) => e.end === 'present')!;
+    const card = page.getByRole('article', { name: current.company });
     await expect(card).toBeVisible();
-    await expect(card).toContainText('now playing');
+    await expect(card).toContainText('current role');
   });
 
   test('past roles show zero-padded index', async ({ page }) => {

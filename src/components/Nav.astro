@@ -10,7 +10,7 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
 ---
 
 <nav aria-label="Primary" class="border-b border-ctp-surface0 bg-ctp-mantle">
-  <div class="flex items-stretch">
+  <div class="mx-auto flex max-w-[1440px] items-stretch">
     <!-- Brand block -->
     <a href="/" class="flex items-center gap-3.5 border-r border-ctp-surface0 px-5 py-5 md:min-w-[280px] md:px-7">
       <span
@@ -20,7 +20,9 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
       </span>
       <span class="leading-none">
         <span class="block font-display text-base font-semibold tracking-[-0.01em] text-ctp-text">tim</span>
-        <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1">{crumb}</span>
+        <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1" aria-hidden="true"
+          >{crumb}</span
+        >
       </span>
     </a>
 

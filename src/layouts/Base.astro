@@ -42,14 +42,12 @@ const { title, description = 'Tim Stacey — software engineer' } = Astro.props;
     <title>{title} | Tim Stacey</title>
   </head>
   <body class="min-h-screen bg-ctp-crust text-ctp-text">
-    <div class="mx-auto max-w-[1440px]">
-      <Nav>
-        <ThemePicker />
-      </Nav>
-      <main>
-        <slot />
-      </main>
-      <Footer />
-    </div>
+    <Nav>
+      <ThemePicker />
+    </Nav>
+    <main class="mx-auto max-w-[1440px]">
+      <slot />
+    </main>
+    <Footer />
   </body>
 </html>
