@@ -188,8 +188,10 @@ src/
     StatStrip.astro     # 4-up stats grid wrapper
     StatCard.astro      # single stat: index + display number + label, optional top accent
     PostCard.astro      # blog post teaser card (home "From the blog" + blog index)
-    StatusBadge.astro   # coloured pill for job status
-    JobCard.astro       # single job application card
+    StatusBadge.astro   # coloured pill for job status (legacy list view — retired, pending deletion)
+    JobCard.astro       # single job application card (legacy list view — retired, pending deletion)
+    JiraColumn.astro    # job-hunt board column: accent header + count pill + cards + dashed create
+    JiraCard.astro      # job-hunt issue card: company epic pill, role, key/priority/source footer
     ProjectCard.astro   # single project card
     ResumeSection.astro # section wrapper (title + slot)
   content.config.ts     # Astro content collection config — blog `posts`

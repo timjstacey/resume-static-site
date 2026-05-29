@@ -1,0 +1,85 @@
+---
+// JIRA-style issue card for one job application. Company epic pill on top,
+// role title, footer with issue key + priority + source. Closed-column cards
+// (rejected/withdrawn/ghosted) get a sub-status pill and render dimmed.
+import Chip from './Chip.astro';
+import { epicColorFor, priorityFor, PRIORITY, SUB_STATUS, SOURCE_ACCENT, jobKey } from '../lib/jobhunt';
+import type { Job, JobStatus } from '../lib/schemas';
+
+interface Props {
+  job: Job & { key: number };
+}
+const { job } = Astro.props;
+
+const epic = epicColorFor(job.company);
+const prio = PRIORITY[priorityFor(job.role)];
+const sub = SUB_STATUS[job.status];
+const isClosed = Boolean(sub);
+const source = job.source ?? 'Other';
+const sourceAccent = SOURCE_ACCENT[source]!;
+
+const epicPillStyle =
+  `color: var(--color-ctp-${epic}); ` +
+  `background: color-mix(in srgb, var(--color-ctp-${epic}) 22%, transparent)`;
+
+const labelStatus: JobStatus = job.status;
+---
+
+<article
+  class:list={[
+    'flex flex-col gap-2 rounded border border-ctp-surface1 bg-ctp-surface0 px-3 py-2.5',
+    'shadow-[0_1px_0_rgba(0,0,0,0.4)]',
+    isClosed && 'opacity-[0.78]',
+  ]}
+  aria-label={`${job.role} at ${job.company}, ${labelStatus}, ${job.applied}`}
+  data-column={isClosed ? 'closed' : job.status.toLowerCase()}
+>
+  <div class="flex items-center justify-between gap-2">
+    <span
+      class="inline-flex max-w-[170px] items-center gap-1.5 overflow-hidden rounded-[3px] py-0.5 pr-2 pl-1.5 font-mono text-[10.5px] font-semibold tracking-[0.06em] text-ellipsis whitespace-nowrap uppercase"
+      style={epicPillStyle}
+      title={job.company}
+    >
+      <span
+        class="h-1.5 w-1.5 shrink-0 rounded-[1px]"
+        style={`background: var(--color-ctp-${epic})`}
+        aria-hidden="true"></span>
+      {job.company}
+    </span>
+    {
+      sub && (
+        <span
+          class="shrink-0 rounded-[3px] px-1.5 py-0.5 font-mono text-[9.5px] font-semibold tracking-[0.06em] uppercase"
+          style={`color: var(--color-ctp-${sub.color}); background: color-mix(in srgb, var(--color-ctp-${sub.color}) 22%, transparent)`}
+        >
+          {sub.label}
+        </span>
+      )
+    }
+  </div>
+
+  <p class="text-[13.5px] leading-[1.3] font-medium text-ctp-text">{job.role}</p>
+
+  <div class="flex items-center justify-between gap-2 font-mono text-[11px] text-ctp-subtext0">
+    <span class="inline-flex items-center gap-1.5">
+      <span
+        class="inline-flex h-3.5 w-3.5 items-center justify-center rounded-[3px] bg-ctp-sapphire text-[9px] font-bold text-ctp-crust"
+        title="Task"
+        aria-hidden="true">✓</span>
+      <span class="text-ctp-subtext1">{jobKey(job.key)}</span>
+      <span
+        class="text-[12px] font-bold"
+        style={`color: var(--color-ctp-${prio.color})`}
+        title={`Priority: ${prio.label}`}
+        aria-label={`Priority: ${prio.label}`}>{prio.icon}</span>
+    </span>
+    <span class="inline-flex items-center gap-1.5">
+      <Chip color={sourceAccent} class="px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.04em] uppercase">
+        {source}
+      </Chip>
+      <span
+        class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full border-[1.5px] border-ctp-crust bg-ctp-peach font-display text-[10px] font-bold text-ctp-crust shadow-[0_0_0_1px_var(--color-ctp-surface1)]"
+        aria-hidden="true">TS</span>
+    </span>
+  </div>
+</article>
