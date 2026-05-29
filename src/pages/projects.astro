@@ -1,16 +1,106 @@
 ---
 import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { getProjects } from '../lib/data';
 
 const projects = getProjects();
+const totalStars = projects.reduce((s, p) => s + (p.stars ?? 0), 0);
+const pinnedCount = projects.filter((p) => p.pinned).length;
+
+const filters = ['all', 'typescript', 'javascript', 'astro', 'python', 'pinned'];
 ---
 
-<Base title="Projects">
-  <h1 class="text-3xl font-bold text-ctp-text">Projects</h1>
-  <p class="mt-2 text-ctp-subtext1">Things I've built.</p>
+<Base title="Projects" description="Open-source and side projects by Tim Stacey">
+  <!-- HEADER -->
+  <header class="border-b border-ctp-surface0 px-14 pt-14 pb-12">
+    <div class="grid items-end gap-10 md:grid-cols-[1.5fr_1fr]">
+      <div>
+        <SectionLabel>// projects/index</SectionLabel>
+        <h1 class="mt-5 font-display text-5xl leading-[0.95] font-bold tracking-[-0.035em] text-ctp-text md:text-7xl">
+          <span class="text-ctp-peach">$</span> ls -la ./projects
+        </h1>
+      </div>
+      <dl class="grid grid-cols-3 divide-x divide-ctp-surface0 border-y border-ctp-surface0">
+        <div class="px-4 py-3">
+          <dd class="font-display text-4xl font-bold text-ctp-text">{projects.length}</dd>
+          <dt class="mt-1 mono-caption text-ctp-overlay2">repos</dt>
+        </div>
+        <div class="px-4 py-3">
+          <dd class="font-display text-4xl font-bold text-ctp-text">{totalStars}</dd>
+          <dt class="mt-1 mono-caption text-ctp-overlay2">stars</dt>
+        </div>
+        <div class="px-4 py-3">
+          <dd class="font-display text-4xl font-bold text-ctp-text">{pinnedCount}</dd>
+          <dt class="mt-1 mono-caption text-ctp-overlay2">pinned</dt>
+        </div>
+      </dl>
+    </div>
+  </header>
 
-  <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    {projects.map((project) => <ProjectCard project={project} />)}
+  <!-- FILTER BAR -->
+  <div class="flex flex-wrap items-center justify-between gap-4 border-b border-ctp-surface0 px-14 py-8">
+    <div class="flex flex-wrap items-center gap-2">
+      <span class="mr-1 mono-caption text-ctp-overlay2">filter:</span>
+      {
+        filters.map((f) => (
+          <button
+            type="button"
+            data-filter={f}
+            class="rounded px-2.5 py-1 font-mono text-[12px] text-ctp-subtext0 transition-colors hover:text-ctp-text data-[active]:bg-ctp-peach data-[active]:text-ctp-crust"
+          >
+            {f === 'all' ? '● all' : f}
+          </button>
+        ))
+      }
+    </div>
+    <div class="flex items-center gap-2 font-mono text-[12px] text-ctp-overlay1">
+      <span class="rounded border border-ctp-surface2 px-2.5 py-1">sort: updated ↓</span>
+      <span class="rounded border border-ctp-surface2 px-2.5 py-1">view: grid ▦</span>
+    </div>
   </div>
+
+  <!-- GRID -->
+  <section class="px-14 pt-8 pb-4">
+    <div id="project-grid" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {projects.map((project) => <ProjectCard project={project} />)}
+    </div>
+    <p id="empty-state" class="hidden py-12 text-center font-mono text-sm text-ctp-overlay1">─ no projects match ─</p>
+  </section>
 </Base>
+
+<script is:inline>
+  (function () {
+    const buttons = Array.from(document.querySelectorAll('[data-filter]'));
+    const cards = Array.from(document.querySelectorAll('[data-project]'));
+    const empty = document.getElementById('empty-state');
+
+    function apply(filter) {
+      let shown = 0;
+      cards.forEach(function (card) {
+        const tags = (card.getAttribute('data-tags') || '').split(' ');
+        const match = filter === 'all' || tags.indexOf(filter) !== -1;
+        card.classList.toggle('hidden', !match);
+        if (match) shown++;
+      });
+      buttons.forEach(function (b) {
+        if (b.dataset.filter === filter) b.setAttribute('data-active', '');
+        else b.removeAttribute('data-active');
+      });
+      if (empty) empty.classList.toggle('hidden', shown !== 0);
+      const url = new URL(window.location.href);
+      if (filter === 'all') url.searchParams.delete('tag');
+      else url.searchParams.set('tag', filter);
+      history.replaceState(null, '', url);
+    }
+
+    buttons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        apply(b.dataset.filter);
+      });
+    });
+
+    const initial = new URL(window.location.href).searchParams.get('tag');
+    apply(buttons.some((b) => b.dataset.filter === initial) ? initial : 'all');
+  })();
+</script>

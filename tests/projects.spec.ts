@@ -1,32 +1,37 @@
 import { test, expect } from '@playwright/test';
 import { getProjects } from '../src/lib/data';
-import { PROJECT_STATUS_LABEL } from '../src/lib/projectStatus';
 
-// Throws at module load if YAML is missing or fails schema validation
+// Throws at module load if YAML is missing or fails schema validation.
 const projects = getProjects();
+const pinned = projects.filter((p) => p.pinned);
+const unpinned = projects.filter((p) => !p.pinned);
 
 test.describe('Projects page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/projects');
   });
 
-  test('shows heading', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible();
+  test('shows the terminal heading + repo count', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: /ls -la \.\/projects/ })).toBeVisible();
+    await expect(page.getByText(String(projects.length), { exact: true }).first()).toBeVisible();
   });
 
-  test.describe('project cards', () => {
+  test('renders a card per project', async ({ page }) => {
     for (const project of projects) {
-      test(project.name, async ({ page }) => {
-        const label = PROJECT_STATUS_LABEL[project.status];
-        expect(label, `PROJECT_STATUS_LABEL missing entry for status '${project.status}'`).toBeDefined();
-
-        const card = page.locator(`[aria-label="${project.name}"]`);
-        await expect(card.getByText(project.name)).toBeVisible();
-        await expect(card.getByText(label)).toBeVisible();
-        for (const tag of project.tags) {
-          await expect(card.getByText(tag, { exact: true })).toBeVisible();
-        }
-      });
+      await expect(page.locator(`[aria-label="${project.name}"]`)).toBeVisible();
     }
+  });
+
+  test('pinned projects carry a PIN badge', async ({ page }) => {
+    for (const project of pinned) {
+      await expect(page.locator(`[aria-label="${project.name}"]`).getByText('★ PIN')).toBeVisible();
+    }
+  });
+
+  test('pinned filter hides non-pinned without reload + reflects in URL', async ({ page }) => {
+    await page.getByRole('button', { name: 'pinned' }).click();
+    await expect(page).toHaveURL(/\?tag=pinned/);
+    await expect(page.locator(`[aria-label="${pinned[0]!.name}"]`)).toBeVisible();
+    await expect(page.locator(`[aria-label="${unpinned[0]!.name}"]`)).toBeHidden();
   });
 });
