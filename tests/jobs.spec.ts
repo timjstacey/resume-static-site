@@ -60,7 +60,6 @@ test.describe('Job Hunt board', () => {
       await expect(page.getByLabel(cardLabel(job)).first()).toBeVisible();
     }
   });
-});
 
   test('closed cards show a sub-status pill', async ({ page }) => {
     const card = page.getByLabel(cardLabel(closedJob));
@@ -72,3 +71,4 @@ test.describe('Job Hunt board', () => {
     const region = page.getByRole('region', { name: new RegExp(`^${columnLabel(emptyColumn.id)} — 0 issues$`) });
     await expect(region.getByText('─ no issues ─')).toBeVisible();
   });
+});
