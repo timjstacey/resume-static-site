@@ -17,12 +17,17 @@ const { label, accent, jobs } = Astro.props;
 const count = `${jobs.length} ${jobs.length === 1 ? 'issue' : 'issues'}`;
 ---
 
-<section class="board-column flex min-w-0 flex-col gap-2 rounded-md bg-ctp-mantle p-2.5" aria-label={`${label} — ${count}`}>
+<section
+  class="board-column flex min-w-0 flex-col gap-2 rounded-md bg-ctp-mantle p-2.5"
+  aria-label={`${label} — ${count}`}
+>
   <header
     class="column-header flex items-center justify-between px-1.5 pt-1.5 pb-3"
-    style={`border-bottom: 2px solid var(--color-ctp-${accent})`}
+    style={`border-bottom: 2px solid var(--catppuccin-color-${accent})`}
   >
-    <span class="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-[0.1em] text-ctp-text uppercase">
+    <span
+      class="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-[0.1em] text-ctp-text uppercase"
+    >
       {label}
       <span class="rounded-[10px] bg-ctp-surface0 px-[7px] py-px text-[10px] font-semibold text-ctp-subtext0">
         {jobs.length}

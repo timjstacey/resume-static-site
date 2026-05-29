@@ -94,7 +94,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
   <section class="px-14 pt-10">
     <div
       class="rounded-lg border border-ctp-surface0 bg-ctp-mantle px-6 py-5"
-      style="border-left: 4px solid var(--color-ctp-green)"
+      style="border-left: 4px solid var(--catppuccin-color-green)"
     >
       <div class="grid gap-8 md:grid-cols-4">
         <div>
@@ -111,7 +111,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
           <div class="mt-2 flex items-center gap-2 font-mono text-[13px]">
             <span
               class="rounded px-1.5 py-0.5 text-ctp-sapphire"
-              style="background: color-mix(in srgb, var(--color-ctp-sapphire) 18%, transparent)">#{ci.sha}</span
+              style="background: color-mix(in srgb, var(--catppuccin-color-sapphire) 18%, transparent)">#{ci.sha}</span
             >
             <span class="truncate text-ctp-subtext1">{ci.commitMessage}</span>
           </div>
@@ -121,7 +121,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
           <div class="mt-2 flex items-center gap-1.5">
             {
               ci.runs.map((r) => (
-                <span class="h-3.5 w-3.5 rounded-[3px]" style={`background: var(--color-ctp-${runColor(r)})`} />
+                <span class="h-3.5 w-3.5 rounded-[3px]" style={`background: var(--catppuccin-color-${runColor(r)})`} />
               ))
             }
             <span class="ml-2 font-mono text-[12px] text-ctp-subtext0">{cleanRuns}/10 clean</span>
@@ -174,7 +174,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
           layers.map((l) => (
             <div>
               <div class="flex items-baseline justify-between">
-                <span class="font-display text-base font-bold" style={`color: var(--color-ctp-${l.accent})`}>
+                <span class="font-display text-base font-bold" style={`color: var(--catppuccin-color-${l.accent})`}>
                   {l.name} <span class="font-mono text-[12px] font-normal text-ctp-overlay1">· {l.caption}</span>
                 </span>
                 <span class="font-mono text-[12px] text-ctp-subtext0">
@@ -184,7 +184,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
               <div class="mt-1.5 h-[18px] w-full rounded bg-ctp-surface0">
                 <div
                   class="h-full rounded"
-                  style={`width:${(l.count / maxSpecs) * 100}%; background: var(--color-ctp-${l.accent})`}
+                  style={`width:${(l.count / maxSpecs) * 100}%; background: var(--catppuccin-color-${l.accent})`}
                 />
               </div>
             </div>
@@ -204,7 +204,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
             <ul class="mt-4 flex flex-col gap-2">
               {l.scope.map((s) => (
                 <li class="flex gap-2.5 text-[14px] text-ctp-subtext1">
-                  <span style={`color: var(--color-ctp-${l.accent})`}>→</span>
+                  <span style={`color: var(--catppuccin-color-${l.accent})`}>→</span>
                   {s}
                 </li>
               ))}
@@ -231,7 +231,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
 
     <div
       class="mt-8 flex flex-wrap items-center gap-6 rounded-lg border border-ctp-surface0 bg-ctp-mantle p-6"
-      style="border-left: 4px solid var(--color-ctp-peach)"
+      style="border-left: 4px solid var(--catppuccin-color-peach)"
     >
       <div class="flex items-baseline gap-3">
         <span class="font-display text-[42px] font-bold text-ctp-overlay1 line-through">415</span>
@@ -261,7 +261,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
               <div class="bg-ctp-mantle px-4 py-3">
                 <span
                   class="rounded px-1.5 py-0.5"
-                  style={`color: var(--color-ctp-${engineColor(r.engine)}); background: color-mix(in srgb, var(--color-ctp-${engineColor(r.engine)}) 20%, transparent)`}
+                  style={`color: var(--catppuccin-color-${engineColor(r.engine)}); background: color-mix(in srgb, var(--catppuccin-color-${engineColor(r.engine)}) 20%, transparent)`}
                 >
                   {r.engine}
                 </span>
@@ -289,7 +289,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
         workflows.map((wf) => (
           <Card class="p-6">
             <div class="flex items-center justify-between font-mono text-[12px]">
-              <span class="text-ctp-text" style={`color: var(--color-ctp-${wf.accent})`}>
+              <span class="text-ctp-text" style={`color: var(--catppuccin-color-${wf.accent})`}>
                 {wf.file}
               </span>
               <span class="text-ctp-overlay1">on: {wf.on}</span>
@@ -299,7 +299,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
                 <>
                   <div
                     class="min-w-[140px] flex-1 rounded p-3"
-                    style={`border-top: 2px solid var(--color-ctp-${wf.accent}); background: var(--color-ctp-base)`}
+                    style={`border-top: 2px solid var(--catppuccin-color-${wf.accent}); background: var(--catppuccin-color-base)`}
                   >
                     <div class="mono-caption text-ctp-overlay1">step {i + 1}</div>
                     <div class="mt-1 font-mono text-[13px] text-ctp-text">{step.name}</div>

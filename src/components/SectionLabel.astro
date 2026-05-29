@@ -7,7 +7,7 @@ interface Props {
 const { color = 'peach' } = Astro.props;
 ---
 
-<div class="inline-flex items-center gap-2.5 mono-caption" style={`color: var(--color-ctp-${color})`}>
-  <span class="h-px w-6" style={`background: var(--color-ctp-${color})`}></span>
+<div class="inline-flex items-center gap-2.5 mono-caption" style={`color: var(--catppuccin-color-${color})`}>
+  <span class="h-px w-6" style={`background: var(--catppuccin-color-${color})`}></span>
   <slot />
 </div>

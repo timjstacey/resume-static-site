@@ -7,7 +7,7 @@ interface Props {
   class?: string;
 }
 const { accent, accentWidth = 2, class: extra = '' } = Astro.props;
-const topBorder = accent ? `border-top: ${accentWidth}px solid var(--color-ctp-${accent})` : undefined;
+const topBorder = accent ? `border-top: ${accentWidth}px solid var(--catppuccin-color-${accent})` : undefined;
 ---
 
 <div

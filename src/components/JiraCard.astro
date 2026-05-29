@@ -19,8 +19,8 @@ const source = job.source ?? 'Other';
 const sourceAccent = SOURCE_ACCENT[source]!;
 
 const epicPillStyle =
-  `color: var(--color-ctp-${epic}); ` +
-  `background: color-mix(in srgb, var(--color-ctp-${epic}) 22%, transparent)`;
+  `color: var(--catppuccin-color-${epic}); ` +
+  `background: color-mix(in srgb, var(--catppuccin-color-${epic}) 22%, transparent)`;
 
 const labelStatus: JobStatus = job.status;
 ---
@@ -42,7 +42,7 @@ const labelStatus: JobStatus = job.status;
     >
       <span
         class="h-1.5 w-1.5 shrink-0 rounded-[1px]"
-        style={`background: var(--color-ctp-${epic})`}
+        style={`background: var(--catppuccin-color-${epic})`}
         aria-hidden="true"></span>
       {job.company}
     </span>
@@ -50,7 +50,7 @@ const labelStatus: JobStatus = job.status;
       sub && (
         <span
           class="shrink-0 rounded-[3px] px-1.5 py-0.5 font-mono text-[9.5px] font-semibold tracking-[0.06em] uppercase"
-          style={`color: var(--color-ctp-${sub.color}); background: color-mix(in srgb, var(--color-ctp-${sub.color}) 22%, transparent)`}
+          style={`color: var(--catppuccin-color-${sub.color}); background: color-mix(in srgb, var(--catppuccin-color-${sub.color}) 22%, transparent)`}
         >
           {sub.label}
         </span>
@@ -65,21 +65,24 @@ const labelStatus: JobStatus = job.status;
       <span
         class="inline-flex h-3.5 w-3.5 items-center justify-center rounded-[3px] bg-ctp-sapphire text-[9px] font-bold text-ctp-crust"
         title="Task"
-        aria-hidden="true">✓</span>
+        aria-hidden="true">✓</span
+      >
       <span class="text-ctp-subtext1">{jobKey(job.key)}</span>
       <span
         class="text-[12px] font-bold"
-        style={`color: var(--color-ctp-${prio.color})`}
+        style={`color: var(--catppuccin-color-${prio.color})`}
         title={`Priority: ${prio.label}`}
-        aria-label={`Priority: ${prio.label}`}>{prio.icon}</span>
+        aria-label={`Priority: ${prio.label}`}>{prio.icon}</span
+      >
     </span>
     <span class="inline-flex items-center gap-1.5">
       <Chip color={sourceAccent} class="px-1.5 py-0.5 text-[10px] font-semibold tracking-[0.04em] uppercase">
         {source}
       </Chip>
       <span
-        class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full border-[1.5px] border-ctp-crust bg-ctp-peach font-display text-[10px] font-bold text-ctp-crust shadow-[0_0_0_1px_var(--color-ctp-surface1)]"
-        aria-hidden="true">TS</span>
+        class="inline-flex h-[22px] w-[22px] items-center justify-center rounded-full border-[1.5px] border-ctp-crust bg-ctp-peach font-display text-[10px] font-bold text-ctp-crust shadow-[0_0_0_1px_var(--catppuccin-color-surface1)]"
+        aria-hidden="true">TS</span
+      >
     </span>
   </div>
 </article>

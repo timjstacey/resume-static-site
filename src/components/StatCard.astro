@@ -10,8 +10,8 @@ interface Props {
   class?: string;
 }
 const { index, value, label, accent, alt = false, class: extra = '' } = Astro.props;
-const topBorder = accent ? `border-top: 2px solid var(--color-ctp-${accent})` : undefined;
-const valueStyle = accent ? `color: var(--color-ctp-${accent})` : undefined;
+const topBorder = accent ? `border-top: 2px solid var(--catppuccin-color-${accent})` : undefined;
+const valueStyle = accent ? `color: var(--catppuccin-color-${accent})` : undefined;
 ---
 
 <div class:list={[alt ? 'bg-ctp-mantle' : 'bg-ctp-crust', 'p-9', extra]} style={topBorder} data-stat-label={label}>
