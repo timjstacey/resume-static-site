@@ -29,7 +29,10 @@ const count = `${jobs.length} ${jobs.length === 1 ? 'issue' : 'issues'}`;
       class="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-[0.1em] text-ctp-text uppercase"
     >
       {label}
-      <span class="rounded-[10px] bg-ctp-surface0 px-[7px] py-px text-[10px] font-semibold text-ctp-subtext0">
+      <span
+        class="rounded-[10px] bg-ctp-surface0 px-[7px] py-px text-[10px] font-semibold text-ctp-subtext0"
+        data-count
+      >
         {jobs.length}
       </span>
     </span>
@@ -37,15 +40,14 @@ const count = `${jobs.length} ${jobs.length === 1 ? 'issue' : 'issues'}`;
   </header>
 
   <div class="column-body flex flex-col gap-2">
-    {
-      jobs.length === 0 ? (
-        <p class="rounded border border-dashed border-ctp-surface1 px-3 py-6 text-center font-mono text-[11px] text-ctp-overlay1">
-          ─ no issues ─
-        </p>
-      ) : (
-        jobs.map((job) => <JiraCard job={job} />)
-      )
-    }
+    {jobs.map((job) => <JiraCard job={job} />)}
+    <p
+      data-empty
+      hidden={jobs.length > 0}
+      class="rounded border border-dashed border-ctp-surface1 px-3 py-6 text-center font-mono text-[11px] text-ctp-overlay1"
+    >
+      ─ no issues ─
+    </p>
     <button
       type="button"
       class="mt-1 cursor-pointer rounded border border-dashed border-ctp-surface1 px-2.5 py-2 text-left font-mono text-[12px] text-ctp-overlay1 transition-colors hover:border-ctp-overlay0 hover:text-ctp-subtext0"

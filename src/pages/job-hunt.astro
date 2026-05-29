@@ -22,7 +22,11 @@ const total = jobs.length;
 const inFlight = jobs.filter((j) => j.status === 'Applied').length;
 const screening = jobs.filter((j) => j.status === 'Screening').length;
 
-const filterPills = ['EPIC', 'TYPE', 'PRIORITY', 'SOURCE'];
+// Filter dropdown options, derived from the data.
+const companies = [...new Set(jobs.map((j) => j.company))].sort();
+const sources = [...new Set(jobs.map((j) => j.source ?? 'Other'))].sort();
+const priorities = ['highest', 'high', 'medium', 'low'];
+
 const avatars: { label: string; accent: string }[] = [
   { label: 'TS', accent: 'peach' },
   { label: 'AI', accent: 'lavender' },
@@ -93,10 +97,11 @@ const avatars: { label: string; accent: string }[] = [
     <!-- filter bar -->
     <div class="mt-6 flex flex-wrap items-center gap-2.5 pb-4">
       <label
-        class="inline-flex min-w-[240px] flex-1 items-center gap-2 rounded border border-ctp-surface1 bg-ctp-surface0 px-3 py-[7px] font-mono text-[12px] text-ctp-overlay1 sm:flex-none"
+        class="inline-flex min-w-[240px] flex-1 items-center gap-2 rounded border border-ctp-surface1 bg-ctp-surface0 px-3 py-[7px] font-mono text-[12px] text-ctp-overlay1 sm:max-w-[280px] sm:flex-none"
       >
         <span aria-hidden="true">⌕</span>
         <input
+          id="board-search"
           type="search"
           placeholder="Search this board"
           class="w-full bg-transparent text-ctp-text placeholder:text-ctp-overlay1 focus:outline-none"
@@ -104,41 +109,40 @@ const avatars: { label: string; accent: string }[] = [
         />
       </label>
 
-      {
-        filterPills.map((f) => (
-          <button
-            type="button"
-            class="inline-flex items-center gap-1.5 rounded border border-ctp-surface1 px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
-          >
-            {f}{' '}
-            <span class="text-[9px] opacity-60" aria-hidden="true">
-              ▾
-            </span>
-          </button>
-        ))
-      }
-
-      <span class="hidden flex-1 sm:block"></span>
-
-      <button
-        type="button"
-        aria-pressed="true"
-        class="rounded border px-3 py-[7px] font-mono text-[11.5px] font-semibold tracking-[0.04em] text-ctp-peach"
-        style="border-color: color-mix(in srgb, var(--catppuccin-color-peach) 55%, transparent); background: color-mix(in srgb, var(--catppuccin-color-peach) 11%, transparent)"
+      <select
+        id="filter-epic"
+        aria-label="Filter by company"
+        class="cursor-pointer rounded border border-ctp-surface1 bg-ctp-mantle px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
       >
-        + ONLY MY ISSUES
-      </button>
-      <button
-        type="button"
-        class="rounded border border-ctp-surface1 px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext1 transition-colors hover:border-ctp-overlay0"
+        <option value="">EPIC ▾</option>
+        {companies.map((c) => <option value={c}>{c}</option>)}
+      </select>
+
+      <select
+        id="filter-priority"
+        aria-label="Filter by priority"
+        class="cursor-pointer rounded border border-ctp-surface1 bg-ctp-mantle px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 uppercase transition-colors hover:border-ctp-overlay0"
       >
-        + RECENTLY UPDATED
-      </button>
+        <option value="">PRIORITY ▾</option>
+        {priorities.map((p) => <option value={p}>{p}</option>)}
+      </select>
+
+      <select
+        id="filter-source"
+        aria-label="Filter by source"
+        class="cursor-pointer rounded border border-ctp-surface1 bg-ctp-mantle px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
+      >
+        <option value="">SOURCE ▾</option>
+        {sources.map((s) => <option value={s}>{s}</option>)}
+      </select>
+
       <button
         type="button"
+        id="filter-clear"
+        hidden
         class="rounded px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-overlay1 transition-colors hover:text-ctp-subtext0"
       >
-        + ADD FILTER
+        ✕ clear
       </button>
     </div>
   </section>
@@ -228,4 +232,45 @@ const avatars: { label: string; accent: string }[] = [
 
   applyAccordion(mq.matches);
   mq.addEventListener('change', (e) => applyAccordion(e.matches));
+
+  // Board filters: search (role/company) + epic (company) + priority + source.
+  const search = document.getElementById('board-search') as HTMLInputElement | null;
+  const epicSel = document.getElementById('filter-epic') as HTMLSelectElement | null;
+  const prioSel = document.getElementById('filter-priority') as HTMLSelectElement | null;
+  const srcSel = document.getElementById('filter-source') as HTMLSelectElement | null;
+  const clearBtn = document.getElementById('filter-clear') as HTMLButtonElement | null;
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('article[data-search]'));
+  const boardCols = Array.from(document.querySelectorAll<HTMLElement>('.board-column'));
+
+  function applyFilters() {
+    const q = (search?.value ?? '').trim().toLowerCase();
+    const epic = epicSel?.value ?? '';
+    const prio = prioSel?.value ?? '';
+    const src = srcSel?.value ?? '';
+    for (const card of cards) {
+      const d = card.dataset;
+      const show =
+        (!q || (d.search ?? '').includes(q)) &&
+        (!epic || d.company === epic) &&
+        (!prio || d.priority === prio) &&
+        (!src || d.source === src);
+      card.classList.toggle('hidden', !show);
+    }
+    for (const col of boardCols) {
+      const visible = col.querySelectorAll('article[data-search]:not(.hidden)').length;
+      const countEl = col.querySelector('[data-count]');
+      if (countEl) countEl.textContent = String(visible);
+      const empty = col.querySelector<HTMLElement>('[data-empty]');
+      if (empty) empty.hidden = visible > 0;
+    }
+    if (clearBtn) clearBtn.hidden = !(q || epic || prio || src);
+  }
+
+  search?.addEventListener('input', applyFilters);
+  [epicSel, prioSel, srcSel].forEach((s) => s?.addEventListener('change', applyFilters));
+  clearBtn?.addEventListener('click', () => {
+    if (search) search.value = '';
+    for (const s of [epicSel, prioSel, srcSel]) if (s) s.value = '';
+    applyFilters();
+  });
 </script>

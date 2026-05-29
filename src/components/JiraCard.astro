@@ -12,7 +12,8 @@ interface Props {
 const { job } = Astro.props;
 
 const epic = epicColorFor(job.company);
-const prio = PRIORITY[priorityFor(job.role)];
+const prioKey = priorityFor(job.role);
+const prio = PRIORITY[prioKey];
 const sub = SUB_STATUS[job.status];
 const isClosed = Boolean(sub);
 const source = job.source ?? 'Other';
@@ -33,6 +34,10 @@ const labelStatus: JobStatus = job.status;
   ]}
   aria-label={`${job.role} at ${job.company}, ${labelStatus}, ${job.applied}`}
   data-column={isClosed ? 'closed' : job.status.toLowerCase()}
+  data-company={job.company}
+  data-priority={prioKey}
+  data-source={source}
+  data-search={`${job.role} ${job.company}`.toLowerCase()}
 >
   <div class="flex items-center justify-between gap-2">
     <span

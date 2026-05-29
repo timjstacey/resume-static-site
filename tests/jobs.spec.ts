@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { getJobs } from '../src/lib/data';
-import { withKeys, columnOf, STATUS_COLUMNS } from '../src/lib/jobhunt';
+import { withKeys, columnOf, STATUS_COLUMNS, priorityFor } from '../src/lib/jobhunt';
 
 // Throws at module load if YAML is missing or fails schema validation.
 const jobs = withKeys(getJobs());
@@ -74,5 +74,41 @@ test.describe('Job Hunt board', () => {
     test.skip(!emptyColumn, 'no empty column in fixture');
     const region = page.getByRole('region', { name: new RegExp(`^${columnLabel(emptyColumn!.id)} — 0 issues$`) });
     await expect(region.getByText('─ no issues ─')).toBeVisible();
+  });
+
+  const shown = () => 'article[data-search]:not(.hidden)';
+
+  test('search filters cards by role/company text', async ({ page }) => {
+    const q = 'senior';
+    const expected = jobs.filter((j) => `${j.role} ${j.company}`.toLowerCase().includes(q)).length;
+    await page.locator('#board-search').fill(q);
+    await expect(page.locator(shown())).toHaveCount(expected);
+  });
+
+  test('priority filter shows only matching cards', async ({ page }) => {
+    const expected = jobs.filter((j) => priorityFor(j.role) === 'highest').length;
+    await page.locator('#filter-priority').selectOption('highest');
+    await expect(page.locator(shown())).toHaveCount(expected);
+  });
+
+  test('source filter shows only matching cards', async ({ page }) => {
+    const source = jobs[0]!.source ?? 'Other';
+    const expected = jobs.filter((j) => (j.source ?? 'Other') === source).length;
+    await page.locator('#filter-source').selectOption(source);
+    await expect(page.locator(shown())).toHaveCount(expected);
+  });
+
+  test('epic (company) filter shows only that company', async ({ page }) => {
+    const company = jobs[0]!.company;
+    const expected = jobs.filter((j) => j.company === company).length;
+    await page.locator('#filter-epic').selectOption(company);
+    await expect(page.locator(shown())).toHaveCount(expected);
+  });
+
+  test('clear resets all filters', async ({ page }) => {
+    await page.locator('#filter-priority').selectOption('highest');
+    await expect(page.locator(shown())).not.toHaveCount(jobs.length);
+    await page.locator('#filter-clear').click();
+    await expect(page.locator(shown())).toHaveCount(jobs.length);
   });
 });
