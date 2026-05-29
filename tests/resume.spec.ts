@@ -9,30 +9,78 @@ test.describe('Resume page', () => {
     await page.goto('/resume');
   });
 
-  test('renders Experience and Skills section headings', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Experience', level: 2 })).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Skills', level: 2 })).toBeVisible();
+  test('renders the main page heading', async ({ page }) => {
+    const heading = page.getByTestId('resume-heading');
+    await expect(heading).toBeVisible();
+    await expect(heading).toContainText('10 years of');
+    await expect(heading).toContainText('not breaking prod.');
   });
 
-  test.describe('experience entries', () => {
+  test('renders the // resume.tex section label', async ({ page }) => {
+    await expect(page.getByText('// resume.tex')).toBeVisible();
+  });
+
+  test('renders the experience section label', async ({ page }) => {
+    await expect(page.getByText('experience · 2015 — 2026')).toBeVisible();
+  });
+
+  test('renders the download.pdf button', async ({ page }) => {
+    await expect(page.getByRole('link', { name: /download\.pdf/i })).toBeVisible();
+  });
+
+  test('renders the copy button', async ({ page }) => {
+    await expect(page.getByRole('button', { name: /copy/i })).toBeVisible();
+  });
+
+  test.describe('experience role cards', () => {
     for (const exp of resume.experience) {
       test(`${exp.company} — ${exp.role}`, async ({ page }) => {
-        const entry = page.getByLabel(exp.company);
-        await expect(entry).toBeVisible();
-        await expect(entry.getByText(exp.role)).toBeVisible();
+        const card = page.getByRole('article', { name: exp.company });
+        await expect(card).toBeVisible();
+        await expect(card.getByRole('heading', { level: 2 })).toContainText(exp.role);
       });
     }
   });
 
-  test.describe('skills categories', () => {
+  test('current role shows "now playing" caption', async ({ page }) => {
+    // Sony Interactive Entertainment is the known current role (end: present)
+    const card = page.getByRole('article', { name: 'Sony Interactive Entertainment' });
+    await expect(card).toBeVisible();
+    await expect(card).toContainText('now playing');
+  });
+
+  test('past roles show zero-padded index', async ({ page }) => {
+    // Entain Australia is the first past role (index 01)
+    const card = page.getByRole('article', { name: 'Entain Australia' });
+    await expect(card).toBeVisible();
+    await expect(card).toContainText('01');
+  });
+
+  test('sidebar renders all skill groups', async ({ page }) => {
+    const sidebar = page.getByTestId('resume-sidebar');
+    await expect(sidebar).toBeVisible();
+    for (const group of resume.skills) {
+      const section = sidebar.getByLabel(group.category);
+      await expect(section).toBeVisible();
+      await expect(section.getByText(group.category)).toBeVisible();
+    }
+  });
+
+  test.describe('skills items visible', () => {
     for (const group of resume.skills) {
       test(group.category, async ({ page }) => {
-        const section = page.getByLabel(group.category);
-        await expect(section.getByText(group.category)).toBeVisible();
+        const sidebar = page.getByTestId('resume-sidebar');
+        const section = sidebar.getByLabel(group.category);
         for (const item of group.items) {
           await expect(section.getByText(item, { exact: true })).toBeVisible();
         }
       });
     }
+  });
+
+  test('bullet points render with peach arrow prefix', async ({ page }) => {
+    // At least one bullet with → prefix should be visible
+    const arrows = page.locator('li').filter({ hasText: '→' });
+    await expect(arrows.first()).toBeVisible();
   });
 });
