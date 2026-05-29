@@ -106,14 +106,14 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
             </span>
           </div>
         </div>
-        <div>
+        <div class="min-w-0">
           <div class="mono-caption text-ctp-overlay2">latest commit · {ci.commitAgo}</div>
-          <div class="mt-2 flex items-center gap-2 font-mono text-[13px]">
+          <div class="mt-2 flex min-w-0 items-center gap-2 font-mono text-[13px]">
             <span
-              class="rounded px-1.5 py-0.5 text-ctp-sapphire"
+              class="shrink-0 rounded px-1.5 py-0.5 text-ctp-sapphire"
               style="background: color-mix(in srgb, var(--catppuccin-color-sapphire) 18%, transparent)">#{ci.sha}</span
             >
-            <span class="truncate text-ctp-subtext1">{ci.commitMessage}</span>
+            <span class="min-w-0 truncate text-ctp-subtext1">{ci.commitMessage}</span>
           </div>
         </div>
         <div>
