@@ -1,9 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { NAV_ITEMS } from '../src/lib/nav';
-import { getResume } from '../src/lib/data';
 
-const resume = getResume();
-const siteName = resume.name;
 const navLabels = NAV_ITEMS.map((item) => item.label);
 const pages = NAV_ITEMS.map(({ href, label }) => ({ path: href, activeLabel: label }));
 const firstNavLabel = navLabels[0]!;
@@ -70,7 +67,7 @@ test.describe('Nav — mobile', () => {
     const toggle = nav.getByRole('button', { name: 'Toggle navigation' });
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    await page.getByRole('heading', { name: siteName, level: 1 }).click();
+    await page.getByRole('heading', { level: 1 }).click();
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
   });
 

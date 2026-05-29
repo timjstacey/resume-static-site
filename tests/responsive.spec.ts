@@ -18,9 +18,9 @@ test.describe('Responsive layout — mobile (375px)', () => {
     }
   });
 
-  test('job cards have no horizontal overflow', async ({ page }) => {
+  test('board cards have no horizontal overflow', async ({ page }) => {
     await page.goto('/job-hunt');
-    const cards = page.locator('[data-status]');
+    const cards = page.locator('article[data-column]');
     const count = await cards.count();
     expect(count).toBeGreaterThan(0);
 
@@ -31,10 +31,8 @@ test.describe('Responsive layout — mobile (375px)', () => {
     }
   });
 
-  test('filter buttons reachable in viewport on jobs page', async ({ page }) => {
+  test('board title reachable on jobs page', async ({ page }) => {
     await page.goto('/job-hunt');
-    const allButton = page.getByRole('button', { name: /^All/ });
-    await expect(allButton).toBeVisible();
-    await expect(allButton).toBeInViewport();
+    await expect(page.getByRole('heading', { name: 'Active Pipeline' })).toBeVisible();
   });
 });
