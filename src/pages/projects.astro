@@ -3,12 +3,13 @@ import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { getProjects } from '../lib/data';
+import { PROJECT_FILTERS } from '../lib/projectFilters';
 
 const projects = getProjects();
 const totalStars = projects.reduce((s, p) => s + (p.stars ?? 0), 0);
 const pinnedCount = projects.filter((p) => p.pinned).length;
 
-const filters = ['all', 'typescript', 'javascript', 'astro', 'python', 'pinned'];
+const filters = PROJECT_FILTERS;
 ---
 
 <Base title="Projects" description="Open-source and side projects by Tim Stacey">
@@ -54,10 +55,13 @@ const filters = ['all', 'typescript', 'javascript', 'astro', 'python', 'pinned']
         ))
       }
     </div>
-    <div class="flex items-center gap-2 font-mono text-[12px] text-ctp-overlay1">
-      <span class="rounded border border-ctp-surface2 px-2.5 py-1">sort: updated ↓</span>
-      <span class="rounded border border-ctp-surface2 px-2.5 py-1">view: grid ▦</span>
-    </div>
+    <button
+      type="button"
+      id="sort-btn"
+      class="rounded border border-ctp-surface2 px-2.5 py-1 font-mono text-[12px] text-ctp-subtext0 transition-colors hover:text-ctp-text"
+    >
+      sort: updated <span id="sort-arrow">↓</span>
+    </button>
   </div>
 
   <!-- GRID -->
@@ -102,5 +106,29 @@ const filters = ['all', 'typescript', 'javascript', 'astro', 'python', 'pinned']
 
     const initial = new URL(window.location.href).searchParams.get('tag');
     apply(buttons.some((b) => b.dataset.filter === initial) ? initial : 'all');
+
+    // Sort by recency (data-updated = days ago). Toggle asc/desc.
+    const grid = document.getElementById('project-grid');
+    const sortBtn = document.getElementById('sort-btn');
+    const arrow = document.getElementById('sort-arrow');
+    let desc = true; // ↓ = most recent first
+    function sort() {
+      const ordered = cards.slice().sort(function (a, b) {
+        const da = Number(a.getAttribute('data-updated'));
+        const db = Number(b.getAttribute('data-updated'));
+        return desc ? da - db : db - da;
+      });
+      ordered.forEach(function (card) {
+        grid.appendChild(card);
+      });
+      if (arrow) arrow.textContent = desc ? '↓' : '↑';
+    }
+    if (sortBtn && grid) {
+      sortBtn.addEventListener('click', function () {
+        desc = !desc;
+        sort();
+      });
+      sort();
+    }
   })();
 </script>

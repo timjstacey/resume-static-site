@@ -45,7 +45,7 @@ function padIndex(n: number) {
           data-testid="resume-heading"
         >
           10 years of<br />
-          <span style="color: var(--color-ctp-peach)">not breaking prod.</span>
+          <span style="color: var(--catppuccin-color-peach)">not breaking prod.</span>
         </h1>
       </div>
 
@@ -55,7 +55,7 @@ function padIndex(n: number) {
         <div class="flex gap-3">
           <span class="w-16 shrink-0 text-ctp-overlay2">status</span>
           <span class="text-ctp-subtext0">:</span>
-          <span style="color: var(--color-ctp-green)">● open · from 13.jun.26</span>
+          <span style="color: var(--catppuccin-color-green)">● open · from 2026-06-15</span>
         </div>
         <!-- email (not in data — use contact fields we have) -->
         {
@@ -94,13 +94,19 @@ function padIndex(n: number) {
         <div class="flex gap-3">
           <span class="w-16 shrink-0 text-ctp-overlay2">based</span>
           <span class="text-ctp-subtext0">:</span>
-          <span class="text-ctp-text">remote · uk</span>
+          <span class="text-ctp-text">remote · au</span>
         </div>
 
         <!-- Action buttons -->
         <div class="mt-3 flex gap-2">
-          <Button variant="primary" href="/resume.pdf" class="flex-1 justify-center"> ⬇ download.pdf </Button>
-          <Button variant="ghost">⎘ copy</Button>
+          <Button
+            variant="primary"
+            href="/tim-stacey-resume.pdf"
+            download="tim-stacey-resume.pdf"
+            class="flex-1 justify-center"
+          >
+            ⬇ download.pdf
+          </Button>
         </div>
       </div>
     </div>
@@ -171,22 +177,26 @@ function padIndex(n: number) {
                     class="rounded-lg p-7"
                     style={
                       isCurrent
-                        ? `background: var(--color-ctp-mantle); border: 1px solid color-mix(in srgb, var(--color-ctp-peach) 33%, transparent); border-left: 4px solid var(--color-ctp-peach);`
-                        : `background: var(--color-ctp-crust); border: 1px solid var(--color-ctp-surface0); border-left: 4px solid var(--color-ctp-surface1);`
+                        ? `background: var(--catppuccin-color-mantle); border: 1px solid color-mix(in srgb, var(--catppuccin-color-peach) 33%, transparent); border-left: 4px solid var(--catppuccin-color-peach);`
+                        : `background: var(--catppuccin-color-crust); border: 1px solid var(--catppuccin-color-surface0); border-left: 4px solid var(--catppuccin-color-surface1);`
                     }
                   >
                     <div class="mb-4 flex items-start justify-between gap-6">
                       <div class="min-w-0">
                         <div
                           class="mb-2 font-mono text-[11px] tracking-[0.1em] uppercase"
-                          style={isCurrent ? 'color: var(--color-ctp-peach)' : 'color: var(--color-ctp-overlay2)'}
+                          style={
+                            isCurrent
+                              ? 'color: var(--catppuccin-color-peach)'
+                              : 'color: var(--catppuccin-color-overlay2)'
+                          }
                         >
-                          {isCurrent ? '● now playing' : padIndex(cardIndex!)}
+                          {isCurrent ? '● current role' : padIndex(cardIndex!)}
                         </div>
                         <h2 class="font-display text-2xl leading-tight font-bold tracking-[-0.02em] break-words text-ctp-text md:text-[28px]">
                           {exp.role}
                         </h2>
-                        <div class="mt-1 font-mono text-sm" style="color: var(--color-ctp-teal)">
+                        <div class="mt-1 font-mono text-sm" style="color: var(--catppuccin-color-teal)">
                           @ {slug}
                         </div>
                       </div>
@@ -202,7 +212,7 @@ function padIndex(n: number) {
                             class="flex gap-3 text-[14.5px] leading-[1.55] text-ctp-subtext1"
                             style="text-wrap: pretty"
                           >
-                            <span class="mt-px shrink-0 font-mono" style="color: var(--color-ctp-peach)">
+                            <span class="mt-px shrink-0 font-mono" style="color: var(--catppuccin-color-peach)">
                               →
                             </span>
                             <span>{bullet}</span>
