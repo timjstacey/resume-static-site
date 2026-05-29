@@ -1,62 +1,79 @@
 ---
 import type { Project } from '../lib/schemas';
-import { PROJECT_STATUS_LABEL, PROJECT_STATUS_COLOUR } from '../lib/projectStatus';
+import { langColor } from '../lib/langColors';
 
 interface Props {
   project: Project;
 }
-
 const { project } = Astro.props;
+
+const m = project.repo?.match(/github\.com\/([^/]+)\/([^/]+)/);
+const owner = m ? `${m[1]}/` : '';
+const repoName = m ? m[2]! : project.name;
+const href = project.repo ?? project.url ?? undefined;
+
+// data-tags drives client-side filtering on the projects page.
+const filterTokens = [...project.tags, project.lang]
+  .filter(Boolean)
+  .map((t) => t!.toLowerCase())
+  .concat(project.pinned ? ['pinned'] : [])
+  .join(' ');
 ---
 
-<div aria-label={project.name} class="flex flex-col rounded-lg border border-ctp-surface1 bg-ctp-mantle p-5">
+<article
+  aria-label={project.name}
+  data-project
+  data-tags={filterTokens}
+  class="flex flex-col rounded-lg border border-ctp-surface0 bg-ctp-mantle p-5 transition-colors duration-150 ease-out hover:border-ctp-surface1"
+>
   <div class="flex items-start justify-between gap-2">
-    <h2 class="text-lg font-semibold text-ctp-text">
-      {
-        project.url ? (
-          <a href={project.url} target="_blank" rel="noopener" class="hover:text-ctp-blue">
-            {project.name}
-          </a>
-        ) : (
-          project.name
-        )
-      }
-    </h2>
-    <span class={`shrink-0 text-sm font-medium ${PROJECT_STATUS_COLOUR[project.status]}`}>
-      {PROJECT_STATUS_LABEL[project.status]}
-    </span>
+    <div class="min-w-0">
+      <div class="font-mono text-[11px] text-ctp-overlay2">{owner}</div>
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener"
+        class="font-mono text-[17px] font-semibold text-ctp-teal hover:underline"
+      >
+        {repoName}
+      </a>
+    </div>
+    {
+      project.pinned && (
+        <span class="shrink-0 rounded bg-ctp-peach px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-ctp-crust uppercase">
+          ★ PIN
+        </span>
+      )
+    }
   </div>
 
-  <p class="mt-2 flex-1 text-sm text-ctp-subtext1">{project.description}</p>
+  <p class="mt-3 flex-1 text-sm text-ctp-subtext0">{project.description}</p>
 
   {
     project.tags.length > 0 && (
-      <div class="mt-3 flex flex-wrap gap-1.5" role="list" aria-label="Tags">
+      <div class="mt-3 flex flex-wrap gap-1.5">
         {project.tags.map((tag) => (
-          <span role="listitem" class="rounded-full bg-ctp-surface1 px-2.5 py-0.5 text-xs text-ctp-text">
-            {tag}
+          <span class="rounded bg-ctp-surface0 px-2 py-0.5 font-mono text-[10.5px] text-ctp-subtext1">
+            #{tag.toLowerCase()}
           </span>
         ))}
       </div>
     )
   }
 
-  {
-    project.repo && (
-      <div class="mt-4">
-        <a
-          href={project.repo}
-          target="_blank"
-          rel="noopener"
-          class="flex items-center gap-1.5 text-sm text-ctp-blue hover:text-ctp-text"
-          aria-label={`${project.name} repository`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-4 w-4 fill-current">
-            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-          </svg>
-          <span>View repo</span>
-        </a>
-      </div>
-    )
-  }
-</div>
+  <div
+    class="mt-4 flex items-center justify-between border-t border-ctp-surface0 pt-3 font-mono text-[11px] text-ctp-subtext0"
+  >
+    {
+      project.lang && (
+        <span class="flex items-center gap-1.5">
+          <span class="h-2.5 w-2.5 rounded-[2px]" style={`background:${langColor(project.lang)}`} />
+          {project.lang}
+        </span>
+      )
+    }
+    <span class="text-ctp-overlay1">
+      ★{project.stars ?? 0} · ⑃{project.forks ?? 0}{project.updated ? ` · ${project.updated}` : ''}
+    </span>
+  </div>
+</article>
