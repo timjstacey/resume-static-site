@@ -5,110 +5,112 @@ const currentPath = Astro.url.pathname;
 const links = NAV_ITEMS;
 ---
 
-<header class="flex items-stretch border-b border-ctp-surface0 bg-ctp-mantle">
-  <!-- Brand block -->
-  <a href="/" class="flex min-w-[280px] items-center gap-3.5 border-r border-ctp-surface0 px-7 py-5">
-    <span
-      class="flex h-11 w-11 items-center justify-center rounded-[10px] bg-ctp-peach font-display text-lg font-bold tracking-[-0.02em] text-ctp-crust"
-    >
-      TS
-    </span>
-    <span class="leading-none">
-      <span class="block font-display text-base font-semibold tracking-[-0.01em] text-ctp-text">Tim Stacey</span>
-      <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1">~/sillysamoyed.com</span>
-    </span>
-  </a>
-
-  <!-- Centre nav: desktop -->
-  <nav class="hidden flex-1 items-stretch md:flex" aria-label="Primary">
-    {
-      links.map(({ href, label }) => {
-        const isActive = isActivePath(href, currentPath);
-        return (
-          <a
-            href={href}
-            aria-current={isActive ? 'page' : undefined}
-            class:list={[
-              'flex items-center gap-2 border-r border-b-2 border-ctp-surface0 px-6 font-mono text-[13px] tracking-[0.02em] transition-colors duration-150 ease-out',
-              isActive
-                ? 'border-b-ctp-peach bg-ctp-surface0 text-ctp-peach'
-                : 'border-b-transparent text-ctp-subtext0 hover:text-ctp-text',
-            ]}
-          >
-            {isActive && <span aria-hidden="true">▸</span>}
-            {label.toLowerCase()}
-          </a>
-        );
-      })
-    }
-  </nav>
-
-  <!-- Right block -->
-  <div
-    class="ml-auto flex items-center gap-4 px-7 font-mono text-xs text-ctp-subtext0 md:ml-0 md:border-l md:border-ctp-surface0"
-  >
-    <slot />
-    <span class="text-ctp-overlay0 max-md:hidden">|</span>
-    <span class="max-md:hidden">⌘K</span>
-
-    <!-- Hamburger: mobile only -->
-    <button
-      id="nav-toggle"
-      class="flex items-center justify-center text-ctp-subtext0 hover:text-ctp-text md:hidden"
-      aria-label="Toggle navigation"
-      aria-expanded="false"
-      aria-controls="nav-mobile"
-    >
-      <svg
-        id="nav-icon-open"
-        class="h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-        aria-hidden="true"
+<nav aria-label="Primary" class="border-b border-ctp-surface0 bg-ctp-mantle">
+  <div class="flex items-stretch">
+    <!-- Brand block -->
+    <a href="/" class="flex items-center gap-3.5 border-r border-ctp-surface0 px-5 py-5 md:min-w-[280px] md:px-7">
+      <span
+        class="flex h-11 w-11 items-center justify-center rounded-[10px] bg-ctp-peach font-display text-lg font-bold tracking-[-0.02em] text-ctp-crust"
       >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-      <svg
-        id="nav-icon-close"
-        class="hidden h-5 w-5"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-        aria-hidden="true"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-  </div>
-</header>
+        TS
+      </span>
+      <span class="leading-none">
+        <span class="block font-display text-base font-semibold tracking-[-0.01em] text-ctp-text">Tim Stacey</span>
+        <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1">~/sillysamoyed.com</span>
+      </span>
+    </a>
 
-<!-- Mobile drawer -->
-<div id="nav-mobile" class="hidden border-b border-ctp-surface0 bg-ctp-mantle md:hidden">
-  <ul class="flex flex-col px-7 py-2">
-    {
-      links.map(({ href, label }) => {
-        const isActive = isActivePath(href, currentPath);
-        return (
-          <li>
+    <!-- Centre links: desktop -->
+    <div class="hidden flex-1 items-stretch md:flex">
+      {
+        links.map(({ href, label }) => {
+          const isActive = isActivePath(href, currentPath);
+          return (
             <a
               href={href}
               aria-current={isActive ? 'page' : undefined}
               class:list={[
-                'block py-2 font-mono text-sm transition-colors',
-                isActive ? 'text-ctp-peach' : 'text-ctp-subtext0 hover:text-ctp-text',
+                'flex items-center gap-2 border-r border-b-2 border-ctp-surface0 px-6 font-mono text-[13px] tracking-[0.02em] transition-colors duration-150 ease-out',
+                isActive
+                  ? 'border-b-ctp-peach bg-ctp-surface0 text-ctp-peach'
+                  : 'border-b-transparent text-ctp-subtext0 hover:text-ctp-text',
               ]}
             >
+              {isActive && <span aria-hidden="true">▸</span>}
               {label.toLowerCase()}
             </a>
-          </li>
-        );
-      })
-    }
-  </ul>
-</div>
+          );
+        })
+      }
+    </div>
+
+    <!-- Right block -->
+    <div
+      class="ml-auto flex items-center gap-4 px-5 font-mono text-xs text-ctp-subtext0 md:ml-0 md:border-l md:border-ctp-surface0 md:px-7"
+    >
+      <slot />
+      <span class="text-ctp-overlay0 max-md:hidden">|</span>
+      <span class="max-md:hidden">⌘K</span>
+
+      <!-- Hamburger: mobile only -->
+      <button
+        id="nav-toggle"
+        class="flex items-center justify-center text-ctp-subtext0 hover:text-ctp-text md:hidden"
+        aria-label="Toggle navigation"
+        aria-expanded="false"
+        aria-controls="nav-mobile"
+      >
+        <svg
+          id="nav-icon-open"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <svg
+          id="nav-icon-close"
+          class="hidden h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div id="nav-mobile" class="hidden border-t border-ctp-surface0 md:hidden">
+    <ul class="flex flex-col px-5 py-2">
+      {
+        links.map(({ href, label }) => {
+          const isActive = isActivePath(href, currentPath);
+          return (
+            <li>
+              <a
+                href={href}
+                aria-current={isActive ? 'page' : undefined}
+                class:list={[
+                  'block py-2 font-mono text-sm transition-colors',
+                  isActive ? 'text-ctp-peach' : 'text-ctp-subtext0 hover:text-ctp-text',
+                ]}
+              >
+                {label.toLowerCase()}
+              </a>
+            </li>
+          );
+        })
+      }
+    </ul>
+  </div>
+</nav>
 
 <script is:inline>
   (function () {

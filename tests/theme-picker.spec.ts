@@ -1,8 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { FLAVORS, THEME_TRIGGER_LABEL } from '../src/lib/themes';
-import { getResume } from '../src/lib/data';
 
-const siteName = getResume().name;
 const targetFlavor = FLAVORS.find((f) => f.id === 'mocha') ?? FLAVORS[0];
 
 test.describe('ThemePicker', () => {
@@ -20,7 +18,7 @@ test.describe('ThemePicker', () => {
     await page.goto('/');
     const trigger = page.getByRole('button', { name: THEME_TRIGGER_LABEL });
     await trigger.click();
-    await page.getByRole('button', { name: `${targetFlavor.label} theme` }).click();
+    await page.getByRole('menuitemradio', { name: `${targetFlavor.label} theme` }).click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
     await expect(page.locator('html')).toHaveClass(new RegExp(targetFlavor.id));
     const stored = await page.evaluate(() => localStorage.getItem('ctp-flavor'));
@@ -32,7 +30,7 @@ test.describe('ThemePicker', () => {
     const trigger = page.getByRole('button', { name: THEME_TRIGGER_LABEL });
     await trigger.click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    await page.getByRole('heading', { name: siteName, level: 1 }).click();
+    await page.getByRole('heading', { level: 1 }).click();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
