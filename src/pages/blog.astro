@@ -1,33 +1,234 @@
 ---
 import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
-import PostCard from '../components/PostCard.astro';
+import Button from '../components/Button.astro';
+import Chip from '../components/Chip.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
 import { getPosts } from '../lib/posts';
+import { getDrafts } from '../lib/data';
+import { tagCounts, archive } from '../lib/blog';
 
-// Stub — full design lands in Wave 1 (#60). Lists posts so the route is real.
 const posts = await getPosts();
-const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-const accents = ['peach', 'teal', 'mauve'];
+const drafts = getDrafts();
+const featured = posts[0]!;
+const rest = posts.slice(1);
+
+const postLikes = posts.map((p) => ({ tag: p.data.tag, date: p.data.date }));
+const tags = tagCounts(postLikes, drafts);
+const years = archive(postLikes);
+
+const TAG_ACCENT: Record<string, string> = {
+  Strategy: 'peach',
+  Practice: 'teal',
+  Meta: 'mauve',
+  Team: 'sapphire',
+  Tools: 'yellow',
+};
+const DRAFT_ACCENT: Record<string, string> = { drafting: 'peach', editing: 'teal', idea: 'overlay2' };
+const tagAccent = (tag: string): string => TAG_ACCENT[tag] ?? 'lavender';
+const draftAccent = (status: string): string => DRAFT_ACCENT[status] ?? 'overlay2';
+
+const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+const prefixColor = (p: string) => (p === '$' ? 'text-ctp-peach' : p === '#' ? 'text-ctp-teal' : 'text-ctp-subtext1');
+const pad = (n: number) => String(n).padStart(3, '0');
 ---
 
-<Base title="Blog">
-  <section class="px-14 pt-14">
-    <SectionLabel>// blog.md</SectionLabel>
-    <h1 class="mt-7 font-display text-5xl font-bold tracking-[-0.035em] text-ctp-text md:text-6xl">Field notes.</h1>
-    <div class="mt-10 grid gap-4 md:grid-cols-3">
+<Base title="Blog" description="Field notes on testing and quality engineering by Tim Stacey">
+  <!-- HEADER -->
+  <header class="grid gap-10 px-14 pt-14 lg:grid-cols-[1.4fr_1fr]">
+    <div>
+      <SectionLabel color="teal">// blog.md</SectionLabel>
+      <h1 class="mt-5 font-display text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-ctp-text md:text-[80px]">
+        Field notes / from someone / who <span class="text-ctp-peach">tests things</span>
+        <span class="text-ctp-overlay1">for a living.</span>
+      </h1>
+    </div>
+    <dl class="flex flex-col gap-2.5 self-end font-mono text-[12.5px]">
       {
-        posts.map((post, i) => (
-          <PostCard
-            title={post.data.title}
-            tag={post.data.tag}
-            date={fmt(post.data.date)}
-            excerpt={post.data.excerpt}
-            readMins={post.data.readMins}
-            slug={post.id}
-            accent={accents[i % accents.length]!}
-          />
+        [
+          ['published', String(posts.length)],
+          ['drafts', String(drafts.length)],
+          ['cadence', 'when it matters'],
+          ['written in', 'markdown + vim'],
+        ].map(([k, v]) => (
+          <div class="flex gap-3">
+            <dt class="w-[88px] shrink-0 text-ctp-overlay2">{k}</dt>
+            <dd class="text-ctp-text">{v}</dd>
+          </div>
         ))
       }
+    </dl>
+  </header>
+
+  <!-- FEATURED -->
+  <section class="px-14 pt-14">
+    <div
+      class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-8"
+      style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--color-ctp-peach) 8%, transparent), transparent 70%), var(--color-ctp-mantle)"
+    >
+      <span class="absolute top-6 right-6 flex items-center gap-2 font-mono text-[11px] text-ctp-green">
+        <span class="h-2 w-2 rounded-full bg-ctp-green"></span>featured · latest
+      </span>
+      <div class="grid gap-14 lg:grid-cols-[1.1fr_1fr]">
+        <div>
+          <SectionLabel color={tagAccent(featured.data.tag)}>// post 001</SectionLabel>
+          <h2
+            class="mt-5 font-display text-4xl leading-[1.02] font-bold tracking-[-0.03em] text-balance text-ctp-text md:text-[56px]"
+          >
+            {featured.data.title}
+          </h2>
+          <p class="mt-5 text-lg leading-relaxed text-ctp-subtext1">{featured.data.excerpt}</p>
+          <div class="mt-5 flex items-center gap-4 font-mono text-[12px] text-ctp-overlay1">
+            <span>{fmtDate(featured.data.date)}</span>
+            <span>~{featured.data.readMins}min</span>
+            <Chip color={tagAccent(featured.data.tag)}>{featured.data.tag}</Chip>
+          </div>
+          <div class="mt-7 flex flex-wrap gap-3">
+            <Button variant="primary" href={`/blog/${featured.id}`}>▸ ./read --post {featured.id}</Button>
+            <Button variant="ghost">⎘ copy link</Button>
+          </div>
+        </div>
+        <TerminalWindow path={`cat ${featured.id}.md`}>
+          {
+            featured.data.preview.map(([prefix, text], i) => (
+              <div class="flex gap-3.5">
+                <span class={`w-2 shrink-0 ${prefixColor(prefix)}`}>{prefix.trim()}</span>
+                <span class="text-ctp-subtext1">
+                  {text}
+                  {i === featured.data.preview.length - 1 && <span class="terminal-cursor ml-0.5" />}
+                </span>
+              </div>
+            ))
+          }
+        </TerminalWindow>
+      </div>
     </div>
+  </section>
+
+  <!-- PUBLISHED + SIDEBAR -->
+  <section class="grid gap-14 px-14 pt-18 lg:grid-cols-[1fr_280px]">
+    <div>
+      <div class="flex items-center justify-between border-b border-ctp-surface0 pb-3">
+        <SectionLabel>// published</SectionLabel>
+        <span class="font-mono text-[11px] text-ctp-overlay1">{posts.length} posts · newest first</span>
+      </div>
+      <div>
+        {
+          rest.map((post, i) => (
+            <a
+              href={`/blog/${post.id}`}
+              class="grid grid-cols-[60px_6px_1fr_auto] items-center gap-4 border-b border-ctp-surface0 py-5 transition-colors hover:bg-ctp-mantle"
+            >
+              <span class="font-mono text-[13px] text-ctp-overlay1">{pad(rest.length - i)}</span>
+              <span
+                class="h-14 w-1.5 rounded-full"
+                style={`background: var(--color-ctp-${tagAccent(post.data.tag)})`}
+              />
+              <span class="min-w-0">
+                <span class="flex items-center gap-3">
+                  <span class="font-display text-xl font-semibold tracking-[-0.01em] text-ctp-text">
+                    {post.data.title}
+                  </span>
+                  <Chip color={tagAccent(post.data.tag)}>{post.data.tag}</Chip>
+                </span>
+                <span class="mt-1 block text-[14.5px] text-ctp-subtext0">{post.data.excerpt}</span>
+              </span>
+              <span class="text-right font-mono text-[12px] text-ctp-overlay1">
+                <span class="block">{fmtDate(post.data.date)}</span>
+                <span class="block">~{post.data.readMins}min</span>
+                <span class="block text-ctp-peach">read →</span>
+              </span>
+            </a>
+          ))
+        }
+      </div>
+
+      <!-- DRAFTS -->
+      <div class="pt-14">
+        <SectionLabel color="teal">// drafts/in-flight</SectionLabel>
+        <p class="mt-3 text-sm text-ctp-subtext0">Working titles, public on purpose.</p>
+        <div class="mt-6 grid gap-3.5 md:grid-cols-3">
+          {
+            drafts.slice(0, 6).map((draft) => (
+              <div
+                class="rounded-lg border border-ctp-surface0 bg-ctp-mantle p-4"
+                style={`border-top: 2px solid var(--color-ctp-${draftAccent(draft.status)})`}
+              >
+                <div class="flex items-center justify-between">
+                  <span
+                    class="flex items-center gap-1.5 font-mono text-[11px]"
+                    style={`color: var(--color-ctp-${draftAccent(draft.status)})`}
+                  >
+                    <span
+                      class="h-1.5 w-1.5 rounded-full"
+                      style={`background: var(--color-ctp-${draftAccent(draft.status)})`}
+                    />
+                    {draft.status}
+                  </span>
+                  <Chip color={tagAccent(draft.tag)}>{draft.tag}</Chip>
+                </div>
+                <div class="mt-3 font-display text-[19px] font-semibold tracking-[-0.01em] text-ctp-text">
+                  {draft.title}
+                </div>
+                <div class="mt-1.5 text-[13.5px] text-ctp-subtext0">{draft.note}</div>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <aside class="flex flex-col gap-8">
+      <div>
+        <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">Tags · {tags.length}</div>
+        <div class="flex flex-col gap-2">
+          {
+            tags.map((t) => (
+              <div class="flex items-center gap-2 font-mono text-[12px]">
+                <span class="h-3 w-3 rounded-[2px]" style={`background: var(--color-ctp-${tagAccent(t.tag)})`} />
+                <span class="text-ctp-subtext1">#{t.tag.toLowerCase()}</span>
+                <span class="ml-auto text-ctp-overlay1">×{t.count}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+
+      <div>
+        {
+          years.map((y) => (
+            <div>
+              <div class="mb-2 flex items-center justify-between border-b border-ctp-surface0 pb-2 font-mono text-[12px]">
+                <span class="text-ctp-text">{y.year}</span>
+                <span class="text-ctp-peach">{y.count} posts</span>
+              </div>
+              <div class="flex flex-col gap-1.5">
+                {y.months.map((m) => (
+                  <div class="flex items-center gap-2 font-mono text-[12px] text-ctp-subtext0">
+                    <span class="text-ctp-overlay1">─</span>
+                    {m.month} · {m.count}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      <div>
+        <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">Subscribe</div>
+        <div class="flex gap-2">
+          {
+            ['RSS', 'Atom', 'JSON Feed'].map((f) => (
+              <span class="rounded border border-ctp-surface2 px-2.5 py-1 font-mono text-[11px] text-ctp-subtext0">
+                {f}
+              </span>
+            ))
+          }
+        </div>
+        <p class="mt-3 font-mono text-[11px] text-ctp-overlay1">newsletter? not yet — soon.</p>
+      </div>
+    </aside>
   </section>
 </Base>
