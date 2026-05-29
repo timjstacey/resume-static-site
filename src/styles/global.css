@@ -1,6 +1,11 @@
 @import 'tailwindcss';
 @import '@catppuccin/tailwindcss/mocha.css';
 
+/* Dynamic accents use inline `var(--catppuccin-color-<key>)` — the raw palette
+   var the plugin defines for every flavour. (The Tailwind `--color-ctp-*`
+   theme vars only exist for colours referenced by a static utility, so they
+   render transparent for dynamically-chosen accents on non-Mocha flavours.) */
+
 /* Terminal Peach type system — Inter Tight (display), Inter (body),
    JetBrains Mono (mono). Loaded via <link> in Base.astro. */
 @theme {
@@ -27,12 +32,12 @@
 
   /* Visible focus ring — peach on dark, blue on the light flavour. */
   :where(a, button, [tabindex], input, select, textarea):focus-visible {
-    outline: 2px solid var(--color-ctp-peach);
+    outline: 2px solid var(--catppuccin-color-peach);
     outline-offset: 2px;
   }
 
   .latte :where(a, button, [tabindex], input, select, textarea):focus-visible {
-    outline-color: var(--color-ctp-blue);
+    outline-color: var(--catppuccin-color-blue);
   }
 }
 
@@ -50,7 +55,7 @@
     display: inline-block;
     width: 8px;
     height: 16px;
-    background: var(--color-ctp-text);
+    background: var(--catppuccin-color-text);
     animation: terminal-blink 1s step-end infinite;
     vertical-align: text-bottom;
   }

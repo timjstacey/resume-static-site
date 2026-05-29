@@ -8,7 +8,7 @@ interface Props {
 }
 const { color, class: extra = '' } = Astro.props;
 const accent = color
-  ? `color: var(--color-ctp-${color}); background: color-mix(in srgb, var(--color-ctp-${color}) 22%, transparent)`
+  ? `color: var(--catppuccin-color-${color}); background: color-mix(in srgb, var(--catppuccin-color-${color}) 22%, transparent)`
   : undefined;
 const neutral = color ? '' : 'bg-ctp-surface0 text-ctp-subtext1';
 ---

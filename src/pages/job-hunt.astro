@@ -36,7 +36,8 @@ const avatars: { label: string; accent: string }[] = [
     <nav class="inline-flex items-center gap-1.5 font-mono text-[12px] text-ctp-overlay1" aria-label="Breadcrumb">
       <span
         class="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[3px] bg-ctp-peach text-[10px] font-bold text-ctp-crust"
-        aria-hidden="true">JH</span>
+        aria-hidden="true">JH</span
+      >
       <span>Projects</span>
       <span aria-hidden="true">›</span>
       <span class="text-ctp-subtext1">Job Hunt 2026</span>
@@ -76,7 +77,7 @@ const avatars: { label: string; accent: string }[] = [
               <span
                 class="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-ctp-crust font-display text-[11px] font-bold text-ctp-crust"
                 class:list={[i > 0 && '-ml-2']}
-                style={`background: var(--color-ctp-${a.accent})`}
+                style={`background: var(--catppuccin-color-${a.accent})`}
               >
                 {a.label}
               </span>
@@ -109,7 +110,10 @@ const avatars: { label: string; accent: string }[] = [
             type="button"
             class="inline-flex items-center gap-1.5 rounded border border-ctp-surface1 px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
           >
-            {f} <span class="text-[9px] opacity-60" aria-hidden="true">▾</span>
+            {f}{' '}
+            <span class="text-[9px] opacity-60" aria-hidden="true">
+              ▾
+            </span>
           </button>
         ))
       }
@@ -120,7 +124,7 @@ const avatars: { label: string; accent: string }[] = [
         type="button"
         aria-pressed="true"
         class="rounded border px-3 py-[7px] font-mono text-[11.5px] font-semibold tracking-[0.04em] text-ctp-peach"
-        style="border-color: color-mix(in srgb, var(--color-ctp-peach) 55%, transparent); background: color-mix(in srgb, var(--color-ctp-peach) 11%, transparent)"
+        style="border-color: color-mix(in srgb, var(--catppuccin-color-peach) 55%, transparent); background: color-mix(in srgb, var(--catppuccin-color-peach) 11%, transparent)"
       >
         + ONLY MY ISSUES
       </button>
