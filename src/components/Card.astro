@@ -1,0 +1,21 @@
+---
+// Mantle panel with a surface0 border and an optional coloured top accent.
+// Hover lifts the border surface0 → surface1.
+interface Props {
+  accent?: string; // Catppuccin accent key for a top border, e.g. 'peach'
+  accentWidth?: number; // px, default 2
+  class?: string;
+}
+const { accent, accentWidth = 2, class: extra = '' } = Astro.props;
+const topBorder = accent ? `border-top: ${accentWidth}px solid var(--color-ctp-${accent})` : undefined;
+---
+
+<div
+  class:list={[
+    'rounded-lg border border-ctp-surface0 bg-ctp-mantle transition-colors duration-150 ease-out hover:border-ctp-surface1',
+    extra,
+  ]}
+  style={topBorder}
+>
+  <slot />
+</div>

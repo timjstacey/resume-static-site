@@ -7,5 +7,6 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true
-  }
+  },
+  "exclude": ["design_handoff_resume_site_redesign", "dist"]
 }

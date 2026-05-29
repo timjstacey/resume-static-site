@@ -1,9 +1,16 @@
+# Redesign metadata (pinned / stars / forks / lang / updated) is static and
+# hand-maintained — no live GitHub API call at build time. Update by hand.
 - name: Resume Static Site
   description: Personal resume and job application tracker built with Astro, Tailwind, and Catppuccin.
   url: ''
   repo: https://github.com/timjstacey/resume-static-site
   tags: [Astro, TypeScript, Tailwind]
   status: active
+  pinned: true
+  lang: Astro
+  stars: 3
+  forks: 0
+  updated: 2d ago
 
 - name: LinkedIn Post Generator
   description: Claude researches a topic weekly, writes a LinkedIn post, and opens a PR for review. Merge to publish.
@@ -11,6 +18,11 @@
   repo: https://github.com/timjstacey/linkedin-post-generator
   tags: [TypeScript, Claude API, GitHub Actions, LinkedIn API]
   status: active
+  pinned: true
+  lang: TypeScript
+  stars: 5
+  forks: 1
+  updated: 1w ago
 
 - name: Funny Animal Videos
   description: Pulls funny animal clips from Reddit, stitches landscape videos into 10-minute compilations, and uploads portrait clips as YouTube Shorts.
@@ -18,3 +30,8 @@
   repo: https://github.com/timjstacey/youtube-funny-videos
   tags: [Python, YouTube API, ffmpeg, Reddit, Docker]
   status: active
+  pinned: false
+  lang: Python
+  stars: 2
+  forks: 0
+  updated: 3w ago

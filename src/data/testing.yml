@@ -1,0 +1,48 @@
+# Static testing-page config: Playwright project routing + CI gate pipelines.
+# Keep in sync with playwright.config.ts and .github/workflows/.
+routing:
+  - project: content
+    device: Desktop Chrome
+    engine: chromium
+    specs: [home, jobs, projects, resume]
+  - project: a11y-chromium
+    device: Desktop Chrome
+    engine: chromium
+    specs: [nav, theme-picker]
+  - project: a11y-firefox
+    device: Desktop Firefox
+    engine: firefox
+    specs: [nav, theme-picker]
+  - project: a11y-webkit
+    device: Desktop Safari
+    engine: webkit
+    specs: [nav, theme-picker]
+  - project: responsive-mobile-chrome
+    device: Pixel 5
+    engine: chromium
+    specs: [responsive]
+  - project: responsive-mobile-safari
+    device: iPhone 13
+    engine: webkit
+    specs: [responsive]
+  - project: responsive-tablet-safari
+    device: iPad Pro 11
+    engine: webkit
+    specs: [responsive]
+
+workflows:
+  - file: ci.yml
+    accent: sapphire
+    on: push · pull_request
+    steps:
+      - { name: check-claude-md, duration: 3s }
+      - { name: pnpm lint, duration: 11s }
+      - { name: pnpm test, duration: 9s }
+      - { name: pnpm typecheck, duration: 18s }
+      - { name: pnpm build, duration: 24s }
+  - file: playwright.yml
+    accent: peach
+    on: after preview deploy
+    steps:
+      - { name: wait-for-preview, duration: 41s }
+      - { name: run E2E vs preview URL, duration: 1m38s }

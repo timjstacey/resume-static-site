@@ -1,0 +1,33 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPosts } from '../lib/posts';
+
+// Stub — full design lands in Wave 1 (#60). Lists posts so the route is real.
+const posts = await getPosts();
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+const accents = ['peach', 'teal', 'mauve'];
+---
+
+<Base title="Blog">
+  <section class="px-14 pt-14">
+    <SectionLabel>// blog.md</SectionLabel>
+    <h1 class="mt-7 font-display text-5xl font-bold tracking-[-0.035em] text-ctp-text md:text-6xl">Field notes.</h1>
+    <div class="mt-10 grid gap-4 md:grid-cols-3">
+      {
+        posts.map((post, i) => (
+          <PostCard
+            title={post.data.title}
+            tag={post.data.tag}
+            date={fmt(post.data.date)}
+            excerpt={post.data.excerpt}
+            readMins={post.data.readMins}
+            slug={post.id}
+            accent={accents[i % accents.length]!}
+          />
+        ))
+      }
+    </div>
+  </section>
+</Base>
