@@ -58,6 +58,7 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 | `/`         | `src/pages/index.astro`    | Hero, bio, quick stats, CTA links                      |
 | `/resume`   | `src/pages/resume.astro`   | Full resume from data                                  |
 | `/projects` | `src/pages/projects.astro` | Project portfolio from data                            |
+| `/blog`     | `src/pages/blog.astro`     | Blog index — featured post, published rows, drafts     |
 | `/job-hunt` | `src/pages/job-hunt.astro` | Job hunt dashboard                                     |
 | `/testing`  | `src/pages/testing.astro`  | Test strategy narrative + build-time stats (portfolio) |
 
@@ -98,6 +99,7 @@ Zod schemas in `src/lib/schemas.ts` validate all three at build time. Build fail
   status: Interviewing
   notes: ''
   lastContact: '2026-05-10' # optional; reserved for future mid-funnel auto-ghost logic
+  source: Seek # optional — Seek | LinkedIn | Jobgether | Other; derived from notes when unset
 ```
 
 ### resume.yml shape
@@ -134,7 +136,35 @@ skills:
   repo: ''
   tags: []
   status: active # active | wip | archived
+  # Redesign metadata — all optional, static, hand-maintained (no live GitHub API):
+  pinned: true # surfaces a ★ PIN badge + counts toward the "pinned" summary
+  lang: TypeScript # language brand dot (see lib/langColors.ts)
+  stars: 14
+  forks: 2
+  updated: 2d ago # free-text "last commit" label shown in the card footer
 ```
+
+### Blog data (`src/content/posts/*.md` + `src/data/drafts.yml`)
+
+Posts use an Astro **content collection** (`src/content.config.ts`). Each post's
+frontmatter: `title`, `date`, `tag` (`Strategy | Practice | Meta | Team | Tools`),
+`excerpt`, `readMins`, and `preview` — a list of `[prefix, text]` tuples where
+the prefix is `"$"` (shell), `"#"` (markdown heading), or `" "` (body line). The
+`<TerminalWindow>` renderer turns `preview` into the post's auto-illustrated cover.
+
+`src/data/drafts.yml` drives the "drafts in flight" cards: `title`, `tag`,
+`status` (`idea | drafting | editing`), `note`.
+
+### testing.yml + ci-snapshot.json
+
+`src/data/testing.yml` holds the `/testing` page's routing matrix (one row per
+Playwright project: `project / device / engine / specs`) and CI gate pipelines
+(`file / accent / on / steps[]`). Keep in sync with `playwright.config.ts` and
+`.github/workflows/`.
+
+`src/data/ci-snapshot.json` holds static CI signals (`branch`, `passing`, `sha`,
+`commitMessage`, `commitAgo`, `lastDeployAgo`, `runs[]`, `p50`, `p95`, deltas).
+Refreshed by a nightly job later — do not fake these in production.
 
 ## Component Architecture
 
@@ -147,28 +177,48 @@ src/
   layouts/
     Base.astro          # <html>, <head>, nav, footer — imports global.css, inline theme bootstrap
   components/
-    Nav.astro           # top nav, active-page highlight, mobile drawer
-    ThemePicker.astro   # Catppuccin flavour selector (latte/frappe/macchiato/mocha)
+    Nav.astro           # top nav: brand block, mono links, active peach state, mobile drawer
+    ThemePicker.astro   # Catppuccin flavour selector — swatch pill + role=menu arrow-key nav
+    Footer.astro        # 4-column mono footer (build/ci/tests/©) — numbers from package.json + ci-snapshot + testStats
+    SectionLabel.astro  # section kicker: accent bar + uppercase mono label (shared primitive)
+    Button.astro        # primary (peach/crust) + ghost variants
+    Chip.astro          # tinted accent pill / neutral surface0 pill
+    Card.astro          # mantle panel, surface0 border, optional top-accent
+    TerminalWindow.astro # chrome bar + body slot (blog preview, whoami, code window)
+    StatStrip.astro     # 4-up stats grid wrapper
+    StatCard.astro      # single stat: index + display number + label, optional top accent
+    PostCard.astro      # blog post teaser card (home "From the blog" + blog index)
     StatusBadge.astro   # coloured pill for job status
     JobCard.astro       # single job application card
     ProjectCard.astro   # single project card
     ResumeSection.astro # section wrapper (title + slot)
+  content.config.ts     # Astro content collection config — blog `posts`
+  content/
+    posts/*.md          # blog posts — frontmatter (title/date/tag/readMins/preview) + body
   pages/
     index.astro
     resume.astro
     projects.astro
+    blog.astro          # blog index (new)
     job-hunt.astro
     testing.astro
   data/
     resume.yml
     projects.yml
     jobs.yml
+    drafts.yml          # blog "drafts in flight" (idea | drafting | editing)
+    testing.yml         # /testing routing matrix + CI gate pipelines
+    ci-snapshot.json    # static CI signals (branch/sha/last-10-runs/p50/p95) — refresh nightly
   lib/
     schemas.ts          # Zod schemas + inferred types for all data files
-    data.ts             # getResume() / getProjects() / getJobs() loaders
+    data.ts             # getResume/getProjects/getJobs/getDrafts/getTesting/getCiSnapshot loaders
+    posts.ts            # getPosts() — blog content-collection loader (date-desc)
     nav.ts              # NAV_ITEMS list + isActivePath() helper
     format.ts           # fmtYM() — YYYY-MM → "Jan 2023" (en-GB)
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
+    jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys — JIRA board logic
+    blog.ts             # tagCounts() + archive() — blog sidebar aggregation
+    langColors.ts       # LANG_COLORS — language brand dots for the projects grid
     themes.ts           # FLAVORS list + THEME_TRIGGER_LABEL — shared by ThemePicker + tests
     projectStatus.ts    # PROJECT_STATUS_LABEL / _COLOUR maps — shared by ProjectCard + tests
     copy.ts             # Page heading strings shared between pages + tests
