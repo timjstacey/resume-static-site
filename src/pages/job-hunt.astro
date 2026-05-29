@@ -1,111 +1,227 @@
 ---
 import Base from '../layouts/Base.astro';
-import JobCard from '../components/JobCard.astro';
-import type { JobStatus } from '../lib/schemas';
+import Button from '../components/Button.astro';
+import JiraColumn from '../components/JiraColumn.astro';
 import { getJobs } from '../lib/data';
-import { JOBS_HEADING } from '../lib/copy';
+import { STATUS_COLUMNS, columnOf, withKeys } from '../lib/jobhunt';
+import type { ColumnId } from '../lib/jobhunt';
+import type { Job } from '../lib/schemas';
 
-const STATUS_ORDER: JobStatus[] = [
-  'Applied',
-  'Screening',
-  'Interviewing',
-  'Offered',
-  'Rejected',
-  'Withdrawn',
-  'Ghosted',
-];
+const jobs = withKeys(getJobs());
 
-const statusTextColour: Record<JobStatus, string> = {
-  Applied: 'text-ctp-blue',
-  Screening: 'text-ctp-sapphire',
-  Interviewing: 'text-ctp-peach',
-  Offered: 'text-ctp-green',
-  Rejected: 'text-ctp-red',
-  Withdrawn: 'text-ctp-overlay2',
-  Ghosted: 'text-ctp-mauve',
-};
-
-const jobs = getJobs().sort((a, b) => b.applied.localeCompare(a.applied));
+// Bucket by board column, newest application first within each column.
+const byColumn = new Map<ColumnId, (Job & { key: number })[]>(STATUS_COLUMNS.map((c) => [c.id, []]));
+for (const job of jobs) {
+  byColumn.get(columnOf(job.status))!.push(job);
+}
+for (const list of byColumn.values()) {
+  list.sort((a, b) => b.applied.localeCompare(a.applied));
+}
 
 const total = jobs.length;
+const inFlight = jobs.filter((j) => j.status === 'Applied').length;
+const screening = jobs.filter((j) => j.status === 'Screening').length;
 
-const statusCounts = Object.fromEntries(
-  STATUS_ORDER.map((s) => [s, jobs.filter((j) => j.status === s).length])
-) as Record<JobStatus, number>;
-
-const presentStatuses = STATUS_ORDER.filter((s) => jobs.some((j) => j.status === s));
+const filterPills = ['EPIC', 'TYPE', 'PRIORITY', 'SOURCE'];
+const avatars: { label: string; accent: string }[] = [
+  { label: 'TS', accent: 'peach' },
+  { label: 'AI', accent: 'lavender' },
+  { label: 'KS', accent: 'teal' },
+];
 ---
 
-<Base title="Job Hunt">
-  <h1 class="text-3xl font-bold text-ctp-text">{JOBS_HEADING}</h1>
-  <p class="mt-1 text-ctp-subtext1">Live search dashboard: roles applied, pipeline stage, and results.</p>
+<Base title="Job Hunt" description="Active job-search pipeline as a JIRA-style kanban board.">
+  <section class="border-b border-ctp-surface0 bg-ctp-mantle px-10 pt-6">
+    <!-- breadcrumb -->
+    <nav class="inline-flex items-center gap-1.5 font-mono text-[12px] text-ctp-overlay1" aria-label="Breadcrumb">
+      <span
+        class="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[3px] bg-ctp-peach text-[10px] font-bold text-ctp-crust"
+        aria-hidden="true">JH</span>
+      <span>Projects</span>
+      <span aria-hidden="true">›</span>
+      <span class="text-ctp-subtext1">Job Hunt 2026</span>
+      <span aria-hidden="true">›</span>
+      <span>boards</span>
+      <span aria-hidden="true">›</span>
+      <span class="text-ctp-text">Active Pipeline</span>
+    </nav>
 
-  <div class="mt-6 grid grid-cols-4 gap-3">
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-text">{total}</p>
-      <p class="text-xs text-ctp-subtext0">Total</p>
-    </div>
-    {
-      STATUS_ORDER.map((status) => (
-        <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-          <p class={`text-2xl font-bold ${statusTextColour[status]}`}>{statusCounts[status]}</p>
-          <p class="text-xs text-ctp-subtext0">{status}</p>
-        </div>
-      ))
-    }
-  </div>
-
-  <div class="mt-6 flex flex-wrap gap-2">
-    <button
-      data-filter="all"
-      class="filter-btn rounded-full bg-ctp-surface1 px-3 py-1 text-sm font-medium text-ctp-text"
-    >
-      All ({total})
-    </button>
-    {
-      presentStatuses.map((status) => {
-        const count = jobs.filter((j) => j.status === status).length;
-        return (
-          <button
-            data-filter={status}
-            class="filter-btn rounded-full px-3 py-1 text-sm font-medium text-ctp-subtext1 hover:bg-ctp-surface0 hover:text-ctp-text"
+    <!-- title row -->
+    <div class="mt-[18px] flex flex-wrap items-end justify-between gap-8">
+      <div>
+        <div class="mb-2 flex flex-wrap items-center gap-3">
+          <span class="text-[18px] text-ctp-yellow" aria-hidden="true">★</span>
+          <h1 class="font-display text-[32px] font-bold tracking-[-0.02em] text-ctp-text">Active Pipeline</h1>
+          <span
+            class="rounded border border-ctp-surface1 bg-ctp-surface0 px-2.5 py-1 font-mono text-[11px] tracking-[0.04em] text-ctp-subtext0"
           >
-            {status} ({count})
-          </button>
-        );
-      })
-    }
-  </div>
+            Sprint 4 · 12d remaining
+          </span>
+        </div>
+        <div class="flex flex-wrap items-center gap-4 font-mono text-[12px] text-ctp-subtext0">
+          <span>{total} issues</span>
+          <span class="text-ctp-overlay1" aria-hidden="true">·</span>
+          <span class="text-ctp-blue">● {inFlight} in flight</span>
+          <span class="text-ctp-overlay1" aria-hidden="true">·</span>
+          <span class="text-ctp-peach">● {screening} screening</span>
+          <span class="text-ctp-overlay1" aria-hidden="true">·</span>
+          <span>last updated 2h ago by tim</span>
+        </div>
+      </div>
 
-  <div class="mt-6 grid gap-4 sm:grid-cols-2">
+      <div class="flex flex-wrap items-center gap-2">
+        <div class="mr-1 flex" aria-hidden="true">
+          {
+            avatars.map((a, i) => (
+              <span
+                class="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-ctp-crust font-display text-[11px] font-bold text-ctp-crust"
+                class:list={[i > 0 && '-ml-2']}
+                style={`background: var(--color-ctp-${a.accent})`}
+              >
+                {a.label}
+              </span>
+            ))
+          }
+        </div>
+        <Button class="px-3.5 py-2 text-[13px]">Complete sprint</Button>
+        <Button variant="ghost" class="px-3 py-2 text-[13px]">ⓘ Insights</Button>
+        <Button variant="ghost" class="px-3 py-2 text-[13px]" aria-label="More board actions">⋯</Button>
+      </div>
+    </div>
+
+    <!-- filter bar -->
+    <div class="mt-6 flex flex-wrap items-center gap-2.5 pb-4">
+      <label
+        class="inline-flex min-w-[240px] flex-1 items-center gap-2 rounded border border-ctp-surface1 bg-ctp-surface0 px-3 py-[7px] font-mono text-[12px] text-ctp-overlay1 sm:flex-none"
+      >
+        <span aria-hidden="true">⌕</span>
+        <input
+          type="search"
+          placeholder="Search this board"
+          class="w-full bg-transparent text-ctp-text placeholder:text-ctp-overlay1 focus:outline-none"
+          aria-label="Search this board"
+        />
+      </label>
+
+      {
+        filterPills.map((f) => (
+          <button
+            type="button"
+            class="inline-flex items-center gap-1.5 rounded border border-ctp-surface1 px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
+          >
+            {f} <span class="text-[9px] opacity-60" aria-hidden="true">▾</span>
+          </button>
+        ))
+      }
+
+      <span class="hidden flex-1 sm:block"></span>
+
+      <button
+        type="button"
+        aria-pressed="true"
+        class="rounded border px-3 py-[7px] font-mono text-[11.5px] font-semibold tracking-[0.04em] text-ctp-peach"
+        style="border-color: color-mix(in srgb, var(--color-ctp-peach) 55%, transparent); background: color-mix(in srgb, var(--color-ctp-peach) 11%, transparent)"
+      >
+        + ONLY MY ISSUES
+      </button>
+      <button
+        type="button"
+        class="rounded border border-ctp-surface1 px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext1 transition-colors hover:border-ctp-overlay0"
+      >
+        + RECENTLY UPDATED
+      </button>
+      <button
+        type="button"
+        class="rounded px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-overlay1 transition-colors hover:text-ctp-subtext0"
+      >
+        + ADD FILTER
+      </button>
+    </div>
+  </section>
+
+  <!-- board: desktop grid · tablet horizontal snap-scroll · mobile accordion -->
+  <section
+    class="board flex snap-x snap-mandatory gap-3 overflow-x-auto px-10 pt-5 pb-10 md:overflow-x-auto lg:grid lg:snap-none lg:grid-cols-5 lg:items-start lg:overflow-visible"
+    aria-label="Job application board"
+  >
     {
-      jobs.map((job) => (
-        <div data-status={job.status} aria-label={`${job.company} — ${job.role}`}>
-          <JobCard job={job} />
+      STATUS_COLUMNS.map((col) => (
+        <div class="board-cell w-[280px] shrink-0 snap-start lg:w-auto lg:shrink">
+          <JiraColumn label={col.label} accent={col.accent} jobs={byColumn.get(col.id) ?? []} />
         </div>
       ))
     }
-  </div>
+  </section>
 </Base>
 
+<style>
+  /* Mobile (<768px): stack columns full-width and collapse each into an
+     accordion. The header toggles its body; chevron rotates. */
+  @media (max-width: 767px) {
+    .board {
+      display: flex;
+      flex-direction: column;
+      overflow: visible;
+    }
+    .board-cell {
+      width: 100%;
+    }
+    .column-header {
+      cursor: pointer;
+    }
+    .board-column[data-collapsed='true'] .column-body {
+      display: none;
+    }
+    .column-chevron {
+      transition: transform 0.15s ease-out;
+    }
+    .board-column[data-collapsed='true'] .column-chevron {
+      transform: rotate(90deg);
+    }
+  }
+</style>
+
 <script>
-  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter-btn');
-  const cards = document.querySelectorAll<HTMLElement>('[data-status]');
+  // Mobile accordion: collapse all but the first column, toggle on header tap.
+  const mq = window.matchMedia('(max-width: 767px)');
+  const columns = Array.from(document.querySelectorAll<HTMLElement>('.board-column'));
 
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const filter = btn.dataset.filter!;
+  function applyAccordion(on: boolean) {
+    columns.forEach((col, i) => {
+      const header = col.querySelector<HTMLElement>('.column-header');
+      if (!header) return;
+      if (on) {
+        col.dataset.collapsed = i === 0 ? 'false' : 'true';
+        header.setAttribute('role', 'button');
+        header.setAttribute('tabindex', '0');
+        header.setAttribute('aria-expanded', col.dataset.collapsed === 'false' ? 'true' : 'false');
+      } else {
+        delete col.dataset.collapsed;
+        header.removeAttribute('role');
+        header.removeAttribute('tabindex');
+        header.removeAttribute('aria-expanded');
+      }
+    });
+  }
 
-      buttons.forEach((b) => {
-        b.classList.remove('bg-ctp-surface1', 'text-ctp-text');
-        b.classList.add('text-ctp-subtext1');
-      });
-      btn.classList.remove('text-ctp-subtext1');
-      btn.classList.add('bg-ctp-surface1', 'text-ctp-text');
+  function toggle(col: HTMLElement) {
+    if (!mq.matches) return;
+    const collapsed = col.dataset.collapsed === 'true';
+    col.dataset.collapsed = collapsed ? 'false' : 'true';
+    col.querySelector('.column-header')?.setAttribute('aria-expanded', collapsed ? 'true' : 'false');
+  }
 
-      cards.forEach((card) => {
-        card.style.display = filter === 'all' || card.dataset.status === filter ? '' : 'none';
-      });
+  columns.forEach((col) => {
+    const header = col.querySelector<HTMLElement>('.column-header');
+    header?.addEventListener('click', () => toggle(col));
+    header?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle(col);
+      }
     });
   });
+
+  applyAccordion(mq.matches);
+  mq.addEventListener('change', (e) => applyAccordion(e.matches));
 </script>
