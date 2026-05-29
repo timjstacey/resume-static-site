@@ -1,0 +1,13 @@
+{
+  "branch": "main",
+  "passing": true,
+  "sha": "a3f1d2c",
+  "commitMessage": "align home social icons with resume page",
+  "commitAgo": "2d ago",
+  "lastDeployAgo": "2d ago",
+  "runs": ["pass", "pass", "pass", "flake", "pass", "pass", "pass", "pass", "pass", "pass"],
+  "p50": "2m14s",
+  "p95": "3m02s",
+  "p50Delta": "-8s",
+  "p95Delta": "+2s"
+}

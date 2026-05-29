@@ -20,6 +20,8 @@ export const JobStatusSchema = z.enum([
   'Ghosted',
 ]);
 
+export const JobSourceSchema = z.enum(['Seek', 'LinkedIn', 'Jobgether', 'Other']);
+
 export const JobSchema = z.object({
   company: z.string().min(1),
   role: z.string().min(1),
@@ -28,6 +30,7 @@ export const JobSchema = z.object({
   status: JobStatusSchema,
   notes: z.string().optional(),
   lastContact: yamlDate.optional(),
+  source: JobSourceSchema.optional(),
 });
 
 export const JobsSchema = z.array(JobSchema);
@@ -43,6 +46,12 @@ export const ProjectSchema = z.object({
   repo: z.string().optional(),
   tags: z.array(z.string()),
   status: ProjectStatusSchema,
+  // Redesign metadata — static, hand-maintained (no live GitHub API).
+  pinned: z.boolean().optional(),
+  stars: z.number().int().optional(),
+  forks: z.number().int().optional(),
+  lang: z.string().optional(),
+  updated: z.string().optional(),
 });
 
 export const ProjectsSchema = z.array(ProjectSchema);
@@ -84,8 +93,76 @@ export const ResumeSchema = z.object({
   skills: z.array(SkillCategorySchema),
 });
 
+// --- Blog tags (shared by posts content collection + drafts) ---
+
+export const PostTagSchema = z.enum(['Strategy', 'Practice', 'Meta', 'Team', 'Tools']);
+
+// --- Drafts (Blog "drafts in flight") ---
+
+export const DraftStatusSchema = z.enum(['idea', 'drafting', 'editing']);
+
+export const DraftSchema = z.object({
+  title: z.string().min(1),
+  tag: PostTagSchema,
+  status: DraftStatusSchema,
+  note: z.string(),
+});
+
+export const DraftsSchema = z.array(DraftSchema);
+
+// --- Testing page config (routing matrix + CI gate pipelines) ---
+
+const RoutingRowSchema = z.object({
+  project: z.string().min(1),
+  device: z.string().min(1),
+  engine: z.enum(['chromium', 'firefox', 'webkit']),
+  specs: z.array(z.string()),
+});
+
+const WorkflowStepSchema = z.object({
+  name: z.string().min(1),
+  duration: z.string().min(1),
+});
+
+const WorkflowSchema = z.object({
+  file: z.string().min(1),
+  accent: z.string().min(1),
+  on: z.string().min(1),
+  steps: z.array(WorkflowStepSchema),
+});
+
+export const TestingSchema = z.object({
+  routing: z.array(RoutingRowSchema),
+  workflows: z.array(WorkflowSchema),
+});
+
+// --- CI snapshot (static; refreshed by a nightly job later) ---
+
+export const CiRunSchema = z.enum(['pass', 'flake', 'fail']);
+
+export const CiSnapshotSchema = z.object({
+  branch: z.string().min(1),
+  passing: z.boolean(),
+  sha: z.string().min(1),
+  commitMessage: z.string(),
+  commitAgo: z.string(),
+  lastDeployAgo: z.string(),
+  runs: z.array(CiRunSchema),
+  p50: z.string(),
+  p95: z.string(),
+  p50Delta: z.string(),
+  p95Delta: z.string(),
+});
+
 export type JobStatus = z.infer<typeof JobStatusSchema>;
+export type JobSource = z.infer<typeof JobSourceSchema>;
 export type Job = z.infer<typeof JobSchema>;
 export type ProjectStatus = z.infer<typeof ProjectStatusSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type Resume = z.infer<typeof ResumeSchema>;
+export type PostTag = z.infer<typeof PostTagSchema>;
+export type DraftStatus = z.infer<typeof DraftStatusSchema>;
+export type Draft = z.infer<typeof DraftSchema>;
+export type Testing = z.infer<typeof TestingSchema>;
+export type CiRun = z.infer<typeof CiRunSchema>;
+export type CiSnapshot = z.infer<typeof CiSnapshotSchema>;

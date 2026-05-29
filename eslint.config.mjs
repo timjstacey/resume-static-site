@@ -4,7 +4,7 @@ import astro from 'eslint-plugin-astro';
 import playwright from 'eslint-plugin-playwright';
 
 export default defineConfig(
-  { ignores: ['dist/', '.astro/', 'node_modules/'] },
+  { ignores: ['dist/', '.astro/', 'node_modules/', 'design_handoff_resume_site_redesign/'] },
 
   ...tseslint.configs.recommended,
   ...astro.configs['flat/recommended'],

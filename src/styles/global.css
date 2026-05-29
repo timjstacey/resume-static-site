@@ -1,2 +1,73 @@
-@import "tailwindcss";
-@import "@catppuccin/tailwindcss/mocha.css";
+@import 'tailwindcss';
+@import '@catppuccin/tailwindcss/mocha.css';
+
+/* Terminal Peach type system — Inter Tight (display), Inter (body),
+   JetBrains Mono (mono). Loaded via <link> in Base.astro. */
+@theme {
+  --font-display: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible focus ring — peach on dark, blue on the light flavour. */
+  :where(a, button, [tabindex], input, select, textarea):focus-visible {
+    outline: 2px solid var(--color-ctp-peach);
+    outline-offset: 2px;
+  }
+
+  .latte :where(a, button, [tabindex], input, select, textarea):focus-visible {
+    outline-color: var(--color-ctp-blue);
+  }
+}
+
+/* Mono section kicker / caption — used pervasively by SectionLabel + footers. */
+@utility mono-caption {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Blinking block cursor for terminal windows; honours reduced-motion. */
+@layer components {
+  .terminal-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: var(--color-ctp-text);
+    animation: terminal-blink 1s step-end infinite;
+    vertical-align: text-bottom;
+  }
+}
+
+@keyframes terminal-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-cursor {
+    animation: none;
+  }
+}

@@ -1,0 +1,23 @@
+---
+// One stat cell: mono index, big display number, body label. Optional top
+// accent border (testing page) and number colour.
+interface Props {
+  index?: string; // mono index, e.g. '00'
+  value: string | number;
+  label: string;
+  accent?: string; // Catppuccin accent key — top border + number colour
+  alt?: boolean; // alternating background (home stats strip)
+  class?: string;
+}
+const { index, value, label, accent, alt = false, class: extra = '' } = Astro.props;
+const topBorder = accent ? `border-top: 2px solid var(--color-ctp-${accent})` : undefined;
+const valueStyle = accent ? `color: var(--color-ctp-${accent})` : undefined;
+---
+
+<div class:list={[alt ? 'bg-ctp-mantle' : 'bg-ctp-crust', 'p-9', extra]} style={topBorder}>
+  {index && <div class="mono-caption text-ctp-overlay1">{index}_</div>}
+  <div class="mt-2 font-display text-[64px] leading-none font-bold tracking-[-0.03em] text-ctp-text" style={valueStyle}>
+    {value}
+  </div>
+  <div class="mt-3 text-sm text-ctp-subtext0">{label}</div>
+</div>

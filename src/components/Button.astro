@@ -1,0 +1,25 @@
+---
+// Primary (peach/crust) or ghost (outlined) button. Renders an <a> when href
+// is set, otherwise a <button>.
+interface Props {
+  variant?: 'primary' | 'ghost';
+  href?: string;
+  type?: 'button' | 'submit';
+  class?: string;
+  [key: string]: unknown;
+}
+const { variant = 'primary', href, type = 'button', class: extra = '', ...rest } = Astro.props;
+
+const base =
+  'inline-flex items-center gap-2 rounded-lg px-[22px] py-3.5 font-mono text-sm font-semibold tracking-[0.02em] transition-colors duration-150 ease-out';
+const styles = {
+  primary: 'bg-ctp-peach text-ctp-crust hover:bg-ctp-peach/90',
+  ghost: 'border border-ctp-surface2 text-ctp-text hover:border-ctp-overlay0',
+};
+const cls = `${base} ${styles[variant]} ${extra}`;
+const Tag = href ? 'a' : 'button';
+---
+
+<Tag class={cls} href={href} type={href ? undefined : type} {...rest}>
+  <slot />
+</Tag>
