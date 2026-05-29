@@ -1,11 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
-import { JobsSchema, ProjectsSchema, ResumeSchema } from './schemas';
-import type { Job, JobStatus, Project, Resume } from './schemas';
+import { CiSnapshotSchema, DraftsSchema, JobsSchema, ProjectsSchema, ResumeSchema, TestingSchema } from './schemas';
+import type { CiSnapshot, Draft, Job, JobSource, JobStatus, Project, Resume, Testing } from './schemas';
+
+function dataPath(filename: string): string {
+  return join(process.cwd(), 'src', 'data', filename);
+}
 
 function loadYaml(filename: string): unknown {
-  return parse(readFileSync(join(process.cwd(), 'src', 'data', filename), 'utf-8'));
+  return parse(readFileSync(dataPath(filename), 'utf-8'));
 }
 
 export function getResume(): Resume {
@@ -26,10 +30,33 @@ export function effectiveJobStatus(job: Job, now: Date): JobStatus {
   return job.status;
 }
 
+// Fall back to the source named in free-text notes ("Applied via Seek").
+export function deriveSource(job: Job): JobSource | undefined {
+  if (job.source) return job.source;
+  const notes = job.notes?.toLowerCase() ?? '';
+  if (notes.includes('seek')) return 'Seek';
+  if (notes.includes('linkedin')) return 'LinkedIn';
+  if (notes.includes('jobgether')) return 'Jobgether';
+  return undefined;
+}
+
 export function getJobs(): Job[] {
   const now = new Date();
   return JobsSchema.parse(loadYaml('jobs.yml')).map((j) => ({
     ...j,
     status: effectiveJobStatus(j, now),
+    source: deriveSource(j),
   }));
+}
+
+export function getDrafts(): Draft[] {
+  return DraftsSchema.parse(loadYaml('drafts.yml'));
+}
+
+export function getTesting(): Testing {
+  return TestingSchema.parse(loadYaml('testing.yml'));
+}
+
+export function getCiSnapshot(): CiSnapshot {
+  return CiSnapshotSchema.parse(JSON.parse(readFileSync(dataPath('ci-snapshot.json'), 'utf-8')));
 }

@@ -1,0 +1,21 @@
+---
+// Small pill. With an accent: tinted background (~22% alpha) + accent text,
+// colour resolved through Catppuccin vars so it tracks the theme. Without an
+// accent: a neutral surface0 chip.
+interface Props {
+  color?: string; // Catppuccin accent key; omit for a neutral chip
+  class?: string;
+}
+const { color, class: extra = '' } = Astro.props;
+const accent = color
+  ? `color: var(--color-ctp-${color}); background: color-mix(in srgb, var(--color-ctp-${color}) 22%, transparent)`
+  : undefined;
+const neutral = color ? '' : 'bg-ctp-surface0 text-ctp-subtext1';
+---
+
+<span
+  class:list={['inline-flex items-center gap-1.5 rounded px-2 py-1 font-mono text-[11px]', neutral, extra]}
+  style={accent}
+>
+  <slot />
+</span>

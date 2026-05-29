@@ -2,99 +2,113 @@
 import { isActivePath, NAV_ITEMS } from '../lib/nav';
 
 const currentPath = Astro.url.pathname;
-
 const links = NAV_ITEMS;
 ---
 
-<nav class="border-b border-ctp-surface1 bg-ctp-mantle">
-  <div class="mx-auto flex max-w-4xl items-center gap-6 px-4 py-3">
-    <span class="font-semibold text-ctp-lavender">Tim Stacey</span>
+<header class="flex items-stretch border-b border-ctp-surface0 bg-ctp-mantle">
+  <!-- Brand block -->
+  <a href="/" class="flex min-w-[280px] items-center gap-3.5 border-r border-ctp-surface0 px-7 py-5">
+    <span
+      class="flex h-11 w-11 items-center justify-center rounded-[10px] bg-ctp-peach font-display text-lg font-bold tracking-[-0.02em] text-ctp-crust"
+    >
+      TS
+    </span>
+    <span class="leading-none">
+      <span class="block font-display text-base font-semibold tracking-[-0.01em] text-ctp-text">Tim Stacey</span>
+      <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1">~/sillysamoyed.com</span>
+    </span>
+  </a>
 
-    <!-- Desktop nav links -->
-    <ul class="flex gap-4 max-[425px]:hidden">
-      {
-        links.map(({ href, label }) => {
-          const isActive = isActivePath(href, currentPath);
-          return (
-            <li>
-              <a
-                href={href}
-                aria-current={isActive ? 'page' : undefined}
-                class:list={[
-                  'text-sm transition-colors',
-                  isActive ? 'font-medium text-ctp-text' : 'text-ctp-subtext0 hover:text-ctp-text',
-                ]}
-              >
-                {label}
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
+  <!-- Centre nav: desktop -->
+  <nav class="hidden flex-1 items-stretch md:flex" aria-label="Primary">
+    {
+      links.map(({ href, label }) => {
+        const isActive = isActivePath(href, currentPath);
+        return (
+          <a
+            href={href}
+            aria-current={isActive ? 'page' : undefined}
+            class:list={[
+              'flex items-center gap-2 border-r border-b-2 border-ctp-surface0 px-6 font-mono text-[13px] tracking-[0.02em] transition-colors duration-150 ease-out',
+              isActive
+                ? 'border-b-ctp-peach bg-ctp-surface0 text-ctp-peach'
+                : 'border-b-transparent text-ctp-subtext0 hover:text-ctp-text',
+            ]}
+          >
+            {isActive && <span aria-hidden="true">▸</span>}
+            {label.toLowerCase()}
+          </a>
+        );
+      })
+    }
+  </nav>
 
-    <div class="ml-auto flex items-center gap-3">
-      <slot />
+  <!-- Right block -->
+  <div
+    class="ml-auto flex items-center gap-4 px-7 font-mono text-xs text-ctp-subtext0 md:ml-0 md:border-l md:border-ctp-surface0"
+  >
+    <slot />
+    <span class="text-ctp-overlay0 max-md:hidden">|</span>
+    <span class="max-md:hidden">⌘K</span>
 
-      <!-- Hamburger button: mobile only -->
-      <button
-        id="nav-toggle"
-        class="hidden items-center justify-center text-ctp-subtext0 hover:text-ctp-text focus:outline-none max-[425px]:flex"
-        aria-label="Toggle navigation"
-        aria-expanded="false"
-        aria-controls="nav-mobile"
+    <!-- Hamburger: mobile only -->
+    <button
+      id="nav-toggle"
+      class="flex items-center justify-center text-ctp-subtext0 hover:text-ctp-text md:hidden"
+      aria-label="Toggle navigation"
+      aria-expanded="false"
+      aria-controls="nav-mobile"
+    >
+      <svg
+        id="nav-icon-open"
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
       >
-        <svg
-          id="nav-icon-open"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-hidden="true"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-        <svg
-          id="nav-icon-close"
-          class="hidden h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-          aria-hidden="true"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+      <svg
+        id="nav-icon-close"
+        class="hidden h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
   </div>
+</header>
 
-  <!-- Mobile drawer: CSS hides it at desktop regardless of JS state -->
-  <div id="nav-mobile" class="hidden border-t border-ctp-surface1 min-[426px]:hidden">
-    <ul class="mx-auto flex max-w-4xl flex-col px-4 py-2">
-      {
-        links.map(({ href, label }) => {
-          const isActive = isActivePath(href, currentPath);
-          return (
-            <li>
-              <a
-                href={href}
-                aria-current={isActive ? 'page' : undefined}
-                class:list={[
-                  'block py-2 text-sm transition-colors',
-                  isActive ? 'font-medium text-ctp-text' : 'text-ctp-subtext0 hover:text-ctp-text',
-                ]}
-              >
-                {label}
-              </a>
-            </li>
-          );
-        })
-      }
-    </ul>
-  </div>
-</nav>
+<!-- Mobile drawer -->
+<div id="nav-mobile" class="hidden border-b border-ctp-surface0 bg-ctp-mantle md:hidden">
+  <ul class="flex flex-col px-7 py-2">
+    {
+      links.map(({ href, label }) => {
+        const isActive = isActivePath(href, currentPath);
+        return (
+          <li>
+            <a
+              href={href}
+              aria-current={isActive ? 'page' : undefined}
+              class:list={[
+                'block py-2 font-mono text-sm transition-colors',
+                isActive ? 'text-ctp-peach' : 'text-ctp-subtext0 hover:text-ctp-text',
+              ]}
+            >
+              {label.toLowerCase()}
+            </a>
+          </li>
+        );
+      })
+    }
+  </ul>
+</div>
 
 <script is:inline>
   (function () {
