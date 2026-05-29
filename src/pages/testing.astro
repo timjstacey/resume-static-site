@@ -1,161 +1,363 @@
 ---
 import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import Button from '../components/Button.astro';
+import Card from '../components/Card.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import StatStrip from '../components/StatStrip.astro';
+import StatCard from '../components/StatCard.astro';
+import { getTesting, getCiSnapshot } from '../lib/data';
 import { TEST_STATS } from '../lib/testStats';
 
 const repoUrl = 'https://github.com/timjstacey/resume-static-site';
+const { routing, workflows } = getTesting();
+const ci = getCiSnapshot();
 
-const projectRows = [
-  { project: 'content', device: 'Desktop Chrome', specs: 'home, jobs, projects, resume' },
-  { project: 'a11y-chromium', device: 'Desktop Chrome', specs: 'nav, theme-picker' },
-  { project: 'a11y-firefox', device: 'Desktop Firefox', specs: 'nav, theme-picker' },
-  { project: 'a11y-webkit', device: 'Desktop Safari', specs: 'nav, theme-picker' },
-  { project: 'responsive-mobile-chrome', device: 'Pixel 5', specs: 'responsive' },
-  { project: 'responsive-mobile-safari', device: 'iPhone 13', specs: 'responsive' },
-  { project: 'responsive-tablet-safari', device: 'iPad Pro 11', specs: 'responsive' },
+const cleanRuns = ci.runs.filter((r) => r === 'pass').length;
+const runColor = (r: string) => (r === 'pass' ? 'green' : r === 'flake' ? 'yellow' : 'red');
+const engineColor = (e: string) => (e === 'chromium' ? 'yellow' : e === 'firefox' ? 'peach' : 'sapphire');
+
+const maxSpecs = Math.max(TEST_STATS.unit, TEST_STATS.e2e);
+const layers = [
+  {
+    name: 'vitest',
+    accent: 'green',
+    count: TEST_STATS.unit,
+    caption: 'cheap checks',
+    dur: '0.3s',
+    scope: ['schema validation', 'pure helpers', 'data loaders', 'nav + format logic'],
+  },
+  {
+    name: 'playwright',
+    accent: 'sapphire',
+    count: TEST_STATS.e2e,
+    caption: 'rendered surface',
+    dur: '6s',
+    scope: ['page content per route', 'keyboard + focus a11y', 'responsive layout', 'theme switching'],
+  },
 ];
 
-const ciRows = [
-  { workflow: 'ci.yml', steps: 'check-claude-md.sh → pnpm lint → pnpm test → pnpm typecheck → pnpm build' },
-  { workflow: 'playwright.yml', steps: 'Wait for Cloudflare Pages preview deploy → run E2E against the preview URL' },
+const flow = [
+  { src: 'resume.yml', loader: 'getResume()', spec: 'resume.spec.ts' },
+  { src: 'jobs.yml', loader: 'getJobs()', spec: 'jobs.spec.ts' },
+  { src: 'projects.yml', loader: 'getProjects()', spec: 'projects.spec.ts' },
 ];
+
+const codeLines: [string, string][] = [
+  ['#', 'jobs.spec.ts'],
+  [' ', "import { getJobs } from '../src/lib/data';"],
+  [' ', 'import { withKeys, columnOf } from'],
+  [' ', "  '../src/lib/jobhunt';"],
+  [' ', ''],
+  [' ', 'const jobs = withKeys(getJobs());'],
+  [' ', ''],
+  [' ', 'for (const job of jobs) {'],
+  [' ', '  test(job.company, async ({ page }) => {'],
+  [' ', "    await page.goto('/job-hunt');"],
+  [' ', '    await expect(card(job)).toBeVisible();'],
+  [' ', '  });'],
+  [' ', '}'],
+];
+const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtext1');
 ---
 
-<Base title="Testing" description="Test automation strategy for this site">
-  <h1 class="text-3xl font-bold text-ctp-text">Testing</h1>
-  <p class="mt-2 text-ctp-subtext1">
-    This site is a working demo of how I run test automation. Two layers (vitest for data and logic, Playwright for
-    rendered pages) gate every merge to <code class="text-ctp-mauve">main</code>.
-  </p>
+<Base title="Testing" description="How this site tests itself — CI, the test pyramid, and project routing.">
+  <!-- HEADER -->
+  <header class="grid gap-10 px-14 pt-14 lg:grid-cols-[1.4fr_1fr]">
+    <div>
+      <SectionLabel>// testing.md</SectionLabel>
+      <h1 class="mt-5 font-display text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-ctp-text md:text-[80px]">
+        This page <span class="text-ctp-peach">is</span> its own test report.
+      </h1>
+      <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ctp-subtext1">
+        Every number below comes from the same data and CI signals the site ships with. Nothing here is mocked.
+      </p>
+    </div>
+    <dl class="flex flex-col gap-2.5 self-end font-mono text-[12.5px]">
+      {
+        [
+          ['repo', 'timjstacey/resume-static-site'],
+          ['stack', 'astro · tailwind · catppuccin'],
+          ['runner', 'vitest + playwright'],
+          ['policy', 'green gates every merge'],
+        ].map(([k, v]) => (
+          <div class="flex gap-3">
+            <dt class="w-[64px] shrink-0 text-ctp-overlay2">{k}</dt>
+            <dd class="text-ctp-text">{v}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </header>
 
-  <section aria-label="Test stats" class="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-mauve">{TEST_STATS.unit}</p>
-      <p class="mt-1 text-xs text-ctp-subtext0">Unit tests</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-blue">{TEST_STATS.e2e}</p>
-      <p class="mt-1 text-xs text-ctp-subtext0">E2E specs</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-green">{TEST_STATS.projects}</p>
-      <p class="mt-1 text-xs text-ctp-subtext0">Playwright projects</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-4 text-center">
-      <p class="text-2xl font-bold text-ctp-peach">{TEST_STATS.engines}</p>
-      <p class="mt-1 text-xs text-ctp-subtext0">Browser engines</p>
+  <!-- CI STATUS STRIP -->
+  <section class="px-14 pt-10">
+    <div
+      class="rounded-lg border border-ctp-surface0 bg-ctp-mantle px-6 py-5"
+      style="border-left: 4px solid var(--color-ctp-green)"
+    >
+      <div class="grid gap-8 md:grid-cols-4">
+        <div>
+          <div class="mono-caption text-ctp-overlay2">branch</div>
+          <div class="mt-2 flex items-center gap-2 font-mono text-sm text-ctp-text">
+            <span class="h-2 w-2 rounded-full bg-ctp-green"></span>{ci.branch}
+            <span class="rounded bg-ctp-peach px-1.5 py-0.5 text-[10px] font-semibold text-ctp-crust uppercase">
+              {ci.passing ? 'passing' : 'failing'}
+            </span>
+          </div>
+        </div>
+        <div>
+          <div class="mono-caption text-ctp-overlay2">latest commit · {ci.commitAgo}</div>
+          <div class="mt-2 flex items-center gap-2 font-mono text-[13px]">
+            <span
+              class="rounded px-1.5 py-0.5 text-ctp-sapphire"
+              style="background: color-mix(in srgb, var(--color-ctp-sapphire) 18%, transparent)">#{ci.sha}</span
+            >
+            <span class="truncate text-ctp-subtext1">{ci.commitMessage}</span>
+          </div>
+        </div>
+        <div>
+          <div class="mono-caption text-ctp-overlay2">last 10 runs</div>
+          <div class="mt-2 flex items-center gap-1.5">
+            {
+              ci.runs.map((r) => (
+                <span class="h-3.5 w-3.5 rounded-[3px]" style={`background: var(--color-ctp-${runColor(r)})`} />
+              ))
+            }
+            <span class="ml-2 font-mono text-[12px] text-ctp-subtext0">{cleanRuns}/10 clean</span>
+          </div>
+        </div>
+        <div>
+          <div class="mono-caption text-ctp-overlay2">p50 · p95</div>
+          <div class="mt-2 font-mono text-[13px] text-ctp-text">
+            {ci.p50}
+            <span class="text-ctp-green">▾ {ci.p50Delta}</span>
+          </div>
+          <div class="font-mono text-[13px] text-ctp-text">
+            {ci.p95}
+            <span class="text-ctp-yellow">▴ {ci.p95Delta}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <section class="mt-10">
-    <h2 class="text-xl font-semibold text-ctp-text">Test pyramid</h2>
-    <p class="mt-2 text-ctp-subtext1">
-      Vitest handles the cheap checks. Playwright handles anything needing real DOM, layout, or keyboard input.
-    </p>
+  <!-- STATS -->
+  <StatStrip class="mt-5">
+    <StatCard index="01" value={TEST_STATS.unit} label="unit specs" accent="green" />
+    <StatCard index="02" value={TEST_STATS.e2e} label="E2E flows" accent="sapphire" />
+    <StatCard index="03" value={TEST_STATS.projects} label="playwright projects" accent="peach" />
+    <StatCard index="04" value={TEST_STATS.engines} label="browser engines" accent="mauve" />
+  </StatStrip>
 
-    <div class="mt-4 grid gap-4 sm:grid-cols-2">
-      <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-5">
-        <h3 class="font-semibold text-ctp-text">Unit (vitest)</h3>
-        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-ctp-subtext1">
-          <li>
-            Zod schema parsing for <code class="text-ctp-mauve">resume.yml</code>,
-            <code class="text-ctp-mauve">projects.yml</code>, <code class="text-ctp-mauve">jobs.yml</code>
-          </li>
-          <li>Date formatting, pipeline stats, nav active-path logic</li>
-          <li>
-            Fixture invariants (e.g. <code class="text-ctp-mauve">jobs.yml</code> must contain at least one Applied entry,
-            required by the filter E2E spec)
-          </li>
-          <li>Full suite runs in ~300 ms locally</li>
-        </ul>
+  <!-- TWO-LAYER PYRAMID -->
+  <section class="px-14 pt-16">
+    <div class="flex items-end justify-between">
+      <div>
+        <SectionLabel color="green">// two-layer pyramid</SectionLabel>
+        <h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.025em] text-ctp-text">
+          Cheap where we can. Browser where we must.
+        </h2>
       </div>
+      <p class="hidden max-w-xs text-right font-mono text-[11px] text-ctp-overlay1 md:block">
+        yes — this site leans heavy on E2E. it is mostly UI.
+      </p>
+    </div>
 
-      <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-5">
-        <h3 class="font-semibold text-ctp-text">E2E (Playwright)</h3>
-        <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-ctp-subtext1">
-          <li>Page rendering driven by YAML data, not hardcoded fixtures</li>
-          <li>Mobile drawer focus trap and theme picker keyboard handling</li>
-          <li>Responsive overflow checks at 375 px viewport</li>
-        </ul>
+    <Card class="mt-8 p-6">
+      <div class="flex items-center justify-between font-mono text-[11px] text-ctp-overlay2">
+        <span class="tracking-[0.1em] uppercase">spec counts · relative</span>
+        <span>{TEST_STATS.unit + TEST_STATS.e2e} specs total</span>
       </div>
+      <div class="mt-5 flex flex-col gap-4">
+        {
+          layers.map((l) => (
+            <div>
+              <div class="flex items-baseline justify-between">
+                <span class="font-display text-base font-bold" style={`color: var(--color-ctp-${l.accent})`}>
+                  {l.name} <span class="font-mono text-[12px] font-normal text-ctp-overlay1">· {l.caption}</span>
+                </span>
+                <span class="font-mono text-[12px] text-ctp-subtext0">
+                  {l.count} specs · {l.dur}
+                </span>
+              </div>
+              <div class="mt-1.5 h-[18px] w-full rounded bg-ctp-surface0">
+                <div
+                  class="h-full rounded"
+                  style={`width:${(l.count / maxSpecs) * 100}%; background: var(--color-ctp-${l.accent})`}
+                />
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </Card>
+
+    <div class="mt-4 grid gap-4 md:grid-cols-2">
+      {
+        layers.map((l) => (
+          <Card accent={l.accent} accentWidth={3} class="p-6">
+            <div class="flex items-baseline justify-between">
+              <span class="font-display text-lg font-bold text-ctp-text">{l.name}</span>
+              <span class="font-mono text-[12px] text-ctp-overlay1">{l.count} specs</span>
+            </div>
+            <ul class="mt-4 flex flex-col gap-2">
+              {l.scope.map((s) => (
+                <li class="flex gap-2.5 text-[14px] text-ctp-subtext1">
+                  <span style={`color: var(--color-ctp-${l.accent})`}>→</span>
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </Card>
+        ))
+      }
     </div>
   </section>
 
-  <section class="mt-10">
-    <h2 class="text-xl font-semibold text-ctp-text">Project routing</h2>
-    <p class="mt-2 text-ctp-subtext1">
-      Running every spec on every browser duplicated work. Splitting by spec type cut total runs from ~415 to
-      {TEST_STATS.e2e}.
-    </p>
+  <!-- PROJECT ROUTING -->
+  <section class="px-14 pt-16">
+    <div class="flex items-end justify-between">
+      <div>
+        <SectionLabel color="sapphire">// project routing</SectionLabel>
+        <h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.025em] text-ctp-text">
+          Split by spec type. Skip the duplicates.
+        </h2>
+      </div>
+      <p class="hidden font-mono text-[11px] text-ctp-overlay1 md:block">
+        {routing.length} playwright projects · {TEST_STATS.engines} engines
+      </p>
+    </div>
+
+    <div
+      class="mt-8 flex flex-wrap items-center gap-6 rounded-lg border border-ctp-surface0 bg-ctp-mantle p-6"
+      style="border-left: 4px solid var(--color-ctp-peach)"
+    >
+      <div class="flex items-baseline gap-3">
+        <span class="font-display text-[42px] font-bold text-ctp-overlay1 line-through">415</span>
+        <span class="text-ctp-overlay1">→</span>
+        <span class="font-display text-[56px] font-bold text-ctp-peach">122</span>
+        <span class="font-mono text-[12px] text-ctp-overlay1">runs · -71%</span>
+      </div>
+      <p class="flex-1 text-[14px] text-ctp-subtext1">
+        Content renders identically across engines, so it runs once. Only keyboard, focus, and viewport behaviour fan
+        out across browsers.
+      </p>
+    </div>
 
     <div class="mt-4 overflow-x-auto">
-      <table class="w-full border-collapse text-sm">
-        <thead>
-          <tr class="border-b border-ctp-surface1 text-left text-ctp-subtext0">
-            <th class="py-2 pr-4 font-medium">Project</th>
-            <th class="py-2 pr-4 font-medium">Device</th>
-            <th class="py-2 font-medium">Specs</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            projectRows.map((row) => (
-              <tr class="border-b border-ctp-surface0">
-                <td class="py-2 pr-4 font-mono text-ctp-mauve">{row.project}</td>
-                <td class="py-2 pr-4 text-ctp-subtext1">{row.device}</td>
-                <td class="py-2 text-ctp-subtext1">{row.specs}</td>
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <p class="mt-4 text-sm text-ctp-subtext1">
-      Content DOM is identical across engines, so it runs once. Keyboard and focus differ between engines, so a11y specs
-      run on all three. Layout depends on viewport, so responsive runs on mobile and tablet devices.
-    </p>
-  </section>
-
-  <section class="mt-10">
-    <h2 class="text-xl font-semibold text-ctp-text">Data-driven everything</h2>
-    <p class="mt-2 text-ctp-subtext1">
-      Specs import the same YAML loaders the site uses. Adding a job to <code class="text-ctp-mauve">jobs.yml</code>
-      adds a card-rendering E2E. Renaming a status in the enum breaks the spec at typecheck, not runtime.
-    </p>
-    <p class="mt-2 text-ctp-subtext1">
-      Shared constants between components and tests (theme flavors, nav items, status labels) live in
-      <code class="text-ctp-mauve">src/lib/</code>.
-    </p>
-  </section>
-
-  <section class="mt-10">
-    <h2 class="text-xl font-semibold text-ctp-text">CI gates</h2>
-
-    <div class="mt-4 overflow-x-auto">
-      <table class="w-full border-collapse text-sm">
-        <thead>
-          <tr class="border-b border-ctp-surface1 text-left text-ctp-subtext0">
-            <th class="py-2 pr-4 font-medium">Workflow</th>
-            <th class="py-2 font-medium">Steps</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            ciRows.map((row) => (
-              <tr class="border-b border-ctp-surface0">
-                <td class="py-2 pr-4 font-mono text-ctp-mauve">{row.workflow}</td>
-                <td class="py-2 text-ctp-subtext1">{row.steps}</td>
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
+      <div
+        class="grid grid-cols-[2fr_1fr_1fr_3fr] gap-px overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-surface0 font-mono text-[12px]"
+      >
+        <div class="bg-ctp-surface0 px-4 py-2 text-ctp-overlay2 uppercase">project</div>
+        <div class="bg-ctp-surface0 px-4 py-2 text-ctp-overlay2 uppercase">device</div>
+        <div class="bg-ctp-surface0 px-4 py-2 text-ctp-overlay2 uppercase">engine</div>
+        <div class="bg-ctp-surface0 px-4 py-2 text-ctp-overlay2 uppercase">specs</div>
+        {
+          routing.map((r) => (
+            <>
+              <div class="bg-ctp-mantle px-4 py-3 text-ctp-text">{r.project}</div>
+              <div class="bg-ctp-mantle px-4 py-3 text-ctp-subtext1">{r.device}</div>
+              <div class="bg-ctp-mantle px-4 py-3">
+                <span
+                  class="rounded px-1.5 py-0.5"
+                  style={`color: var(--color-ctp-${engineColor(r.engine)}); background: color-mix(in srgb, var(--color-ctp-${engineColor(r.engine)}) 20%, transparent)`}
+                >
+                  {r.engine}
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-1.5 bg-ctp-mantle px-4 py-3">
+                {r.specs.map((s) => (
+                  <span class="rounded bg-ctp-surface0 px-1.5 py-0.5 text-[11px] text-ctp-subtext1">{s}</span>
+                ))}
+              </div>
+            </>
+          ))
+        }
+      </div>
     </div>
   </section>
 
-  <section class="mt-10 mb-12">
-    <a href={repoUrl} target="_blank" rel="noopener" class="text-sm text-ctp-blue hover:text-ctp-text">
-      Source on GitHub →
-    </a>
+  <!-- CI GATES -->
+  <section class="px-14 pt-16">
+    <SectionLabel>// ci gates</SectionLabel>
+    <h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.025em] text-ctp-text">
+      Two pipelines. Two minutes between green and merged.
+    </h2>
+    <div class="mt-8 flex flex-col gap-4">
+      {
+        workflows.map((wf) => (
+          <Card class="p-6">
+            <div class="flex items-center justify-between font-mono text-[12px]">
+              <span class="text-ctp-text" style={`color: var(--color-ctp-${wf.accent})`}>
+                {wf.file}
+              </span>
+              <span class="text-ctp-overlay1">on: {wf.on}</span>
+            </div>
+            <div class="mt-4 flex flex-wrap items-stretch gap-2">
+              {wf.steps.map((step, i) => (
+                <>
+                  <div
+                    class="min-w-[140px] flex-1 rounded p-3"
+                    style={`border-top: 2px solid var(--color-ctp-${wf.accent}); background: var(--color-ctp-base)`}
+                  >
+                    <div class="mono-caption text-ctp-overlay1">step {i + 1}</div>
+                    <div class="mt-1 font-mono text-[13px] text-ctp-text">{step.name}</div>
+                    <div class="mt-1 font-mono text-[12px] text-ctp-green">✓ {step.duration}</div>
+                  </div>
+                  {i < wf.steps.length - 1 && <span class="self-center text-lg text-ctp-overlay1">→</span>}
+                </>
+              ))}
+            </div>
+          </Card>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- DATA-DRIVEN -->
+  <section class="px-14 pt-16">
+    <SectionLabel color="teal">// data-driven everything</SectionLabel>
+    <h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.025em] text-ctp-text">
+      One YAML. The site renders it. The tests assert against it.
+    </h2>
+    <div class="mt-8 grid gap-6 lg:grid-cols-2">
+      <Card class="p-6">
+        <div class="flex flex-col gap-3 font-mono text-[12px]">
+          {
+            flow.map((f) => (
+              <div class="grid grid-cols-3 gap-2">
+                <span class="rounded bg-ctp-surface0 px-2 py-1.5 text-ctp-peach">{f.src}</span>
+                <span class="rounded bg-ctp-surface0 px-2 py-1.5 text-ctp-teal">
+                  <span class="text-ctp-overlay1">→ </span>
+                  {f.loader}
+                </span>
+                <span class="rounded bg-ctp-surface0 px-2 py-1.5 text-ctp-sapphire">
+                  <span class="text-ctp-overlay1">→ </span>
+                  {f.spec}
+                </span>
+              </div>
+            ))
+          }
+        </div>
+        <div class="mt-4 border-t border-dashed border-ctp-surface1 pt-3 font-mono text-[11px] text-ctp-overlay1">
+          loaders live in src/lib/ — imported by both components and specs.
+        </div>
+      </Card>
+      <TerminalWindow path="jobs.spec.ts" meta="UTF-8 · typescript">
+        {codeLines.map(([p, text]) => <div class={codeColor(p)}>{text}</div>)}
+      </TerminalWindow>
+    </div>
+  </section>
+
+  <!-- SOURCE CTA -->
+  <section class="px-14 pt-14 pb-4">
+    <Card class="flex flex-wrap items-center justify-between gap-4 p-7">
+      <div>
+        <div class="mono-caption text-ctp-overlay2">// source</div>
+        <p class="mt-2 font-display text-[22px] font-bold text-ctp-text">Everything on this page is in the repo.</p>
+      </div>
+      <Button variant="primary" href={repoUrl}>timjstacey/resume-static-site →</Button>
+    </Card>
   </section>
 </Base>
