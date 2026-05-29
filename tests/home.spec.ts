@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { getResume, getProjects, getJobs } from '../src/lib/data';
+import { activePipeline, yearsOfExp } from '../src/lib/stats';
+import { TEST_STATS } from '../src/lib/testStats';
 
-// Throws at module load if YAML is missing or fails schema validation
+// Throws at module load if YAML is missing or fails schema validation.
 const resume = getResume();
 const projects = getProjects();
 const jobs = getJobs();
@@ -11,33 +13,35 @@ test.describe('Home page', () => {
     await page.goto('/');
   });
 
-  test('shows name and tagline from resume data', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: resume.name })).toBeVisible();
-    await expect(page.getByText(resume.tagline)).toBeVisible();
+  test('hero heading + availability card render', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: /Lead QE/ })).toBeVisible();
+    await expect(page.getByText('availability.json')).toBeVisible();
+    await expect(page.getByText('13 Jun', { exact: true })).toBeVisible();
   });
 
-  test('stats grid shows project and job counts from data', async ({ page }) => {
-    const stats = page.getByRole('region', { name: 'Stats' });
-
-    const projectStat = stats.locator('div').filter({ hasText: 'Projects' });
-    await expect(projectStat.locator('p').first()).toHaveText(String(projects.length));
-
-    const jobStat = stats.locator('div').filter({ hasText: 'Roles applied for' });
-    await expect(jobStat.locator('p').first()).toHaveText(String(jobs.length));
+  test('stats strip shows derived counts from data', async ({ page }) => {
+    for (const label of ['Years experience', 'Projects', 'Roles applied for', 'Active pipeline']) {
+      await expect(page.getByText(label, { exact: true })).toBeVisible();
+    }
+    await expect(page.getByText(String(yearsOfExp(resume.experience)), { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(String(projects.length), { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(String(jobs.length), { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(String(activePipeline(jobs)), { exact: true }).first()).toBeVisible();
   });
 
-  test('CTA links navigate to correct pages', async ({ page }) => {
-    const main = page.getByRole('main');
+  test('whoami terminal shows the current role', async ({ page }) => {
+    await expect(page.getByText('$ whoami --current')).toBeVisible();
+    await expect(page.getByText(resume.experience[0]!.role, { exact: true }).first()).toBeVisible();
+  });
 
-    await main.getByRole('link', { name: 'Resume' }).click();
-    await expect(page).toHaveURL(/\/resume\/?$/);
+  test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: /From the blog/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'all posts →' })).toHaveAttribute('href', '/blog');
+  });
 
-    await page.goto('/');
-    await main.getByRole('link', { name: 'Projects' }).click();
-    await expect(page).toHaveURL(/\/projects\/?$/);
-
-    await page.goto('/');
-    await main.getByRole('link', { name: 'Job Hunt' }).click();
-    await expect(page).toHaveURL(/\/job-hunt\/?$/);
+  test('testing teaser shows live test counts', async ({ page }) => {
+    await expect(page.getByText('$ npm run test --workspaces')).toBeVisible();
+    await expect(page.getByText(String(TEST_STATS.unit), { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(String(TEST_STATS.e2e), { exact: true }).first()).toBeVisible();
   });
 });

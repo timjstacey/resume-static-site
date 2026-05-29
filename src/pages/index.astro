@@ -1,6 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import Button from '../components/Button.astro';
+import Card from '../components/Card.astro';
+import TerminalWindow from '../components/TerminalWindow.astro';
+import StatStrip from '../components/StatStrip.astro';
+import StatCard from '../components/StatCard.astro';
+import PostCard from '../components/PostCard.astro';
 import { getResume, getProjects, getJobs } from '../lib/data';
+import { getPosts } from '../lib/posts';
 import { fmtYM } from '../lib/format';
 import { activePipeline, yearsOfExp } from '../lib/stats';
 import { TEST_STATS } from '../lib/testStats';
@@ -8,167 +16,177 @@ import { TEST_STATS } from '../lib/testStats';
 const resume = getResume();
 const projects = getProjects();
 const jobs = getJobs();
+const posts = (await getPosts()).slice(0, 3);
 
-const activePipelineCount = activePipeline(jobs);
-const yearsOfExpCount = yearsOfExp(resume.experience);
+const years = yearsOfExp(resume.experience);
+const pipeline = activePipeline(jobs);
+const current = resume.experience[0]!;
 
-const currentRole = resume.experience[0]!;
+const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+const postAccents = ['peach', 'teal', 'mauve'];
+
+const meta = [
+  ['tenure', `${fmtYM(current.start)} – now`],
+  ['team', 'lead of 3 QEs'],
+  ['stack', 'Playwright · WDIO'],
+  ['cadence', 'ships in hours'],
+];
 ---
 
 <Base title="Home" description={`${resume.name} — ${resume.tagline}`}>
-  <section class="py-12 text-center">
-    <h1 class="text-5xl font-bold text-ctp-text">{resume.name}</h1>
-    <p class="mt-3 text-xl text-ctp-subtext1">{resume.tagline}</p>
-    <div class="mt-6 flex justify-center gap-6 text-ctp-blue">
-      {
-        resume.contact.github && (
-          <a
-            href={resume.contact.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex items-center gap-1.5 transition-colors hover:text-ctp-text"
-            aria-label="GitHub"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-              <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.31.678.921.678 1.856 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-            </svg>
-            <span class="text-sm">GitHub</span>
-          </a>
-        )
-      }
-      {
-        resume.contact.linkedin && (
-          <a
-            href={resume.contact.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex items-center gap-1.5 transition-colors hover:text-ctp-text"
-            aria-label="LinkedIn"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-5 w-5 fill-current" aria-hidden="true">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-            </svg>
-            <span class="text-sm">LinkedIn</span>
-          </a>
-        )
-      }
-    </div>
-  </section>
-
-  {
-    resume.bio && (
-      <section class="mb-12">
-        <h2 class="mb-3 text-xl font-semibold text-ctp-text">About</h2>
-        <p class="leading-relaxed text-ctp-subtext1">{resume.bio}</p>
-      </section>
-    )
-  }
-
-  <section aria-label="Stats" class="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
-      <p class="text-3xl font-bold text-ctp-mauve">{yearsOfExpCount}</p>
-      <p class="mt-1 text-sm text-ctp-subtext1">Years experience</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
-      <p class="text-3xl font-bold text-ctp-blue">{projects.length}</p>
-      <p class="mt-1 text-sm text-ctp-subtext1">Projects</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
-      <p class="text-3xl font-bold text-ctp-green">{jobs.length}</p>
-      <p class="mt-1 text-sm text-ctp-subtext1">Roles applied for</p>
-    </div>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 text-center">
-      <p class="text-3xl font-bold text-ctp-peach">{activePipelineCount}</p>
-      <p class="mt-1 text-sm text-ctp-subtext1">Active pipeline</p>
-    </div>
-  </section>
-
-  <a
-    href="/testing"
-    aria-label="Testing approach"
-    class="mb-12 block rounded-lg border border-ctp-surface1 bg-ctp-mantle p-5 transition-colors hover:bg-ctp-surface0"
+  <!-- HERO -->
+  <section
+    class="border-b border-ctp-surface0 px-14 pt-16 pb-20"
+    style="background: radial-gradient(ellipse 800px 400px at 80% 20%, color-mix(in srgb, var(--color-ctp-peach) 7%, transparent), transparent 60%), var(--color-ctp-crust)"
   >
-    <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="grid items-start gap-16 lg:grid-cols-[1.4fr_0.9fr]">
       <div>
-        <h2 class="text-lg font-semibold text-ctp-text">How this site is tested</h2>
-        <p class="mt-1 text-sm text-ctp-subtext1">
-          Two-layer test suite gating every merge. See the routing and pyramid breakdown.
+        <SectionLabel>// intro.tsx</SectionLabel>
+        <h1
+          class="mt-7 font-display text-6xl leading-[0.92] font-bold tracking-[-0.04em] text-ctp-text md:text-[124px]"
+        >
+          Lead QE.<br />
+          <span class="text-ctp-peach">Ship</span>
+          <span class="text-ctp-overlay1">in</span>
+          <span class="text-ctp-teal">hours.</span>
+        </h1>
+        <p class="mt-9 max-w-2xl text-xl leading-relaxed text-ctp-subtext1">
+          I build test infrastructure that lets teams ship at the speed of their ideas: strict types, lean UI E2E,
+          contract checks at every seam.
         </p>
+        <div class="mt-9 flex flex-wrap gap-3">
+          <Button variant="primary" href="/resume">▸ ./view-resume.sh</Button>
+          {
+            resume.contact.github && (
+              <Button variant="ghost" href={resume.contact.github}>
+                github ↗
+              </Button>
+            )
+          }
+          {
+            resume.contact.linkedin && (
+              <Button variant="ghost" href={resume.contact.linkedin}>
+                linkedin ↗
+              </Button>
+            )
+          }
+        </div>
       </div>
-      <div class="flex gap-5 text-center">
-        <div>
-          <p class="text-2xl font-bold text-ctp-mauve">{TEST_STATS.unit}</p>
-          <p class="text-xs text-ctp-subtext0">unit</p>
-        </div>
-        <div>
-          <p class="text-2xl font-bold text-ctp-blue">{TEST_STATS.e2e}</p>
-          <p class="text-xs text-ctp-subtext0">E2E</p>
-        </div>
-        <div>
-          <p class="text-2xl font-bold text-ctp-green">{TEST_STATS.engines}</p>
-          <p class="text-xs text-ctp-subtext0">engines</p>
-        </div>
-      </div>
-    </div>
-  </a>
 
-  <section class="mb-12">
-    <h2 class="mb-3 text-xl font-semibold text-ctp-text">Current Role</h2>
-    <div class="rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6">
-      <p class="font-semibold text-ctp-text">{currentRole.role}</p>
-      <p class="mt-1 text-sm text-ctp-subtext1">
-        {currentRole.company} &middot; {fmtYM(currentRole.start)} &ndash;
-        {currentRole.end === 'present' ? 'Present' : fmtYM(currentRole.end)}
-      </p>
+      <!-- availability.json -->
+      <Card class="p-7">
+        <div class="flex items-center justify-between">
+          <span class="mono-caption text-ctp-overlay2">availability.json</span>
+          <span class="flex items-center gap-2 font-mono text-[11px] text-ctp-green">
+            <span class="h-2 w-2 rounded-full bg-ctp-green shadow-[0_0_8px_var(--color-ctp-green)]"></span>OPEN
+          </span>
+        </div>
+        <div class="mt-6 font-display text-[56px] leading-none font-bold tracking-[-0.03em] text-ctp-peach">13 Jun</div>
+        <div class="mt-2 font-mono text-sm text-ctp-subtext1">2026 onward</div>
+        <div class="my-6 border-t border-dashed border-ctp-surface1"></div>
+        <dl class="grid grid-cols-2 gap-4 font-mono text-[12.5px]">
+          <div><dt class="text-ctp-overlay2">type</dt><dd class="mt-1 text-ctp-text">perm · contract</dd></div>
+          <div><dt class="text-ctp-overlay2">location</dt><dd class="mt-1 text-ctp-text">remote · worldwide</dd></div>
+          <div><dt class="text-ctp-overlay2">notice</dt><dd class="mt-1 text-ctp-text">available now</dd></div>
+          <div>
+            <dt class="text-ctp-overlay2">contact</dt><dd class="mt-1 text-ctp-teal">
+              {resume.contact.email ?? 'github ↗'}
+            </dd>
+          </div>
+        </dl>
+      </Card>
     </div>
   </section>
 
-  <section class="mb-12">
-    <h2 class="mb-4 text-xl font-semibold text-ctp-text">Skills</h2>
-    <div class="flex flex-col gap-5">
-      {
-        resume.skills.map((group) => (
-          <div>
-            <p class="mb-2 text-sm text-ctp-subtext1">{group.category}</p>
-            <div class="flex flex-wrap gap-2">
-              {group.items.map((item) => (
-                <span class="rounded-full bg-ctp-surface0 px-3 py-1 text-sm text-ctp-text">{item}</span>
-              ))}
+  <!-- STATS -->
+  <StatStrip class="border-b border-ctp-surface0">
+    <StatCard index="00" value={years} label="Years experience" />
+    <StatCard index="01" value={projects.length} label="Projects" alt />
+    <StatCard index="02" value={jobs.length} label="Roles applied for" />
+    <StatCard index="03" value={pipeline} label="Active pipeline" alt />
+  </StatStrip>
+
+  <!-- ABOUT + CURRENT ROLE -->
+  <section class="grid gap-14 px-14 pt-18 lg:grid-cols-[1.4fr_1fr]">
+    <div>
+      <SectionLabel>// about.md</SectionLabel>
+      {resume.bio && <p class="mt-6 text-lg leading-relaxed text-ctp-subtext1">{resume.bio}</p>}
+    </div>
+    <TerminalWindow path="$ whoami --current">
+      <span slot="status" class="text-ctp-green">● live</span>
+      <div class="font-display text-3xl font-bold tracking-[-0.02em] text-ctp-text">{current.role}</div>
+      <div class="mt-1 text-ctp-teal">@ {current.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</div>
+      <dl class="mt-5 grid grid-cols-2 gap-4 text-[13px]">
+        {
+          meta.map(([k, v]) => (
+            <div>
+              <dt class="text-ctp-overlay1">{k}</dt>
+              <dd class="mt-0.5 text-ctp-subtext1">{v}</dd>
             </div>
-          </div>
+          ))
+        }
+      </dl>
+    </TerminalWindow>
+  </section>
+
+  <!-- WRITING -->
+  <section class="px-14 pt-22">
+    <div class="flex items-end justify-between">
+      <div>
+        <SectionLabel color="teal">// writing</SectionLabel>
+        <h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.025em] text-ctp-text">
+          From the blog<span class="text-ctp-peach">.</span>
+        </h2>
+      </div>
+      <Button variant="ghost" href="/blog">all posts →</Button>
+    </div>
+    <div class="mt-8 grid gap-4 md:grid-cols-3">
+      {
+        posts.map((post, i) => (
+          <PostCard
+            title={post.data.title}
+            tag={post.data.tag}
+            date={fmtDate(post.data.date)}
+            excerpt={post.data.excerpt}
+            readMins={post.data.readMins}
+            slug={post.id}
+            accent={postAccents[i % postAccents.length]!}
+          />
         ))
       }
     </div>
   </section>
 
-  <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-    <a
-      href="/resume"
-      class="block rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 transition-colors hover:bg-ctp-surface0"
-    >
-      <h3 class="font-semibold text-ctp-text">Resume</h3>
-      <p class="mt-1 text-sm text-ctp-subtext1">Full work history and skills</p>
-    </a>
-    <a
-      href="/projects"
-      class="block rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 transition-colors hover:bg-ctp-surface0"
-    >
-      <h3 class="font-semibold text-ctp-text">Projects</h3>
-      <p class="mt-1 text-sm text-ctp-subtext1">Side projects and open source</p>
-    </a>
-    <a
-      href="/job-hunt"
-      class="block rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 transition-colors hover:bg-ctp-surface0"
-    >
-      <h3 class="font-semibold text-ctp-text">Job Hunt</h3>
-      <p class="mt-1 text-sm text-ctp-subtext1">Live search dashboard</p>
-    </a>
-    <a
-      href="/testing"
-      class="block rounded-lg border border-ctp-surface1 bg-ctp-mantle p-6 transition-colors hover:bg-ctp-surface0"
-    >
-      <h3 class="font-semibold text-ctp-text">Testing</h3>
-      <p class="mt-1 text-sm text-ctp-subtext1">Test pyramid, project routing, CI</p>
-    </a>
+  <!-- TESTING TEASER -->
+  <section class="px-14 pt-18 pb-4">
+    <TerminalWindow path="$ npm run test --workspaces">
+      <span slot="status" class="text-ctp-green">● passing</span>
+      <div class="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <p class="font-display text-[28px] leading-tight font-bold tracking-[-0.02em] text-ctp-text">
+          This site eats its own dog food.
+        </p>
+        <div>
+          <div class="mono-caption text-ctp-overlay1">unit</div><div
+            class="mt-1 font-display text-4xl font-bold text-ctp-green"
+          >
+            {TEST_STATS.unit}
+          </div>
+        </div>
+        <div>
+          <div class="mono-caption text-ctp-overlay1">e2e</div><div
+            class="mt-1 font-display text-4xl font-bold text-ctp-sapphire"
+          >
+            {TEST_STATS.e2e}
+          </div>
+        </div>
+        <div>
+          <div class="mono-caption text-ctp-overlay1">engines</div><div
+            class="mt-1 font-display text-4xl font-bold text-ctp-mauve"
+          >
+            {TEST_STATS.engines}
+          </div>
+        </div>
+      </div>
+    </TerminalWindow>
   </section>
 </Base>
