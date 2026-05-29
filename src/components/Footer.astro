@@ -10,29 +10,31 @@ const tailwindV = v('tailwindcss')?.split('.').slice(0, 2).join('.');
 const ctpV = v('@catppuccin/tailwindcss');
 ---
 
-<footer
-  class="mt-20 grid grid-cols-2 gap-8 border-t border-ctp-surface0 bg-ctp-mantle px-14 py-8 font-mono text-xs text-ctp-subtext0 md:grid-cols-4"
->
-  <div>
-    <div class="mb-2 mono-caption text-ctp-overlay2">[ build ]</div>
-    <div class="text-ctp-text">astro {astroV} · tailwind {tailwindV}</div>
-    <div>catppuccin v{ctpV}</div>
-  </div>
-  <div>
-    <div class="mb-2 mono-caption text-ctp-overlay2">[ ci ]</div>
-    <div class={ci.passing ? 'text-ctp-green' : 'text-ctp-red'}>
-      ● {ci.passing ? 'green' : 'failing'} · {ci.branch}
+<footer class="mt-20 border-t border-ctp-surface0 bg-ctp-mantle">
+  <div
+    class="mx-auto grid max-w-[1440px] grid-cols-2 gap-8 px-14 py-8 font-mono text-xs text-ctp-subtext0 md:grid-cols-4"
+  >
+    <div>
+      <div class="mb-2 mono-caption text-ctp-overlay2">[ build ]</div>
+      <div class="text-ctp-text">astro {astroV} · tailwind {tailwindV}</div>
+      <div>catppuccin v{ctpV}</div>
     </div>
-    <div>last deploy {ci.lastDeployAgo}</div>
-  </div>
-  <div>
-    <div class="mb-2 mono-caption text-ctp-overlay2">[ tests ]</div>
-    <div class="text-ctp-text">{TEST_STATS.unit} unit · {TEST_STATS.e2e} e2e</div>
-    <div>{TEST_STATS.engines} engines</div>
-  </div>
-  <div class="text-right">
-    <div class="mb-2 mono-caption text-ctp-overlay2">[ © 2026 ]</div>
-    <div class="text-ctp-text">tim stacey</div>
-    <div>v{pkg.version}</div>
+    <div>
+      <div class="mb-2 mono-caption text-ctp-overlay2">[ ci ]</div>
+      <div class={ci.passing ? 'text-ctp-green' : 'text-ctp-red'}>
+        ● {ci.passing ? 'green' : 'failing'} · {ci.branch}
+      </div>
+      <div>last deploy {ci.lastDeployAgo}</div>
+    </div>
+    <div>
+      <div class="mb-2 mono-caption text-ctp-overlay2">[ tests ]</div>
+      <div class="text-ctp-text">{TEST_STATS.unit} unit · {TEST_STATS.e2e} e2e</div>
+      <div>{TEST_STATS.engines} engines</div>
+    </div>
+    <div class="text-right">
+      <div class="mb-2 mono-caption text-ctp-overlay2">[ © 2026 ]</div>
+      <div class="text-ctp-text">tim stacey</div>
+      <div>v{pkg.version}</div>
+    </div>
   </div>
 </footer>

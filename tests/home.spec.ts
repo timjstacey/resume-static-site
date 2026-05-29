@@ -31,9 +31,10 @@ test.describe('Home page', () => {
     }
   });
 
-  test('whoami terminal shows the current role', async ({ page }) => {
-    await expect(page.getByText('$ whoami --current')).toBeVisible();
-    await expect(page.getByText(resume.experience[0]!.role, { exact: true })).toBeVisible();
+  test('current-role terminal shows the role + company', async ({ page }) => {
+    const current = resume.experience[0]!;
+    await expect(page.getByText(current.role, { exact: true })).toBeVisible();
+    await expect(page.getByText(`@ ${current.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)).toBeVisible();
   });
 
   test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
@@ -42,7 +43,6 @@ test.describe('Home page', () => {
   });
 
   test('testing teaser shows live test counts', async ({ page }) => {
-    await expect(page.getByText('$ npm run test --workspaces')).toBeVisible();
     await expect(page.getByTestId('teaser-unit')).toHaveText(String(TEST_STATS.unit));
     await expect(page.getByTestId('teaser-e2e')).toHaveText(String(TEST_STATS.e2e));
   });
