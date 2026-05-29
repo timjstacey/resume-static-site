@@ -39,7 +39,7 @@ const meta = current
   <!-- HERO -->
   <section
     class="border-b border-ctp-surface0 px-14 pt-16 pb-20"
-    style="background: radial-gradient(ellipse 800px 400px at 80% 20%, color-mix(in srgb, var(--color-ctp-peach) 7%, transparent), transparent 60%), var(--color-ctp-crust)"
+    style="background: radial-gradient(ellipse 800px 400px at 80% 20%, color-mix(in srgb, var(--catppuccin-color-peach) 7%, transparent), transparent 60%), var(--catppuccin-color-crust)"
   >
     <div class="grid items-start gap-16 lg:grid-cols-[1.4fr_0.9fr]">
       <div>
@@ -57,7 +57,7 @@ const meta = current
           contract checks at every seam.
         </p>
         <div class="mt-9 flex flex-wrap gap-3">
-          <Button variant="primary" href="/resume">▸ ./view-resume.sh</Button>
+          <Button variant="primary" href="/resume">▸ ./resume.md</Button>
           {
             resume.contact.github && (
               <Button variant="ghost" href={resume.contact.github}>
@@ -80,7 +80,7 @@ const meta = current
         <div class="flex items-center justify-between">
           <span class="mono-caption text-ctp-overlay2">availability.json</span>
           <span class="flex items-center gap-2 font-mono text-[11px] text-ctp-green">
-            <span class="h-2 w-2 rounded-full bg-ctp-green shadow-[0_0_8px_var(--color-ctp-green)]"></span>OPEN
+            <span class="h-2 w-2 rounded-full bg-ctp-green shadow-[0_0_8px_var(--catppuccin-color-green)]"></span>OPEN
           </span>
         </div>
         <div class="mt-6 font-display text-[56px] leading-none font-bold tracking-[-0.03em] text-ctp-peach">13 Jun</div>
@@ -114,7 +114,7 @@ const meta = current
       <SectionLabel>// about.md</SectionLabel>
       {resume.bio && <p class="mt-6 text-lg leading-relaxed text-ctp-subtext1">{resume.bio}</p>}
     </div>
-    <TerminalWindow path="$ whoami --current">
+    <TerminalWindow path="$ cat resume.md | grep current">
       <span slot="status" class="text-ctp-green">● live</span>
       <div class="font-display text-3xl font-bold tracking-[-0.02em] text-ctp-text">{current?.role}</div>
       <div class="mt-1 text-ctp-teal">@ {current?.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</div>
@@ -161,7 +161,7 @@ const meta = current
 
   <!-- TESTING TEASER -->
   <section class="px-14 pt-18 pb-4">
-    <TerminalWindow path="$ npm run test --workspaces">
+    <TerminalWindow path="$ pnpm test && pnpm test:e2e">
       <span slot="status" class="text-ctp-green">● passing</span>
       <div class="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <p class="font-display text-[28px] leading-tight font-bold tracking-[-0.02em] text-ctp-text">

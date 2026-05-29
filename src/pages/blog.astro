@@ -39,7 +39,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
     <div>
       <SectionLabel color="teal">// blog.md</SectionLabel>
       <h1 class="mt-5 font-display text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-ctp-text md:text-[80px]">
-        Field notes / from someone / who <span class="text-ctp-peach">tests things</span>
+        Field notes from someone who <span class="text-ctp-peach">tests</span>
         <span class="text-ctp-overlay1">for a living.</span>
       </h1>
     </div>
@@ -66,7 +66,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
       <section class="px-14 pt-14">
         <div
           class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-8"
-          style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--color-ctp-peach) 8%, transparent), transparent 70%), var(--color-ctp-mantle)"
+          style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--catppuccin-color-peach) 8%, transparent), transparent 70%), var(--catppuccin-color-mantle)"
         >
           <span class="absolute top-6 right-6 flex items-center gap-2 font-mono text-[11px] text-ctp-green">
             <span class="h-2 w-2 rounded-full bg-ctp-green" />
@@ -126,7 +126,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
               <span class="font-mono text-[13px] text-ctp-overlay1">{pad(rest.length - i)}</span>
               <span
                 class="h-14 w-1.5 rounded-full"
-                style={`background: var(--color-ctp-${tagAccent(post.data.tag)})`}
+                style={`background: var(--catppuccin-color-${tagAccent(post.data.tag)})`}
               />
               <span class="min-w-0">
                 <span class="flex items-center gap-3">
@@ -156,16 +156,16 @@ const pad = (n: number) => String(n).padStart(3, '0');
             drafts.slice(0, 6).map((draft) => (
               <div
                 class="rounded-lg border border-ctp-surface0 bg-ctp-mantle p-4"
-                style={`border-top: 2px solid var(--color-ctp-${draftAccent(draft.status)})`}
+                style={`border-top: 2px solid var(--catppuccin-color-${draftAccent(draft.status)})`}
               >
                 <div class="flex items-center justify-between">
                   <span
                     class="flex items-center gap-1.5 font-mono text-[11px]"
-                    style={`color: var(--color-ctp-${draftAccent(draft.status)})`}
+                    style={`color: var(--catppuccin-color-${draftAccent(draft.status)})`}
                   >
                     <span
                       class="h-1.5 w-1.5 rounded-full"
-                      style={`background: var(--color-ctp-${draftAccent(draft.status)})`}
+                      style={`background: var(--catppuccin-color-${draftAccent(draft.status)})`}
                     />
                     {draft.status}
                   </span>
@@ -190,7 +190,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
           {
             tags.map((t) => (
               <div class="flex items-center gap-2 font-mono text-[12px]">
-                <span class="h-3 w-3 rounded-[2px]" style={`background: var(--color-ctp-${tagAccent(t.tag)})`} />
+                <span class="h-3 w-3 rounded-[2px]" style={`background: var(--catppuccin-color-${tagAccent(t.tag)})`} />
                 <span class="text-ctp-subtext1">#{t.tag.toLowerCase()}</span>
                 <span class="ml-auto text-ctp-overlay1">×{t.count}</span>
               </div>

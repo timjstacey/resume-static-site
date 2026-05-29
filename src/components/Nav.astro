@@ -3,6 +3,10 @@ import { isActivePath, NAV_ITEMS } from '../lib/nav';
 
 const currentPath = Astro.url.pathname;
 const links = NAV_ITEMS;
+
+// Breadcrumb: home → "~/", any other route → "~/<segment>".
+const trimmed = currentPath.replace(/\/$/, '');
+const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
 ---
 
 <nav aria-label="Primary" class="border-b border-ctp-surface0 bg-ctp-mantle">
@@ -15,8 +19,8 @@ const links = NAV_ITEMS;
         TS
       </span>
       <span class="leading-none">
-        <span class="block font-display text-base font-semibold tracking-[-0.01em] text-ctp-text">Tim Stacey</span>
-        <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1">~/sillysamoyed.com</span>
+        <span class="block font-display text-base font-semibold tracking-[-0.01em] text-ctp-text">tim</span>
+        <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1">{crumb}</span>
       </span>
     </a>
 
@@ -49,8 +53,6 @@ const links = NAV_ITEMS;
       class="ml-auto flex items-center gap-4 px-5 font-mono text-xs text-ctp-subtext0 md:ml-0 md:border-l md:border-ctp-surface0 md:px-7"
     >
       <slot />
-      <span class="text-ctp-overlay0 max-md:hidden">|</span>
-      <span class="max-md:hidden">⌘K</span>
 
       <!-- Hamburger: mobile only -->
       <button

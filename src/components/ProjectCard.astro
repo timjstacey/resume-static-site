@@ -18,12 +18,20 @@ const filterTokens = [...project.tags, project.lang]
   .map((t) => t!.toLowerCase())
   .concat(project.pinned ? ['pinned'] : [])
   .join(' ');
+
+// data-updated = approximate days-ago, parsed from the relative label
+// ("2d ago", "1w ago", "3mo ago"), so the sort control can order cards.
+const UNIT_DAYS: Record<string, number> = { d: 1, w: 7, mo: 30, y: 365 };
+const mu = project.updated?.match(/(\d+)\s*(mo|d|w|y)/);
+const updatedDays = mu ? Number(mu[1]) * UNIT_DAYS[mu[2]!]! : 99999;
 ---
 
 <article
   aria-label={project.name}
   data-project
   data-tags={filterTokens}
+  data-updated={updatedDays}
+  data-stars={project.stars ?? 0}
   class="flex flex-col rounded-lg border border-ctp-surface0 bg-ctp-mantle p-5 transition-colors duration-150 ease-out hover:border-ctp-surface1"
 >
   <div class="flex items-start justify-between gap-2">
