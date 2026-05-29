@@ -20,18 +20,20 @@ test.describe('Home page', () => {
   });
 
   test('stats strip shows derived counts from data', async ({ page }) => {
-    for (const label of ['Years experience', 'Projects', 'Roles applied for', 'Active pipeline']) {
-      await expect(page.getByText(label, { exact: true })).toBeVisible();
+    const stats: [string, string][] = [
+      ['Years experience', String(yearsOfExp(resume.experience))],
+      ['Projects', String(projects.length)],
+      ['Roles applied for', String(jobs.length)],
+      ['Active pipeline', String(activePipeline(jobs))],
+    ];
+    for (const [label, value] of stats) {
+      await expect(page.locator(`[data-stat-label="${label}"] [data-stat-value]`)).toHaveText(value);
     }
-    await expect(page.getByText(String(yearsOfExp(resume.experience)), { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(String(projects.length), { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(String(jobs.length), { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(String(activePipeline(jobs)), { exact: true }).first()).toBeVisible();
   });
 
   test('whoami terminal shows the current role', async ({ page }) => {
     await expect(page.getByText('$ whoami --current')).toBeVisible();
-    await expect(page.getByText(resume.experience[0]!.role, { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(resume.experience[0]!.role, { exact: true })).toBeVisible();
   });
 
   test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
@@ -41,7 +43,7 @@ test.describe('Home page', () => {
 
   test('testing teaser shows live test counts', async ({ page }) => {
     await expect(page.getByText('$ npm run test --workspaces')).toBeVisible();
-    await expect(page.getByText(String(TEST_STATS.unit), { exact: true }).first()).toBeVisible();
-    await expect(page.getByText(String(TEST_STATS.e2e), { exact: true }).first()).toBeVisible();
+    await expect(page.getByTestId('teaser-unit')).toHaveText(String(TEST_STATS.unit));
+    await expect(page.getByTestId('teaser-e2e')).toHaveText(String(TEST_STATS.e2e));
   });
 });

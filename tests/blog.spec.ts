@@ -17,7 +17,7 @@ test.describe('Blog page', () => {
   });
 
   test('featured post shows a terminal preview with the cat command', async ({ page }) => {
-    await expect(page.getByText(/cat .+\.md/).first()).toBeVisible();
+    await expect(page.getByTestId('terminal-path')).toContainText('.md');
     await expect(page.getByText('featured · latest')).toBeVisible();
   });
 
