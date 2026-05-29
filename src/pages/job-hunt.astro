@@ -109,32 +109,50 @@ const avatars: { label: string; accent: string }[] = [
         />
       </label>
 
-      <select
-        id="filter-epic"
-        aria-label="Filter by company"
-        class="cursor-pointer rounded border border-ctp-surface1 bg-ctp-mantle px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
-      >
-        <option value="">EPIC ▾</option>
-        {companies.map((c) => <option value={c}>{c}</option>)}
-      </select>
+      <div class="relative inline-flex">
+        <select
+          id="filter-epic"
+          aria-label="Filter by company"
+          class="cursor-pointer appearance-none rounded border border-ctp-surface1 bg-ctp-mantle py-[7px] pr-8 pl-3 font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
+        >
+          <option value="">EPIC</option>
+          {companies.map((c) => <option value={c}>{c}</option>)}
+        </select>
+        <span
+          class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[9px] text-ctp-overlay1"
+          aria-hidden="true">▾</span
+        >
+      </div>
 
-      <select
-        id="filter-priority"
-        aria-label="Filter by priority"
-        class="cursor-pointer rounded border border-ctp-surface1 bg-ctp-mantle px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 uppercase transition-colors hover:border-ctp-overlay0"
-      >
-        <option value="">PRIORITY ▾</option>
-        {priorities.map((p) => <option value={p}>{p}</option>)}
-      </select>
+      <div class="relative inline-flex">
+        <select
+          id="filter-priority"
+          aria-label="Filter by priority"
+          class="cursor-pointer appearance-none rounded border border-ctp-surface1 bg-ctp-mantle py-[7px] pr-8 pl-3 font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 uppercase transition-colors hover:border-ctp-overlay0"
+        >
+          <option value="">PRIORITY</option>
+          {priorities.map((p) => <option value={p}>{p}</option>)}
+        </select>
+        <span
+          class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[9px] text-ctp-overlay1"
+          aria-hidden="true">▾</span
+        >
+      </div>
 
-      <select
-        id="filter-source"
-        aria-label="Filter by source"
-        class="cursor-pointer rounded border border-ctp-surface1 bg-ctp-mantle px-3 py-[7px] font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
-      >
-        <option value="">SOURCE ▾</option>
-        {sources.map((s) => <option value={s}>{s}</option>)}
-      </select>
+      <div class="relative inline-flex">
+        <select
+          id="filter-source"
+          aria-label="Filter by source"
+          class="cursor-pointer appearance-none rounded border border-ctp-surface1 bg-ctp-mantle py-[7px] pr-8 pl-3 font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
+        >
+          <option value="">SOURCE</option>
+          {sources.map((s) => <option value={s}>{s}</option>)}
+        </select>
+        <span
+          class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[9px] text-ctp-overlay1"
+          aria-hidden="true">▾</span
+        >
+      </div>
 
       <button
         type="button"
