@@ -12,11 +12,12 @@ import { getPosts } from '../lib/posts';
 import { fmtYM } from '../lib/format';
 import { activePipeline, yearsOfExp } from '../lib/stats';
 import { TEST_STATS } from '../lib/testStats';
+import { FEATURES } from '../lib/features';
 
 const resume = getResume();
 const projects = getProjects();
 const jobs = getJobs();
-const posts = (await getPosts()).slice(0, 3);
+const posts = FEATURES.blog ? (await getPosts()).slice(0, 3) : [];
 
 const years = yearsOfExp(resume.experience);
 const pipeline = activePipeline(jobs);
@@ -131,33 +132,37 @@ const meta = current
     </TerminalWindow>
   </section>
 
-  <!-- WRITING -->
-  <section class="px-14 pt-22">
-    <div class="flex items-end justify-between">
-      <div>
-        <SectionLabel color="teal">// writing</SectionLabel>
-        <h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.025em] text-ctp-text">
-          From the blog<span class="text-ctp-peach">.</span>
-        </h2>
-      </div>
-      <Button variant="ghost" href="/blog">all posts →</Button>
-    </div>
-    <div class="mt-8 grid gap-4 md:grid-cols-3">
-      {
-        posts.map((post, i) => (
-          <PostCard
-            title={post.data.title}
-            tag={post.data.tag}
-            date={fmtDate(post.data.date)}
-            excerpt={post.data.excerpt}
-            readMins={post.data.readMins}
-            slug={post.id}
-            accent={postAccents[i % postAccents.length]!}
-          />
-        ))
-      }
-    </div>
-  </section>
+  <!-- WRITING (hidden via FEATURES.blog until content lands) -->
+  {
+    FEATURES.blog && (
+      <section class="px-14 pt-22">
+        <div class="flex items-end justify-between">
+          <div>
+            <SectionLabel color="teal">// writing</SectionLabel>
+            <h2 class="mt-4 font-display text-4xl font-bold tracking-[-0.025em] text-ctp-text">
+              From the blog<span class="text-ctp-peach">.</span>
+            </h2>
+          </div>
+          <Button variant="ghost" href="/blog">
+            all posts →
+          </Button>
+        </div>
+        <div class="mt-8 grid gap-4 md:grid-cols-3">
+          {posts.map((post, i) => (
+            <PostCard
+              title={post.data.title}
+              tag={post.data.tag}
+              date={fmtDate(post.data.date)}
+              excerpt={post.data.excerpt}
+              readMins={post.data.readMins}
+              slug={post.id}
+              accent={postAccents[i % postAccents.length]!}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   <!-- TESTING TEASER -->
   <section class="px-14 pt-18 pb-4">
