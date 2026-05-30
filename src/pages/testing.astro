@@ -1,4 +1,5 @@
 ---
+import { Code } from 'astro:components';
 import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import Button from '../components/Button.astro';
@@ -43,22 +44,19 @@ const flow = [
   { src: 'projects.yml', loader: 'getProjects()', spec: 'projects.spec.ts' },
 ];
 
-const codeLines: [string, string][] = [
-  ['#', 'jobs.spec.ts'],
-  [' ', "import { getJobs } from '../src/lib/data';"],
-  [' ', 'import { withKeys, columnOf } from'],
-  [' ', "  '../src/lib/jobhunt';"],
-  [' ', ''],
-  [' ', 'const jobs = withKeys(getJobs());'],
-  [' ', ''],
-  [' ', 'for (const job of jobs) {'],
-  [' ', '  test(job.company, async ({ page }) => {'],
-  [' ', "    await page.goto('/job-hunt');"],
-  [' ', '    await expect(card(job)).toBeVisible();'],
-  [' ', '  });'],
-  [' ', '}'],
-];
-const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtext1');
+// Sample data-driven Playwright spec rendered inside the code window.
+const sampleSpec = `import { getJobs } from '../src/lib/data';
+import { withKeys, columnOf } from '../src/lib/jobhunt';
+
+const jobs = withKeys(getJobs());
+
+for (const job of jobs) {
+  test(job.company, async ({ page }) => {
+    await page.goto('/job-hunt');
+    await expect(card(job)).toBeVisible();
+  });
+}
+`;
 ---
 
 <Base title="Testing" description="How this site tests itself — CI, the test pyramid, and project routing.">
@@ -379,7 +377,9 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
         </div>
       </Card>
       <TerminalWindow path="jobs.spec.ts" meta="UTF-8 · typescript">
-        {codeLines.map(([p, text]) => <div class={codeColor(p)}>{text}</div>)}
+        <div class="code-window">
+          <Code code={sampleSpec} lang="ts" theme="catppuccin-mocha" />
+        </div>
       </TerminalWindow>
     </div>
   </section>
@@ -395,3 +395,15 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
     </Card>
   </section>
 </Base>
+
+<style>
+  /* Strip Shiki's own <pre> chrome so the highlighted code sits flush in the terminal body. */
+  .code-window :global(pre) {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+</style>
