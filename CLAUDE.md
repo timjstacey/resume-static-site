@@ -235,6 +235,24 @@ tests/                  # Playwright E2E specs (one per page + responsive + nav)
 
 Open work is tracked at https://github.com/timjstacey/resume-static-site/issues. Initial build issues (#1–#8: setup, layout, schemas, pages, dashboard, deployment) are all closed; new work lands as fresh issues.
 
+## Branching & Commits
+
+Branch off `main`. Name branches `type/issue#-slug`:
+
+- `type` is the Conventional Commit type — `feat | fix | chore | docs | refactor | test | ci | perf`.
+- `issue#` is the GitHub issue the work closes; **omit it** (giving `type/slug`) only when there is no issue.
+- `slug` is a short kebab-case summary.
+
+```
+feat/68-ci-snapshot-refresh    # issue-linked
+fix/48-icon-colours            # issue-linked
+chore/add-mit-license          # no issue → type/slug
+```
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org) (`type(scope): subject`). This is not cosmetic: `version-bump.yml` derives the semver bump from the merged commit subjects — `feat`→minor, `fix`/`perf`→patch, `type!:` or a `BREAKING CHANGE` footer→major, anything else (`chore`/`docs`/`ci`/`test`/`refactor`)→no bump. Pick the type with the intended release impact in mind.
+
+PRs target `main` and are **rebase-merged** (enforced by the `protected-branches` ruleset; squash/merge-commit are disabled). Link the issue with `Closes #N` in the PR body.
+
 ## Keeping CLAUDE.md and README.md in sync
 
 `CLAUDE.md` (this file) is the canonical guide for AI assistants and contributors making changes. `README.md` is the public-facing summary for visitors and new contributors. Treat both as part of the change, not separate docs work. The triggers below are scoped to concrete actions — when the action fires, update both files in the same commit.

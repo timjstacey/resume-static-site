@@ -97,6 +97,8 @@ GitHub Actions workflows:
 
 Personal site, but issues and PRs are open. File one at https://github.com/timjstacey/resume-static-site/issues if you spot a bug or have a suggestion.
 
+Branch off `main` as `type/issue#-slug` (e.g. `fix/48-icon-colours`; drop the issue number when there isn't one). Commits follow [Conventional Commits](https://www.conventionalcommits.org) — the type drives the automated version bump, so `feat` → minor, `fix` → patch, `!`/`BREAKING CHANGE` → major. PRs target `main`, get rebase-merged, and should say `Closes #N`. See [`CLAUDE.md`](./CLAUDE.md#branching--commits) for the full rules.
+
 The pre-commit hook runs lint-staged (ESLint + Prettier on staged files). The pre-push hook runs `pnpm typecheck`. Both block on failure.
 
 ## For AI assistants
