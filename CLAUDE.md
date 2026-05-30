@@ -308,10 +308,10 @@ pnpm ci:refresh    # regenerate src/data/ci-snapshot.json from the live Actions 
 
 Managed by husky.
 
-| Hook       | Runs            | What                                                                                                                                               |
-| ---------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| pre-commit | on `git commit` | lint-staged: `eslint --fix` + `prettier --write` on staged `.astro`/`.ts`/`.tsx`; `prettier --write` on staged `.css`/`.json`/`.md`/`.yaml`/`.yml` |
-| pre-push   | on `git push`   | `pnpm typecheck` — blocks push on type errors                                                                                                      |
+| Hook       | Runs            | What                                                                                                                                                 |
+| ---------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| pre-commit | on `git commit` | lint-staged: `eslint --fix` + `prettier --write` on staged `.astro`/`.ts`/`.tsx`; `prettier --write` on staged `.css`/`.json`/`.md`/`.yaml`/`.yml`   |
+| pre-push   | on `git push`   | Validates the branch name against `type/issue#-slug` (rejects the push otherwise; `main` exempt), then `pnpm typecheck` — blocks push on type errors |
 
 ## CI
 
