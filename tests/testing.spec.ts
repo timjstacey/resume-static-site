@@ -26,8 +26,9 @@ test.describe('Testing dashboard', () => {
   });
 
   test('routing matrix has a row per playwright project', async ({ page }) => {
+    const matrix = page.getByTestId('routing-matrix');
     for (const r of routing) {
-      await expect(page.getByText(r.project, { exact: true })).toBeVisible();
+      await expect(matrix.getByText(r.project, { exact: true })).toBeVisible();
     }
   });
 

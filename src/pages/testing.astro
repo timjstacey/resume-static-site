@@ -65,7 +65,9 @@ for (const job of jobs) {
     <div>
       <SectionLabel>// testing.md</SectionLabel>
       <h1 class="mt-5 font-display text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-ctp-text md:text-[80px]">
-        This page <span class="text-ctp-peach">is</span> its own test report.
+        This page is its
+        <span class="text-ctp-peach">own</span>
+        <span class="text-ctp-teal">test report.</span>
       </h1>
       <p class="mt-6 max-w-2xl text-lg leading-relaxed text-ctp-subtext1">
         Every number below comes from the same data and CI signals the site ships with. Nothing here is mocked.
@@ -245,7 +247,7 @@ for (const job of jobs) {
       </p>
     </div>
 
-    <div class="mt-4 hidden overflow-x-auto md:block">
+    <div class="mt-4 hidden overflow-x-auto md:block" data-testid="routing-matrix">
       <div
         class="grid grid-cols-[2fr_1fr_1fr_3fr] gap-px overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-surface0 font-mono text-[12px]"
       >
