@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { getResume, getProjects, getJobs } from '../src/lib/data';
 import { activePipeline, yearsOfExp } from '../src/lib/stats';
 import { TEST_STATS } from '../src/lib/testStats';
+import { FEATURES } from '../src/lib/features';
 
 // Throws at module load if YAML is missing or fails schema validation.
 const resume = getResume();
@@ -37,10 +38,12 @@ test.describe('Home page', () => {
     await expect(page.getByText(`@ ${current.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)).toBeVisible();
   });
 
-  test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /From the blog/ })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'all posts →' })).toHaveAttribute('href', '/blog');
-  });
+  if (FEATURES.blog) {
+    test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
+      await expect(page.getByRole('heading', { name: /From the blog/ })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'all posts →' })).toHaveAttribute('href', '/blog');
+    });
+  }
 
   test('testing teaser shows live test counts', async ({ page }) => {
     await expect(page.getByTestId('teaser-unit')).toHaveText(String(TEST_STATS.unit));
