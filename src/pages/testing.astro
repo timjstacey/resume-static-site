@@ -326,7 +326,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
         <div class="flex flex-col gap-3 font-mono text-[12px]">
           {
             flow.map((f) => (
-              <div class="grid grid-cols-3 gap-2">
+              <div class="flex flex-col gap-1 md:grid md:grid-cols-3 md:gap-2">
                 <span class="rounded bg-ctp-surface0 px-2 py-1.5 text-ctp-peach">{f.src}</span>
                 <span class="rounded bg-ctp-surface0 px-2 py-1.5 text-ctp-teal">
                   <span class="text-ctp-overlay1">→ </span>
