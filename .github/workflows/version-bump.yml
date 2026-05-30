@@ -1,0 +1,75 @@
+name: Version bump
+
+on:
+  push:
+    branches: [main]
+    # The nightly ci-snapshot refresh must never bump the version. When a push
+    # touches only this file, the workflow is skipped entirely.
+    paths-ignore:
+      - 'src/data/ci-snapshot.json'
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    name: Bump package.json version
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need history back to the previous push to read the merged commits.
+          fetch-depth: 0
+          token: ${{ github.token }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Decide bump level from Conventional Commits
+        id: level
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          # Commits introduced by this push. Falls back to the tip commit when
+          # `before` is the zero SHA (new branch / first push).
+          if [[ "$BEFORE" =~ ^0+$ ]]; then
+            range="$AFTER~1..$AFTER"
+          else
+            range="$BEFORE..$AFTER"
+          fi
+
+          subjects="$(git log --no-merges --format='%s' "$range")"
+          bodies="$(git log --no-merges --format='%b' "$range")"
+
+          level=none
+          # major: `type!:` marker or a BREAKING CHANGE footer.
+          if grep -qiE '^[a-z]+(\([^)]+\))?!:' <<<"$subjects" || grep -qi 'BREAKING CHANGE' <<<"$bodies$subjects"; then
+            level=major
+          elif grep -qE '^feat(\([^)]+\))?:' <<<"$subjects"; then
+            level=minor
+          elif grep -qE '^(fix|perf)(\([^)]+\))?:' <<<"$subjects"; then
+            level=patch
+          fi
+
+          echo "level=$level" >>"$GITHUB_OUTPUT"
+          echo "Detected bump level: $level"
+          echo "Commits in range:"
+          echo "$subjects"
+
+      - name: Apply bump and commit
+        if: steps.level.outputs.level != 'none'
+        env:
+          LEVEL: ${{ steps.level.outputs.level }}
+        run: |
+          # --no-git-tag-version: edit package.json only, no tag, no commit.
+          npm version "$LEVEL" --no-git-tag-version
+          new="$(node -p "require('./package.json').version")"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(release): v${new} [skip ci]"
+          git push

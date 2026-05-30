@@ -86,11 +86,12 @@ Push to `main` and Cloudflare Pages builds + publishes to https://tim.sillysamoy
 
 GitHub Actions workflows:
 
-| Workflow                  | Trigger      | Steps                                                                               |
-| ------------------------- | ------------ | ----------------------------------------------------------------------------------- |
-| `ci.yml`                  | PR → `main`  | `check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`  |
-| `playwright.yml`          | PR → `main`  | Wait for Cloudflare preview → run Playwright against the preview URL (all projects) |
-| `refresh-ci-snapshot.yml` | nightly cron | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then open a PR    |
+| Workflow                  | Trigger       | Steps                                                                                             |
+| ------------------------- | ------------- | ------------------------------------------------------------------------------------------------- |
+| `ci.yml`                  | PR → `main`   | `check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`                |
+| `playwright.yml`          | PR → `main`   | Wait for Cloudflare preview → run Playwright against the preview URL (all projects)               |
+| `refresh-ci-snapshot.yml` | nightly cron  | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then open a PR                  |
+| `version-bump.yml`        | push → `main` | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major) |
 
 ## Contributing
 
