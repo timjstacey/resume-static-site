@@ -17,6 +17,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "stats:refresh": "node scripts/refresh-test-stats.mjs",
+    "ci:refresh": "node scripts/refresh-ci-snapshot.mjs",
     "prepare": "husky"
   },
   "dependencies": {
