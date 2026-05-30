@@ -320,7 +320,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
       {
         workflows.map((wf) => (
           <Card class="p-6">
-            <div class="flex items-center justify-between font-mono text-[12px]">
+            <div class="flex flex-col gap-1 font-mono text-[12px] md:flex-row md:items-center md:justify-between md:gap-3">
               <span class="text-ctp-text" style={`color: var(--catppuccin-color-${wf.accent})`}>
                 {wf.file}
               </span>
