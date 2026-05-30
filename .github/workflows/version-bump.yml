@@ -75,5 +75,9 @@ jobs:
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "chore(release): v${new} [skip ci]"
+          # No [skip ci]: Cloudflare Pages honors it too, so the bump commit
+          # would never deploy and the footer version would lag a release
+          # behind. Letting it through re-triggers this workflow once, but a
+          # chore(release) subject resolves to level=none — a ~5s no-op, no loop.
+          git commit -am "chore(release): v${new}"
           git push
