@@ -44,18 +44,28 @@ const flow = [
   { src: 'projects.yml', loader: 'getProjects()', spec: 'projects.spec.ts' },
 ];
 
-// Sample data-driven Playwright spec rendered inside the code window.
-const sampleSpec = `import { getJobs } from '../src/lib/data';
-import { withKeys, columnOf } from '../src/lib/jobhunt';
+// Real excerpt from tests/jobs.spec.ts — the data-driven card-label loop.
+const sampleSpec = `import { test, expect } from '@playwright/test';
+import { getJobs } from '../src/lib/data';
+import { withKeys, columnOf, STATUS_COLUMNS } from '../src/lib/jobhunt';
 
 const jobs = withKeys(getJobs());
 
-for (const job of jobs) {
-  test(job.company, async ({ page }) => {
-    await page.goto('/job-hunt');
-    await expect(card(job)).toBeVisible();
-  });
+function cardLabel(job: (typeof jobs)[number]): string {
+  return \`\${job.role} at \${job.company}, \${job.status}, \${job.applied}\`;
 }
+
+test.describe('Job Hunt board', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/job-hunt');
+  });
+
+  test('every application has an accessible card label', async ({ page }) => {
+    for (const job of jobs) {
+      await expect(page.getByLabel(cardLabel(job)).first()).toBeVisible();
+    }
+  });
+});
 `;
 ---
 
