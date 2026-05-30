@@ -335,7 +335,9 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
                     <div class="mt-1 font-mono text-[13px] text-ctp-text">{step.name}</div>
                     <div class="mt-1 font-mono text-[12px] text-ctp-green">✓ {step.duration}</div>
                   </div>
-                  {i < wf.steps.length - 1 && <span class="self-center text-lg text-ctp-overlay1">→</span>}
+                  {i < wf.steps.length - 1 && (
+                    <span class="hidden self-center text-lg text-ctp-overlay1 md:inline">→</span>
+                  )}
                 </>
               ))}
             </div>
