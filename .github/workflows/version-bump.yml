@@ -21,7 +21,11 @@ jobs:
         with:
           # Need history back to the previous push to read the merged commits.
           fetch-depth: 0
-          token: ${{ github.token }}
+          # Admin PAT: the default GITHUB_TOKEN cannot push to main (ruleset
+          # pull_request rule + classic required checks block it). An admin
+          # bypasses classic protection (enforce_admins=false) and matches the
+          # "Repository admin" entry on the ruleset bypass list.
+          token: ${{ secrets.VERSION_BUMP_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
