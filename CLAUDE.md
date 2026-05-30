@@ -162,9 +162,11 @@ Playwright project: `project / device / engine / specs`) and CI gate pipelines
 (`file / accent / on / steps[]`). Keep in sync with `playwright.config.ts` and
 `.github/workflows/`.
 
-`src/data/ci-snapshot.json` holds static CI signals (`branch`, `passing`, `sha`,
+`src/data/ci-snapshot.json` holds CI signals (`branch`, `passing`, `sha`,
 `commitMessage`, `commitAgo`, `lastDeployAgo`, `runs[]`, `p50`, `p95`, deltas).
-Refreshed by a nightly job later — do not fake these in production.
+Regenerated from the live GitHub Actions API by `pnpm ci:refresh`
+(`scripts/refresh-ci-snapshot.mjs`), run nightly by the `refresh-ci-snapshot.yml`
+workflow which opens a PR with the bump — do not hand-edit or fake these.
 
 ## Component Architecture
 
@@ -281,6 +283,7 @@ pnpm test:e2e      # playwright — E2E tests (requires dev server or auto-start
 pnpm lint          # run ESLint
 pnpm lint:fix      # run ESLint with auto-fix
 pnpm stats:refresh # regenerate src/lib/testStats.ts from current spec inventory
+pnpm ci:refresh    # regenerate src/data/ci-snapshot.json from the live Actions API
 ```
 
 ## Git Hooks
@@ -296,10 +299,11 @@ Managed by husky.
 
 GitHub Actions workflows live in `.github/workflows/`.
 
-| Workflow         | Trigger                          | What                                                                                                                                                                                       |
-| ---------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ci.yml`         | `pull_request` → `main`          | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`                                                                                            |
-| `playwright.yml` | `pull_request` → `main` / manual | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead. |
+| Workflow                  | Trigger                             | What                                                                                                                                                                                              |
+| ------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                  | `pull_request` → `main`             | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`                                                                                                   |
+| `playwright.yml`          | `pull_request` → `main` / manual    | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead.        |
+| `refresh-ci-snapshot.yml` | nightly cron (`0 6 * * *`) / manual | Runs `pnpm ci:refresh` to regenerate `src/data/ci-snapshot.json` from the live Actions API, then opens a PR with the bump if it changed. Keeps the footer + `/testing` CI strip from going stale. |
 
 Playwright projects (see `playwright.config.ts`) route specs by `testMatch` so each spec runs only where it's meaningful:
 

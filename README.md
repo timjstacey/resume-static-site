@@ -37,17 +37,18 @@ pnpm dev   # http://localhost:4321
 
 ### Commands
 
-| Command              | What                                                          |
-| -------------------- | ------------------------------------------------------------- |
-| `pnpm dev`           | Dev server at `localhost:4321` with HMR                       |
-| `pnpm build`         | Static output to `dist/`                                      |
-| `pnpm preview`       | Serve the built site locally                                  |
-| `pnpm typecheck`     | `astro check` across all `.astro` / `.ts` files               |
-| `pnpm test`          | Vitest unit tests (`src/lib/*.test.ts`)                       |
-| `pnpm test:e2e`      | Playwright E2E (auto-starts dev server, or reuses if running) |
-| `pnpm lint`          | ESLint                                                        |
-| `pnpm lint:fix`      | ESLint with `--fix`                                           |
-| `pnpm stats:refresh` | Regenerate `src/lib/testStats.ts` from current spec inventory |
+| Command              | What                                                             |
+| -------------------- | ---------------------------------------------------------------- |
+| `pnpm dev`           | Dev server at `localhost:4321` with HMR                          |
+| `pnpm build`         | Static output to `dist/`                                         |
+| `pnpm preview`       | Serve the built site locally                                     |
+| `pnpm typecheck`     | `astro check` across all `.astro` / `.ts` files                  |
+| `pnpm test`          | Vitest unit tests (`src/lib/*.test.ts`)                          |
+| `pnpm test:e2e`      | Playwright E2E (auto-starts dev server, or reuses if running)    |
+| `pnpm lint`          | ESLint                                                           |
+| `pnpm lint:fix`      | ESLint with `--fix`                                              |
+| `pnpm stats:refresh` | Regenerate `src/lib/testStats.ts` from current spec inventory    |
+| `pnpm ci:refresh`    | Regenerate `src/data/ci-snapshot.json` from the live Actions API |
 
 ## Project structure
 
@@ -83,12 +84,13 @@ pnpm test:e2e     # E2E (all projects)
 
 Push to `main` and Cloudflare Pages builds + publishes to https://tim.sillysamoyed.com. Pull requests get a preview deploy at a commit-pinned `*.pages.dev` URL; the Playwright workflow waits for that URL and runs E2E against it.
 
-Two GitHub Actions workflows run on every PR:
+GitHub Actions workflows:
 
-| Workflow         | Steps                                                                               |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| `ci.yml`         | `check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`  |
-| `playwright.yml` | Wait for Cloudflare preview → run Playwright against the preview URL (all projects) |
+| Workflow                  | Trigger      | Steps                                                                               |
+| ------------------------- | ------------ | ----------------------------------------------------------------------------------- |
+| `ci.yml`                  | PR → `main`  | `check-claude-md.sh` → `pnpm lint` → `pnpm test` → `pnpm typecheck` → `pnpm build`  |
+| `playwright.yml`          | PR → `main`  | Wait for Cloudflare preview → run Playwright against the preview URL (all projects) |
+| `refresh-ci-snapshot.yml` | nightly cron | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then open a PR    |
 
 ## Contributing
 
