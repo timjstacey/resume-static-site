@@ -160,7 +160,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
         </h2>
       </div>
       <p class="hidden max-w-xs text-right font-mono text-[11px] text-ctp-overlay1 md:block">
-        yes — this site leans heavy on E2E. it is mostly UI.
+        yes, this site leans heavy on E2E<br />it is mostly UI
       </p>
     </div>
 
@@ -245,7 +245,7 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
       </p>
     </div>
 
-    <div class="mt-4 overflow-x-auto">
+    <div class="mt-4 hidden overflow-x-auto md:block">
       <div
         class="grid grid-cols-[2fr_1fr_1fr_3fr] gap-px overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-surface0 font-mono text-[12px]"
       >
@@ -275,6 +275,36 @@ const codeColor = (p: string) => (p === '#' ? 'text-ctp-teal' : 'text-ctp-subtex
           ))
         }
       </div>
+    </div>
+
+    <!-- Mobile: stacked cards (the grid above is awkward to scroll horizontally). -->
+    <div class="mt-4 flex flex-col gap-3 md:hidden">
+      {
+        routing.map((r) => (
+          <div class="rounded-lg border border-ctp-surface0 bg-ctp-mantle p-4 font-mono text-[12px]">
+            <div class="text-[13px] text-ctp-text">{r.project}</div>
+            <dl class="mt-3 grid grid-cols-[64px_1fr] gap-y-2 text-[12px]">
+              <dt class="text-ctp-overlay2 uppercase">device</dt>
+              <dd class="text-ctp-subtext1">{r.device}</dd>
+              <dt class="text-ctp-overlay2 uppercase">engine</dt>
+              <dd>
+                <span
+                  class="rounded px-1.5 py-0.5"
+                  style={`color: var(--catppuccin-color-${engineColor(r.engine)}); background: color-mix(in srgb, var(--catppuccin-color-${engineColor(r.engine)}) 20%, transparent)`}
+                >
+                  {r.engine}
+                </span>
+              </dd>
+              <dt class="text-ctp-overlay2 uppercase">specs</dt>
+              <dd class="flex flex-wrap gap-1.5">
+                {r.specs.map((s) => (
+                  <span class="rounded bg-ctp-surface0 px-1.5 py-0.5 text-[11px] text-ctp-subtext1">{s}</span>
+                ))}
+              </dd>
+            </dl>
+          </div>
+        ))
+      }
     </div>
   </section>
 
