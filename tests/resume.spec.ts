@@ -28,6 +28,16 @@ test.describe('Resume page', () => {
     await expect(page.getByRole('link', { name: /download\.pdf/i })).toBeVisible();
   });
 
+  test('download.pdf link serves the actual PDF (200 + pdf content-type)', async ({ page, request }) => {
+    const link = page.getByRole('link', { name: /download\.pdf/i });
+    await expect(link).toHaveAttribute('href', '/tim-stacey-resume.pdf');
+    await expect(link).toHaveAttribute('download', 'tim-stacey-resume.pdf');
+
+    const res = await request.get('/tim-stacey-resume.pdf');
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toMatch(/pdf/);
+  });
+
   test.describe('experience role cards', () => {
     for (const exp of resume.experience) {
       test(`${exp.company} — ${exp.role}`, async ({ page }) => {
