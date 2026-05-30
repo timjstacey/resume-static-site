@@ -5,8 +5,9 @@ interface Props {
   accent?: string; // Catppuccin accent key for a top border, e.g. 'peach'
   accentWidth?: number; // px, default 2
   class?: string;
+  [key: string]: unknown; // forward extra attrs (e.g. data-testid) to the root
 }
-const { accent, accentWidth = 2, class: extra = '' } = Astro.props;
+const { accent, accentWidth = 2, class: extra = '', ...rest } = Astro.props;
 const topBorder = accent ? `border-top: ${accentWidth}px solid var(--catppuccin-color-${accent})` : undefined;
 ---
 
@@ -16,6 +17,7 @@ const topBorder = accent ? `border-top: ${accentWidth}px solid var(--catppuccin-
     extra,
   ]}
   style={topBorder}
+  {...rest}
 >
   <slot />
 </div>

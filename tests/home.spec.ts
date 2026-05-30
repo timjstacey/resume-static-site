@@ -1,4 +1,6 @@
 import { test, expect } from '@playwright/test';
+import { readFileSync, readdirSync } from 'node:fs';
+import { parse } from 'yaml';
 import { getResume, getProjects, getJobs } from '../src/lib/data';
 import { activePipeline, yearsOfExp } from '../src/lib/stats';
 import { TEST_STATS } from '../src/lib/testStats';
@@ -8,6 +10,15 @@ import { FEATURES } from '../src/lib/features';
 const resume = getResume();
 const projects = getProjects();
 const jobs = getJobs();
+
+// posts.ts imports `astro:content`, which only resolves inside the Astro
+// runtime — read the post frontmatter directly to find the newest title (same
+// fs approach as blog.spec.ts). The home row shows the latest 3, newest first.
+const POSTS_DIR = 'src/content/posts';
+const latestPosts = readdirSync(POSTS_DIR)
+  .filter((f) => f.endsWith('.md'))
+  .map((f) => parse(readFileSync(`${POSTS_DIR}/${f}`, 'utf-8').split('---')[1]!) as { title: string; date: string })
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 test.describe('Home page', () => {
   test.beforeEach(async ({ page }) => {
@@ -42,6 +53,12 @@ test.describe('Home page', () => {
     test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
       await expect(page.getByRole('heading', { name: /From the blog/ })).toBeVisible();
       await expect(page.getByRole('link', { name: 'all posts →' })).toHaveAttribute('href', '/blog');
+
+      // The three newest posts must actually render — a broken post fetch would
+      // leave the section empty without this assertion.
+      const cards = page.getByTestId('post-card');
+      await expect(cards).toHaveCount(3);
+      await expect(cards.first().getByRole('heading')).toHaveText(latestPosts[0]!.title);
     });
   }
 
