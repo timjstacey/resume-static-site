@@ -47,7 +47,7 @@ test.describe('Projects page', () => {
   });
 
   test('shows the terminal heading + repo count', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /ls -la \.\/projects/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /cat projects\.yml/ })).toBeVisible();
     await expect(page.getByText(String(projects.length), { exact: true }).first()).toBeVisible();
   });
 
