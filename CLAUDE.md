@@ -148,7 +148,7 @@ skills:
   lang: TypeScript # language brand dot (see lib/langColors.ts)
   stars: 14
   forks: 2
-  updated: 2d ago # free-text "last commit" label shown in the card footer
+  updatedAt: '2026-05-28' # ISO date (YYYY-MM-DD); card derives the "2d ago" label + recency sort
 ```
 
 ### Blog data (`src/content/posts/*.md`)
@@ -239,7 +239,7 @@ src/
     data.ts             # getResume/getProjects/getJobs/getTesting/getCiSnapshot loaders
     posts.ts            # getPosts() — blog content-collection loader (date-desc)
     nav.ts              # NAV_ITEMS list + isActivePath() helper
-    format.ts           # fmtYM() — YYYY-MM → "Jan 2023" (en-GB)
+    format.ts           # fmtYM() YYYY-MM → "Jan 2023"; daysAgo()/fmtRelative() ISO date → recency + "2d ago"
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
     jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys — JIRA board logic
     blog.ts             # hashtagCounts() + archive() — blog sidebar aggregation

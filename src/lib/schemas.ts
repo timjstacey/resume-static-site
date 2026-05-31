@@ -51,7 +51,7 @@ export const ProjectSchema = z.object({
   stars: z.number().int().optional(),
   forks: z.number().int().optional(),
   lang: z.string().optional(),
-  updated: z.string().optional(),
+  updatedAt: yamlDate.optional(),
 });
 
 export const ProjectsSchema = z.array(ProjectSchema);
