@@ -3,10 +3,12 @@ name: Version bump
 on:
   push:
     branches: [main]
-    # The nightly ci-snapshot refresh must never bump the version. When a push
-    # touches only this file, the workflow is skipped entirely.
+    # Generated-file refreshes must never bump the version. When a push touches
+    # only these files, the workflow is skipped entirely: the nightly
+    # ci-snapshot refresh and the test-stats refresh (refresh-test-stats.yml).
     paths-ignore:
       - 'src/data/ci-snapshot.json'
+      - 'src/lib/testStats.ts'
 
 permissions:
   contents: write
