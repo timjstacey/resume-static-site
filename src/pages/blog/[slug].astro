@@ -270,17 +270,26 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
       links.forEach((el, slug) => el.toggleAttribute('data-active', slug === id));
     };
 
-    // The selection rule (last heading past the offset line, with a bottom-of-
-    // page guard for the final item) lives in lib/toc.ts so it can be unit-tested.
+    // The selection rule (pin → bottom guard → offset line) lives in lib/toc.ts
+    // so it can be unit-tested. `pinned` carries the reader's TOC-click intent
+    // through the smooth-scroll settle, so clicking a heading that bottoms the
+    // page out lands on it rather than the (atBottom) final heading.
     const OFFSET = 100;
+    const PIN_WINDOW = 800; // ms — covers the click's smooth-scroll animation
+    let pinned: string | null = null;
+    let pinnedAt = 0;
+
     const update = () => {
       const positions = headings.map((h) => ({ id: h.id, top: h.getBoundingClientRect().top }));
       const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-      setActive(activeHeadingId(positions, { offset: OFFSET, atBottom }));
+      setActive(activeHeadingId(positions, { offset: OFFSET, atBottom, pinned }));
     };
 
     let ticking = false;
     const onScroll = () => {
+      // A scroll once the click's settle window has passed is the reader moving
+      // on — drop the pin so the live scrollspy resumes.
+      if (pinned !== null && performance.now() - pinnedAt > PIN_WINDOW) pinned = null;
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {
@@ -288,6 +297,14 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
         ticking = false;
       });
     };
+
+    links.forEach((el, slug) => {
+      el.addEventListener('click', () => {
+        pinned = slug;
+        pinnedAt = performance.now();
+        update();
+      });
+    });
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
     update();

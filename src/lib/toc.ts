@@ -10,18 +10,28 @@ export interface HeadingPos {
 export interface ActiveOpts {
   /** Distance below the viewport top where a heading counts as "current". */
   offset: number;
-  /** Page is scrolled to the bottom — force the final heading active. */
+  /** Page is scrolled to the bottom. */
   atBottom: boolean;
+  /**
+   * A heading the reader explicitly jumped to via a TOC click, still in effect
+   * (not yet scrolled away from). It wins outright — without it, clicking a
+   * heading near the end that bottoms the page out would land on `atBottom` and
+   * highlight the *last* heading instead of the one clicked.
+   */
+  pinned?: string | null;
 }
 
 /**
- * The active TOC heading: the last one whose top has scrolled past the offset
- * line. When the page is at the bottom the final heading wins outright — it can
- * sit too low to ever cross the line, which is why the last item used to
- * highlight the heading above it.
+ * The active TOC heading. Precedence:
+ *  1. an in-effect `pinned` click target (disambiguates the cramped last screen,
+ *     where scroll position alone can't tell the last two headings apart);
+ *  2. at the bottom of the page, the final heading (it can sit too low to ever
+ *     cross the offset line on its own);
+ *  3. otherwise the last heading whose top has scrolled past the offset line.
  */
 export function activeHeadingId(headings: HeadingPos[], opts: ActiveOpts): string | null {
   if (headings.length === 0) return null;
+  if (opts.pinned != null && headings.some((h) => h.id === opts.pinned)) return opts.pinned;
   if (opts.atBottom) return headings[headings.length - 1]!.id;
   let current = headings[0]!.id;
   for (const h of headings) {
