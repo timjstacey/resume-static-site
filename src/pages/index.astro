@@ -36,7 +36,7 @@ const meta = current
   : [];
 ---
 
-<Base title="Home" description={`${resume.name} — ${resume.tagline}`}>
+<Base title="Home" description={`${resume.name} · ${resume.tagline}`}>
   <!-- HERO -->
   <section
     class="border-b border-ctp-surface0 px-14 pt-16 pb-20"
@@ -54,8 +54,8 @@ const meta = current
           <span class="text-ctp-teal">hours.</span>
         </h1>
         <p class="mt-9 max-w-2xl text-xl leading-relaxed text-ctp-subtext1">
-          I build test infrastructure that lets teams ship at the speed of their ideas: strict types, lean UI E2E,
-          contract checks at every seam.
+          I build the test infrastructure that takes a team's release cycle from days to hours: strict types, lean UI
+          E2E, contract checks at every seam.
         </p>
         <div class="mt-9 flex flex-wrap gap-3">
           <Button variant="primary" href="/resume">▸ ./resume.md</Button>
@@ -170,7 +170,7 @@ const meta = current
       <span slot="status" class="text-ctp-green">● passing</span>
       <div class="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <p class="font-display text-[28px] leading-tight font-bold tracking-[-0.02em] text-ctp-text">
-          This site eats its own dog food.
+          This site runs the tests it ships.
         </p>
         <div>
           <div class="mono-caption text-ctp-overlay1">unit</div><div

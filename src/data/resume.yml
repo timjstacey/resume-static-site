@@ -1,8 +1,8 @@
 name: Tim Stacey
-tagline: Lead Quality Engineer — Test Automation & Engineering Standards
+tagline: 'Lead Quality Engineer: Test Automation & Engineering Standards'
 bio: >-
   I'm wrapping up at Sony Interactive Entertainment on 12 June 2026, and from 13 June I'm available for
-  remote work anywhere in the world, perm or contract. My day-to-day is test automation across web, API, and
+  remote work worldwide, perm or contract. My day-to-day is test automation across web, API, and
   mobile; I'd rather push validation into the API and contract layer than fight flaky UI flows. As Lead QE at
   Sony I run a team of three and set the engineering bar that keeps our release cycles down to hours: strict
   typing, linting, hooks, tight PR practice.
@@ -15,13 +15,13 @@ experience:
     start: '2022-10'
     end: present
     bullets:
-      - Built company E2E automation capability from scratch — TypeScript framework covering web, API, and mobile across 11 repositories
+      - Built company E2E automation capability from scratch, a TypeScript framework covering web, API, and mobile across 11 repositories
       - Shifted complex validation out of brittle UI tests into API and service layers using database and messaging integrations
       - Grew automated E2E coverage from zero across 11 repos with dedicated CI pipelines per microservice
       - Cut release progression time from days to hours through automation coverage and tighter release validation
       - Migrated the team from Cypress to Playwright and introduced performance testing with Grafana k6
-      - Set engineering standards across the QE function — strict typing, ESLint, Prettier, git hooks, and PR review
-      - Leads a team of 3 testers while staying hands-on in a delivery squad
+      - 'Set engineering standards across the QE function: strict typing, ESLint, Prettier, git hooks, and PR review'
+      - Lead a team of three, hands-on in a delivery squad
   - company: Entain Australia
     role: Lead Quality Engineer
     start: '2022-03'
@@ -48,7 +48,7 @@ experience:
     start: '2020-07'
     end: '2021-05'
     bullets:
-      - Joined a newly formed QA capability in an early-stage startup — built automated coverage from scratch using Selenium, Java, and REST Assured
+      - Joined a newly formed QA capability at an early-stage startup and built automated coverage from scratch using Selenium, Java, and REST Assured
       - Built E2E flows combining PostgreSQL data setup, API execution, and Selenium UI validation
       - Stood up an on-prem Jenkins instance for regression scheduling before any CI pipeline existed
       - Migrated to Jenkins on Google Cloud with CTO sign-off, codifying pipelines in Groovy
@@ -71,7 +71,7 @@ experience:
     start: '2016-03'
     end: '2018-03'
     bullets:
-      - Transitioned from manual testing into automation — built Selenium WebDriver and Cucumber coverage across government registry platforms
+      - Transitioned from manual testing into automation, building Selenium WebDriver and Cucumber coverage across government registry platforms
       - Coordinated test activities with vendors and project managers
 skills:
   - category: Quality Engineering
