@@ -12,12 +12,11 @@ import { getPosts } from '../lib/posts';
 import { fmtYM } from '../lib/format';
 import { activePipeline, yearsOfExp } from '../lib/stats';
 import { TEST_STATS } from '../lib/testStats';
-import { FEATURES } from '../lib/features';
 
 const resume = getResume();
 const projects = getProjects();
 const jobs = getJobs();
-const posts = FEATURES.blog ? (await getPosts()).slice(0, 3) : [];
+const posts = (await getPosts()).slice(0, 3);
 
 const years = yearsOfExp(resume.experience);
 const pipeline = activePipeline(jobs);
@@ -132,9 +131,9 @@ const meta = current
     </TerminalWindow>
   </section>
 
-  <!-- WRITING (hidden via FEATURES.blog until content lands) -->
+  <!-- WRITING (shown when posts exist) -->
   {
-    FEATURES.blog && (
+    posts.length > 0 && (
       <section class="px-14 pt-22">
         <div class="flex items-end justify-between">
           <div>

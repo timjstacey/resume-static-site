@@ -251,7 +251,6 @@ src/
     feedSource.ts       # FEED_META + CollectionEntry→FeedPost mapper for the feed endpoints
     langColors.ts       # LANG_COLORS — language brand dots for the projects grid
     projectFilters.ts   # PROJECT_FILTERS list — shared by projects page + e2e spec
-    features.ts         # FEATURES flags — soft-hide WIP sections (currently: blog)
     themes.ts           # FLAVORS list + THEME_TRIGGER_LABEL — shared by ThemePicker + tests
     projectStatus.ts    # PROJECT_STATUS_LABEL / _COLOUR maps — shared by ProjectCard + tests
     copy.ts             # Page heading strings shared between pages + tests

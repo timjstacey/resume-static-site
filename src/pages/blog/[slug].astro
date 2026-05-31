@@ -4,13 +4,9 @@ import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Chip from '../../components/Chip.astro';
 import { getPosts } from '../../lib/posts';
-import { FEATURES } from '../../lib/features';
 import profile from '../../assets/profile.jpg';
 
-// Gated behind FEATURES.blog: while the blog is dark this returns [] so no
-// /blog/* pages are emitted (the index is hidden too — no dangling links).
 export async function getStaticPaths() {
-  if (!FEATURES.blog) return [];
   const posts = await getPosts(); // newest-first
   return posts.map((post, i) => ({
     params: { slug: post.id },

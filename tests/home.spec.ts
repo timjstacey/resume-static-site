@@ -4,7 +4,6 @@ import { parse } from 'yaml';
 import { getResume, getProjects, getJobs } from '../src/lib/data';
 import { activePipeline, yearsOfExp } from '../src/lib/stats';
 import { TEST_STATS } from '../src/lib/testStats';
-import { FEATURES } from '../src/lib/features';
 
 // Throws at module load if YAML is missing or fails schema validation.
 const resume = getResume();
@@ -49,8 +48,8 @@ test.describe('Home page', () => {
     await expect(page.getByText(`@ ${current.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)).toBeVisible();
   });
 
-  // Only when the blog is enabled and at least three posts exist to fill the row.
-  if (FEATURES.blog && latestPosts.length >= 3) {
+  // Only when at least three posts exist to fill the row.
+  if (latestPosts.length >= 3) {
     test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
       await expect(page.getByRole('heading', { name: /From the blog/ })).toBeVisible();
       await expect(page.getByRole('link', { name: 'all posts →' })).toHaveAttribute('href', '/blog');
