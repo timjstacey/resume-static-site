@@ -59,6 +59,16 @@ if (FEATURES.blog && postCount > 0) {
       test('sidebar renders a real hashtag from the newest post', async ({ page }) => {
         await expect(page.getByText(`#${newestHashtags[0]}`).first()).toBeVisible();
       });
+
+      test('clicking a sidebar tag toggles the filter', async ({ page }) => {
+        const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
+        await btn.click();
+        await expect(btn).toHaveAttribute('aria-pressed', 'true');
+        // The newest post carries this hashtag, so its row/featured stays visible.
+        await expect(page.locator('[data-post]').first()).toBeVisible();
+        await btn.click();
+        await expect(btn).toHaveAttribute('aria-pressed', 'false');
+      });
     }
   });
 

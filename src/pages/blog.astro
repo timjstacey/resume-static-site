@@ -97,7 +97,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
   <!-- FEATURED -->
   {
     enabled && featured && (
-      <section class="px-14 pt-14">
+      <section class="px-14 pt-14" data-post data-hashtags={featured.data.hashtags.join(' ')}>
         <div
           class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-8"
           style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--catppuccin-color-peach) 8%, transparent), transparent 70%), var(--catppuccin-color-mantle)"
@@ -172,6 +172,8 @@ const pad = (n: number) => String(n).padStart(3, '0');
               <a
                 href={`/blog/${post.id}`}
                 data-testid="published-row"
+                data-post
+                data-hashtags={post.data.hashtags.join(' ')}
                 class="grid grid-cols-[60px_6px_1fr_auto] items-center gap-4 border-b border-ctp-surface0 py-5 transition-colors hover:bg-ctp-mantle"
               >
                 <span class="font-mono text-[13px] text-ctp-overlay1">{pad(rest.length - i)}</span>
@@ -234,16 +236,21 @@ const pad = (n: number) => String(n).padStart(3, '0');
             <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">
               Tags · {tags.length}
             </div>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1" data-tag-filters>
               {tags.map((t) => (
-                <div class="flex items-center gap-2 font-mono text-[12px]">
+                <button
+                  type="button"
+                  data-tag-filter={t.tag}
+                  aria-pressed="false"
+                  class="tag-filter flex items-center gap-2 rounded px-1.5 py-1 font-mono text-[12px] transition-colors hover:bg-ctp-surface0"
+                >
                   <span
                     class="h-3 w-3 rounded-[2px]"
                     style={`background: var(--catppuccin-color-${hashtagAccent(t.tag)})`}
                   />
                   <span class="text-ctp-subtext1">#{t.tag}</span>
                   <span class="ml-auto text-ctp-overlay1">×{t.count}</span>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -306,4 +313,39 @@ const pad = (n: number) => String(n).padStart(3, '0');
       /* clipboard unavailable */
     }
   });
+
+  // Tag filter — click a sidebar tag to show only posts carrying that hashtag;
+  // click the active tag again to clear. Pure show/hide, no navigation.
+  (() => {
+    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tag-filter]'));
+    if (buttons.length === 0) return;
+    const posts = Array.from(document.querySelectorAll<HTMLElement>('[data-post]'));
+    let active: string | null = null;
+
+    const apply = () => {
+      for (const post of posts) {
+        const tags = (post.getAttribute('data-hashtags') ?? '').split(/\s+/).filter(Boolean);
+        post.hidden = active !== null && !tags.includes(active);
+      }
+      for (const btn of buttons) {
+        btn.setAttribute('aria-pressed', String(btn.dataset.tagFilter === active));
+      }
+    };
+
+    for (const btn of buttons) {
+      btn.addEventListener('click', () => {
+        active = active === btn.dataset.tagFilter ? null : (btn.dataset.tagFilter ?? null);
+        apply();
+      });
+    }
+  })();
 </script>
+
+<style>
+  .tag-filter[aria-pressed='true'] {
+    background: color-mix(in srgb, var(--catppuccin-color-peach) 14%, transparent);
+  }
+  .tag-filter[aria-pressed='true'] span:nth-child(2) {
+    color: var(--catppuccin-color-text);
+  }
+</style>
