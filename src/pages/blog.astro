@@ -108,7 +108,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
           </span>
           <div class="grid gap-14 lg:grid-cols-[1.1fr_1fr]">
             <div>
-              <SectionLabel color={tagAccent(featured.data.tag)}>// post 001</SectionLabel>
+              <SectionLabel color={tagAccent(featured.data.tag)}>// post {pad(posts.length)}</SectionLabel>
               <h2 class="mt-5 font-display text-4xl leading-[1.02] font-bold tracking-[-0.03em] text-balance text-ctp-text md:text-[56px]">
                 {featured.data.title}
               </h2>
