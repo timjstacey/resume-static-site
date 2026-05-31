@@ -236,10 +236,15 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
 
         <div>
           <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">Filed under</div>
-          <span
-            class="inline-flex rounded border border-ctp-surface1 bg-ctp-mantle px-2 py-1 font-mono text-[11.5px] text-ctp-subtext1"
-            >#{post.data.tag.toLowerCase()}</span
-          >
+          <div class="flex flex-wrap gap-1.5">
+            {
+              (post.data.hashtags.length > 0 ? post.data.hashtags : [post.data.tag]).map((h) => (
+                <span class="inline-flex rounded border border-ctp-surface1 bg-ctp-mantle px-2 py-1 font-mono text-[11.5px] text-ctp-subtext1">
+                  #{h}
+                </span>
+              ))
+            }
+          </div>
         </div>
       </aside>
     </div>

@@ -6,7 +6,7 @@ import Chip from '../components/Chip.astro';
 import TerminalWindow from '../components/TerminalWindow.astro';
 import { getPosts } from '../lib/posts';
 import { getDrafts } from '../lib/data';
-import { tagCounts, archive } from '../lib/blog';
+import { hashtagCounts, archive } from '../lib/blog';
 import { FEATURES } from '../lib/features';
 
 const enabled = FEATURES.blog;
@@ -16,7 +16,7 @@ const featured = posts[0];
 const rest = posts.slice(1);
 
 const postLikes = posts.map((p) => ({ tag: p.data.tag, date: p.data.date }));
-const tags = tagCounts(postLikes, drafts);
+const tags = hashtagCounts(posts.map((p) => ({ hashtags: p.data.hashtags })));
 const years = archive(postLikes);
 
 const TAG_ACCENT: Record<string, string> = {
@@ -29,6 +29,22 @@ const TAG_ACCENT: Record<string, string> = {
 const DRAFT_ACCENT: Record<string, string> = { drafting: 'peach', editing: 'teal', idea: 'overlay2' };
 const tagAccent = (tag: string): string => TAG_ACCENT[tag] ?? 'lavender';
 const draftAccent = (status: string): string => DRAFT_ACCENT[status] ?? 'overlay2';
+
+// Hashtags have no fixed colour; assign a stable accent per name from a palette.
+const HASHTAG_PALETTE = [
+  'peach',
+  'teal',
+  'mauve',
+  'sapphire',
+  'yellow',
+  'green',
+  'blue',
+  'pink',
+  'lavender',
+  'flamingo',
+];
+const hashtagAccent = (tag: string): string =>
+  HASHTAG_PALETTE[[...tag].reduce((sum, c) => sum + c.charCodeAt(0), 0) % HASHTAG_PALETTE.length]!;
 
 const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 const prefixColor = (p: string) => (p === '$' ? 'text-ctp-peach' : p === '#' ? 'text-ctp-teal' : 'text-ctp-subtext1');
@@ -102,14 +118,30 @@ const pad = (n: number) => String(n).padStart(3, '0');
                 <span>~{featured.data.readMins}min</span>
                 <Chip color={tagAccent(featured.data.tag)}>{featured.data.tag}</Chip>
               </div>
+              {featured.data.hashtags.length > 0 && (
+                <div class="mt-3 flex flex-wrap gap-1.5">
+                  {featured.data.hashtags.map((h) => (
+                    <span class="font-mono text-[11px]" style={`color: var(--catppuccin-color-${hashtagAccent(h)})`}>
+                      #{h}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div class="mt-7 flex flex-wrap gap-3">
                 <Button variant="primary" href={`/blog/${featured.id}`}>
                   ▸ ./read --post {featured.id}
                 </Button>
-                <Button variant="ghost">⎘ copy link</Button>
+                <Button
+                  variant="ghost"
+                  data-copy-link
+                  data-path={`/blog/${featured.id}`}
+                  class="min-w-[9rem] justify-center"
+                >
+                  ⎘ copy link
+                </Button>
               </div>
             </div>
-            <TerminalWindow path={`cat ${featured.id}.md`}>
+            <TerminalWindow path={`cat ${featured.id}.md`} class="lg:mt-8">
               {featured.data.preview.map(([prefix, text], i) => (
                 <div class="flex gap-3.5">
                   <span class={`w-2 shrink-0 ${prefixColor(prefix)}`}>{prefix.trim()}</span>
@@ -207,9 +239,9 @@ const pad = (n: number) => String(n).padStart(3, '0');
                 <div class="flex items-center gap-2 font-mono text-[12px]">
                   <span
                     class="h-3 w-3 rounded-[2px]"
-                    style={`background: var(--catppuccin-color-${tagAccent(t.tag)})`}
+                    style={`background: var(--catppuccin-color-${hashtagAccent(t.tag)})`}
                   />
-                  <span class="text-ctp-subtext1">#{t.tag.toLowerCase()}</span>
+                  <span class="text-ctp-subtext1">#{t.tag}</span>
                   <span class="ml-auto text-ctp-overlay1">×{t.count}</span>
                 </div>
               ))}
@@ -238,16 +270,40 @@ const pad = (n: number) => String(n).padStart(3, '0');
           <div>
             <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">Subscribe</div>
             <div class="flex gap-2">
-              {['RSS', 'Atom', 'JSON Feed'].map((f) => (
-                <span class="rounded border border-ctp-surface2 px-2.5 py-1 font-mono text-[11px] text-ctp-subtext0">
-                  {f}
-                </span>
+              {[
+                ['RSS', '/rss.xml'],
+                ['Atom', '/atom.xml'],
+                ['JSON Feed', '/feed.json'],
+              ].map(([label, href]) => (
+                <a
+                  href={href}
+                  class="rounded border border-ctp-surface2 px-2.5 py-1 font-mono text-[11px] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0 hover:text-ctp-text"
+                >
+                  {label}
+                </a>
               ))}
             </div>
-            <p class="mt-3 font-mono text-[11px] text-ctp-overlay1">newsletter? not yet — soon.</p>
           </div>
         </aside>
       </section>
     )
   }
 </Base>
+
+<script>
+  // Featured "copy link" — copies the post's absolute URL to the clipboard.
+  document.querySelector('[data-copy-link]')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLElement;
+    const path = btn.getAttribute('data-path') ?? location.pathname;
+    try {
+      await navigator.clipboard.writeText(new URL(path, location.origin).href);
+      const original = btn.textContent;
+      btn.textContent = '✓ copied';
+      setTimeout(() => {
+        if (original !== null) btn.textContent = original;
+      }, 1500);
+    } catch {
+      /* clipboard unavailable */
+    }
+  });
+</script>

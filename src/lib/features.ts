@@ -2,7 +2,7 @@
 // code. Flip a flag to `true` when the section is ready to ship; the gating
 // then evaporates.
 export const FEATURES = {
-  blog: false,
+  blog: true,
 } as const;
 
 export type Feature = keyof typeof FEATURES;

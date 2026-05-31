@@ -21,6 +21,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.18",
     "@catppuccin/tailwindcss": "1.0.0",
     "@expressive-code/plugin-line-numbers": "^0.42.0",
     "@tailwindcss/vite": "4.3.0",
