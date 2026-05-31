@@ -12,16 +12,21 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
 <nav aria-label="Primary" class="border-b border-ctp-surface0 bg-ctp-mantle">
   <div class="mx-auto flex max-w-[1440px] items-stretch">
     <!-- Brand block -->
-    <a href="/" class="flex items-center gap-3.5 border-r border-ctp-surface0 px-5 py-5 md:min-w-[280px] md:px-7">
+    <a
+      href="/"
+      class="flex min-w-0 items-center gap-3.5 border-r border-ctp-surface0 px-5 py-5 md:min-w-[280px] md:px-7"
+    >
       <span
-        class="flex h-11 w-11 items-center justify-center rounded-[10px] bg-ctp-peach font-display text-lg font-bold tracking-[-0.02em] text-ctp-crust"
+        class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-ctp-peach font-display text-lg font-bold tracking-[-0.02em] text-ctp-crust"
       >
         TS
       </span>
-      <span class="leading-none">
+      <span class="min-w-0 leading-none">
         <span class="block font-display text-base font-semibold tracking-[-0.01em] text-ctp-text">tim</span>
-        <span class="mt-1 block font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1" aria-hidden="true"
-          >{crumb}</span
+        <span
+          class="mt-1 block max-w-[200px] truncate font-mono text-[11px] tracking-[0.04em] text-ctp-overlay1"
+          aria-hidden="true"
+          title={crumb}>{crumb}</span
         >
       </span>
     </a>
