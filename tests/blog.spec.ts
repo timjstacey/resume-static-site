@@ -9,13 +9,19 @@ import { FEATURES } from '../src/lib/features';
 const POSTS_DIR = 'src/content/posts';
 const postFiles = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.md'));
 const postCount = postFiles.length;
-// Newest post by frontmatter date — its filename stem is the detail-page slug.
-const newestSlug = postFiles
-  .map((f) => ({
-    slug: f.replace(/\.md$/, ''),
-    date: (parse(readFileSync(`${POSTS_DIR}/${f}`, 'utf-8').split('---')[1]!) as { date: string }).date,
-  }))
-  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.slug;
+// Newest post by frontmatter date — its filename stem is the detail-page slug,
+// and its hashtags drive the sidebar + "Filed under" assertions.
+const newest = postFiles
+  .map((f) => {
+    const fm = parse(readFileSync(`${POSTS_DIR}/${f}`, 'utf-8').split('---')[1]!) as {
+      date: string;
+      hashtags?: string[];
+    };
+    return { slug: f.replace(/\.md$/, ''), date: fm.date, hashtags: fm.hashtags ?? [] };
+  })
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
+const newestSlug = newest?.slug;
+const newestHashtags = newest?.hashtags ?? [];
 const drafts = getDrafts();
 
 // Content-dependent specs only run when the blog is enabled AND posts exist.
@@ -48,6 +54,12 @@ if (FEATURES.blog && postCount > 0) {
     test('sidebar lists tag counts', async ({ page }) => {
       await expect(page.getByText(/Tags · \d+/)).toBeVisible();
     });
+
+    if (newestHashtags.length > 0) {
+      test('sidebar renders a real hashtag from the newest post', async ({ page }) => {
+        await expect(page.getByText(`#${newestHashtags[0]}`).first()).toBeVisible();
+      });
+    }
   });
 
   test.describe('Blog post detail page', () => {
@@ -74,5 +86,20 @@ if (FEATURES.blog && postCount > 0) {
       await expect(page.getByRole('link', { name: 'Back to the index' })).toBeVisible();
       await expect(page.getByRole('button', { name: /copy link/ })).toBeVisible();
     });
+
+    test('renders an Expressive Code block in the article', async ({ page }) => {
+      await expect(page.locator('article pre').first()).toBeVisible();
+    });
+
+    test('shows the on-this-page TOC', async ({ page }) => {
+      await expect(page.locator('[data-toc]')).toBeVisible();
+    });
+
+    if (newestHashtags.length > 0) {
+      test('"Filed under" lists the post hashtags', async ({ page }) => {
+        await expect(page.getByText('Filed under')).toBeVisible();
+        await expect(page.getByText(`#${newestHashtags[0]}`).first()).toBeVisible();
+      });
+    }
   });
 }
