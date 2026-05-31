@@ -97,6 +97,20 @@ export const ResumeSchema = z.object({
 
 export const PostTagSchema = z.enum(['Strategy', 'Practice', 'Meta', 'Team', 'Tools']);
 
+// --- Blog posts (the `posts` content collection in content.config.ts) ---
+// `preview` tuples are [prefix, text] (prefix "$" | "#" | " "). `hashtags`
+// carry over from the source LinkedIn post and default to [] for hand-written
+// posts. `date` is a Date — YAML frontmatter casts bare dates for us.
+export const PostSchema = z.object({
+  title: z.string(),
+  date: z.date(),
+  tag: PostTagSchema,
+  excerpt: z.string(),
+  readMins: z.number().int(),
+  preview: z.array(z.tuple([z.string(), z.string()])),
+  hashtags: z.array(z.string()).default([]),
+});
+
 // --- Drafts (Blog "drafts in flight") ---
 
 export const DraftStatusSchema = z.enum(['idea', 'drafting', 'editing']);
@@ -161,6 +175,7 @@ export type ProjectStatus = z.infer<typeof ProjectStatusSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type Resume = z.infer<typeof ResumeSchema>;
 export type PostTag = z.infer<typeof PostTagSchema>;
+export type PostFrontmatter = z.infer<typeof PostSchema>;
 export type DraftStatus = z.infer<typeof DraftStatusSchema>;
 export type Draft = z.infer<typeof DraftSchema>;
 export type Testing = z.infer<typeof TestingSchema>;

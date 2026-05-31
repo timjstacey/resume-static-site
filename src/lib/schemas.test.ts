@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { JobSchema, JobStatusSchema, JobsSchema, ProjectSchema, ProjectStatusSchema, ResumeSchema } from './schemas';
+import {
+  JobSchema,
+  JobStatusSchema,
+  JobsSchema,
+  PostSchema,
+  ProjectSchema,
+  ProjectStatusSchema,
+  ResumeSchema,
+} from './schemas';
 
 describe('JobStatusSchema', () => {
   const validStatuses = [
@@ -139,5 +147,46 @@ describe('ResumeSchema', () => {
 
   it('rejects empty name', () => {
     expect(() => ResumeSchema.parse({ ...validResume, name: '' })).toThrow();
+  });
+});
+
+const validPost = {
+  title: 'Playwright agents and the new QA skills gap',
+  date: new Date('2026-05-10'),
+  tag: 'Tools',
+  excerpt: 'Three agents in the test runner.',
+  readMins: 6,
+  preview: [
+    ['$', 'cat playwright-ai-agents.md'],
+    ['#', '# Title'],
+  ],
+  hashtags: ['Playwright', 'AI'],
+};
+
+describe('PostSchema', () => {
+  it('accepts a fully-formed post', () => {
+    expect(() => PostSchema.parse(validPost)).not.toThrow();
+  });
+
+  it('defaults hashtags to [] when omitted', () => {
+    const noHashtags: Record<string, unknown> = { ...validPost };
+    delete noHashtags.hashtags;
+    expect(PostSchema.parse(noHashtags).hashtags).toEqual([]);
+  });
+
+  it('rejects an unknown tag', () => {
+    expect(() => PostSchema.parse({ ...validPost, tag: 'News' })).toThrow();
+  });
+
+  it('rejects a non-integer readMins', () => {
+    expect(() => PostSchema.parse({ ...validPost, readMins: 6.5 })).toThrow();
+  });
+
+  it('rejects a string date (frontmatter must yield a Date)', () => {
+    expect(() => PostSchema.parse({ ...validPost, date: '2026-05-10' })).toThrow();
+  });
+
+  it('rejects malformed preview tuples', () => {
+    expect(() => PostSchema.parse({ ...validPost, preview: [['$']] })).toThrow();
   });
 });

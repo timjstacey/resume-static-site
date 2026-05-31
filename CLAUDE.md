@@ -246,7 +246,9 @@ src/
     format.ts           # fmtYM() — YYYY-MM → "Jan 2023" (en-GB)
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
     jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys — JIRA board logic
-    blog.ts             # tagCounts() + archive() — blog sidebar aggregation
+    blog.ts             # tagCounts() + hashtagCounts() + archive() — blog sidebar aggregation
+    feeds.ts            # pure RSS/Atom/JSON feed builders (unit-tested)
+    feedSource.ts       # FEED_META + CollectionEntry→FeedPost mapper for the feed endpoints
     langColors.ts       # LANG_COLORS — language brand dots for the projects grid
     projectFilters.ts   # PROJECT_FILTERS list — shared by projects page + e2e spec
     features.ts         # FEATURES flags — soft-hide WIP sections (currently: blog)

@@ -1,24 +1,17 @@
 import rss from '@astrojs/rss';
 import type { APIContext } from 'astro';
 import { getPosts } from '../lib/posts';
+import { FEED_META, toFeedPosts } from '../lib/feedSource';
+import { feedItems, rssItems } from '../lib/feeds';
 
-const TITLE = 'Tim Stacey — Field notes';
-const DESCRIPTION = 'Field notes on testing and quality engineering by Tim Stacey.';
-const SITE = 'https://tim.sillysamoyed.com';
-
-// RSS 2.0 feed (excerpt-only). Items link to the rendered post pages.
+// RSS 2.0 feed (excerpt-only). Item shaping lives in lib/feeds.ts (unit-tested).
 export async function GET(context: APIContext) {
-  const posts = await getPosts();
+  const site = context.site?.toString() ?? FEED_META.site;
+  const items = feedItems(toFeedPosts(await getPosts()), site);
   return rss({
-    title: TITLE,
-    description: DESCRIPTION,
-    site: context.site ?? SITE,
-    items: posts.map((post) => ({
-      title: post.data.title,
-      link: `/blog/${post.id}`,
-      pubDate: post.data.date,
-      description: post.data.excerpt,
-      categories: post.data.hashtags,
-    })),
+    title: FEED_META.title,
+    description: FEED_META.description,
+    site,
+    items: rssItems(items),
   });
 }
