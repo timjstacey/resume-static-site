@@ -360,6 +360,15 @@ default.
 - **Reach for e2e only for the un-unit-testable slice.** Render/interaction that
   can't be exercised without a DOM goes in a Playwright spec; the underlying rule
   it depends on should still have its own unit test.
+- **Always invoke the `playwright-expert` skill when writing or editing
+  Playwright tests.** It carries the Page Object Model, anti-flake, and selector
+  conventions — load it before touching anything under `tests/`, not after.
+- **Prefer stable selector attributes over brittle selectors.** Add a
+  `data-testid` (or role/label) to the component so the spec targets it
+  directly, rather than reaching through CSS classes, `nth-child`, or text that
+  shifts. Changing the markup to make it testable is the right move, not a
+  workaround — a class-based or positional selector that breaks on an unrelated
+  style change is the thing to avoid.
 - **Cover every Zod schema.** Each schema in `src/lib/schemas.ts` gets a case in
   `schemas.test.ts` — at least one valid parse and one rejected-invalid parse
   (bad enum value, missing required field, malformed date). Add or update the
