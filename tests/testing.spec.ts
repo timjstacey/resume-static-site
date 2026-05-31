@@ -25,6 +25,12 @@ test.describe('Testing dashboard', () => {
     await expect(page.locator('[data-stat-label="E2E flows"] [data-stat-value]')).toHaveText(String(TEST_STATS.e2e));
   });
 
+  test('routing dedup figures come from the stats, not hardcoded', async ({ page }) => {
+    const pct = Math.round((1 - TEST_STATS.e2e / TEST_STATS.e2eNaive) * 100);
+    await expect(page.getByText(String(TEST_STATS.e2eNaive), { exact: true })).toBeVisible();
+    await expect(page.getByText(`runs · -${pct}%`)).toBeVisible();
+  });
+
   test('routing matrix has a row per playwright project', async ({ page }) => {
     const matrix = page.getByTestId('routing-matrix');
     for (const r of routing) {
