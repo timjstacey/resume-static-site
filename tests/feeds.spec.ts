@@ -4,8 +4,7 @@ import { parse } from 'yaml';
 
 // Feed content correctness is covered by src/lib/feeds.test.ts (unit). This is a
 // thin smoke check: the routes serve, with the right content-type, listing posts.
-// Feeds are NOT behind FEATURES.blog — the endpoints always emit — they just need
-// a post to list, so gate only on post presence.
+// Gate only on post presence.
 const POSTS_DIR = 'src/content/posts';
 const postFiles = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.md'));
 const newestSlug = postFiles

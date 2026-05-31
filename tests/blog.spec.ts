@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parse } from 'yaml';
 import { getDrafts } from '../src/lib/data';
-import { FEATURES } from '../src/lib/features';
 
 // posts.ts imports `astro:content`, which only resolves inside the Astro
 // runtime — read the markdown sources directly instead.
@@ -24,8 +23,8 @@ const newestSlug = newest?.slug;
 const newestHashtags = newest?.hashtags ?? [];
 const drafts = getDrafts();
 
-// Content-dependent specs only run when the blog is enabled AND posts exist.
-if (FEATURES.blog && postCount > 0) {
+// Content-dependent specs only run when posts exist.
+if (postCount > 0) {
   test.describe('Blog page', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/blog');
