@@ -35,3 +35,15 @@
   stars: 2
   forks: 0
   updated: 3w ago
+
+- name: Agent Sandbox
+  description: Dockerized Claude Code sandbox. Runs Claude Code and dev tooling in an isolated container against bind-mounted host repos, with UID/GID matching so edited files stay owned by you.
+  url: ''
+  repo: https://github.com/timjstacey/agent-sandbox
+  tags: [Docker, Shell, Claude Code]
+  status: active
+  pinned: false
+  lang: Shell
+  stars: 0
+  forks: 0
+  updated: 4d ago
