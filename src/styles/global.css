@@ -39,6 +39,19 @@
   .latte :where(a, button, [tabindex], input, select, textarea):focus-visible {
     outline-color: var(--catppuccin-color-blue);
   }
+
+  /* Smooth in-page anchor jumps (e.g. the blog "On this page" TOC). Gated on
+     reduced-motion so it never overrides a user's no-animation preference. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Anchored headings land a little below the top edge instead of butting it. */
+  .prose :where(h2, h3)[id] {
+    scroll-margin-top: 2rem;
+  }
 }
 
 /* Mono section kicker / caption — used pervasively by SectionLabel + footers. */
