@@ -26,6 +26,7 @@ Thumbs.db
 # testing
 .playwright-mcp/
 test-results/
+coverage/
 
 # editors
 .idea/
