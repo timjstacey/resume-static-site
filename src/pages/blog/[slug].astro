@@ -1,0 +1,434 @@
+---
+import { render } from 'astro:content';
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Chip from '../../components/Chip.astro';
+import { getPosts } from '../../lib/posts';
+import { FEATURES } from '../../lib/features';
+import profile from '../../assets/profile.jpg';
+
+// Gated behind FEATURES.blog: while the blog is dark this returns [] so no
+// /blog/* pages are emitted (the index is hidden too — no dangling links).
+export async function getStaticPaths() {
+  if (!FEATURES.blog) return [];
+  const posts = await getPosts(); // newest-first
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: {
+      post,
+      newer: posts[i - 1] ?? null, // more recent neighbour
+      older: posts[i + 1] ?? null, // older neighbour
+      recent: posts.filter((p) => p.id !== post.id).slice(0, 3),
+    },
+  }));
+}
+
+const { post, newer, older, recent } = Astro.props;
+const { Content, headings } = await render(post);
+const toc = headings.filter((h) => h.depth === 2);
+
+const TAG_ACCENT: Record<string, string> = {
+  Strategy: 'peach',
+  Practice: 'teal',
+  Meta: 'mauve',
+  Team: 'sapphire',
+  Tools: 'yellow',
+};
+const tagAccent = (tag: string): string => TAG_ACCENT[tag] ?? 'lavender';
+
+const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+const pad2 = (n: number) => String(n).padStart(2, '0');
+const words = (post.body ?? '').trim().split(/\s+/).filter(Boolean).length;
+
+const accent = tagAccent(post.data.tag);
+const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/content/posts/${post.id}.md`;
+---
+
+<Base title={post.data.title} description={post.data.excerpt}>
+  <!-- HERO BAND -->
+  <section
+    class="relative border-b border-ctp-surface0 px-14 pt-10 pb-12"
+    style="background: radial-gradient(ellipse 760px 360px at 18% 20%, color-mix(in srgb, var(--catppuccin-color-peach) 8%, transparent), transparent 70%), var(--catppuccin-color-crust)"
+  >
+    <div class="font-mono text-[13px]">
+      <span class="text-ctp-peach">$</span>
+      <span class="text-ctp-subtext0">cat</span>
+      <span class="text-ctp-overlay2">~/posts/</span><span class="text-ctp-subtext1">{post.id}.md</span>
+    </div>
+
+    <div class="mt-7 max-w-[880px]">
+      <div class="flex flex-wrap items-center gap-3 font-mono text-[12.5px] text-ctp-subtext0">
+        <Chip color={accent}>
+          <span class="h-1.5 w-1.5 rounded-full" style={`background: var(--catppuccin-color-${accent})`}></span>
+          {post.data.tag.toUpperCase()}
+        </Chip>
+        <span>{fmtDate(post.data.date)}</span>
+        <span class="text-ctp-overlay0">·</span>
+        <span>~{post.data.readMins} min read</span>
+        <span class="text-ctp-overlay0">·</span>
+        <span>{words} words</span>
+      </div>
+
+      <h1
+        class="mt-5 font-display text-5xl leading-none font-bold tracking-[-0.035em] text-balance text-ctp-text md:text-[68px]"
+      >
+        {post.data.title}<span class="text-ctp-peach">.</span>
+      </h1>
+
+      <p class="mt-5 max-w-[720px] text-[21px] leading-[1.5] text-ctp-subtext0">{post.data.excerpt}</p>
+
+      <div class="mt-7 flex items-center gap-3">
+        <div class="h-[42px] w-[42px] overflow-hidden rounded-[10px] bg-ctp-surface0">
+          <Image src={profile} alt="Tim Stacey" width={42} height={42} class="h-full w-full object-cover" />
+        </div>
+        <div>
+          <div class="font-display text-[15px] font-semibold text-ctp-text">Tim Stacey</div>
+          <div class="font-mono text-[12px] text-ctp-overlay1">lead quality engineer · @timjstacey</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARTICLE + RAIL -->
+  <section class="px-14 pt-14 pb-4">
+    <div class="flex flex-col gap-14 lg:grid lg:grid-cols-[720px_300px] lg:justify-between">
+      <article class="prose w-full lg:max-w-[720px]">
+        <Content />
+
+        <!-- end marker -->
+        <div class="mt-12 font-mono text-[13px] text-ctp-overlay1">
+          <span class="text-ctp-peach">$</span> echo "EOF · thanks for reading"<span class="terminal-cursor ml-1"
+          ></span>
+        </div>
+
+        <!-- author card -->
+        <div
+          class="mt-12 grid grid-cols-[64px_1fr_auto] items-center gap-5 rounded-[0_10px_10px_0] bg-ctp-mantle p-6"
+          style="border-left: 3px solid var(--catppuccin-color-peach)"
+        >
+          <div class="h-16 w-16 overflow-hidden rounded-[10px] bg-ctp-surface0">
+            <Image src={profile} alt="Tim Stacey" width={64} height={64} class="h-full w-full object-cover" />
+          </div>
+          <div>
+            <div class="mono-caption text-ctp-overlay2">Written by</div>
+            <div class="mt-1 font-display text-xl font-semibold text-ctp-text">Tim Stacey</div>
+            <div class="mt-1 text-[14px] text-ctp-subtext0">Lead quality engineer. Writes about testing strategy.</div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <a
+              href="https://github.com/timjstacey"
+              class="rounded-lg border border-ctp-surface2 px-3 py-2 font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0"
+              >github ↗</a
+            >
+            <a
+              href="https://www.linkedin.com/in/timjstacey"
+              class="rounded-lg border border-ctp-surface2 px-3 py-2 font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0"
+              >linkedin ↗</a
+            >
+          </div>
+        </div>
+
+        <!-- prev / next -->
+        <div class="mt-8 grid gap-4 sm:grid-cols-2">
+          <a
+            href="/blog"
+            class="rounded-lg border border-ctp-surface0 bg-ctp-mantle p-5 transition-colors hover:border-ctp-surface1"
+          >
+            <div class="font-mono text-[11px] text-ctp-overlay1">← all posts</div>
+            <div class="mt-1 font-display text-[17px] font-semibold text-ctp-text">Back to the index</div>
+          </a>
+          {
+            (older ?? newer) && (
+              <a
+                href={`/blog/${(older ?? newer)!.id}`}
+                class="rounded-lg border border-ctp-surface0 bg-ctp-mantle p-5 text-right transition-colors hover:border-ctp-surface1"
+                style="border-top: 2px solid var(--catppuccin-color-teal)"
+              >
+                <div class="font-mono text-[11px] text-ctp-overlay1">{older ? 'OLDER POST →' : 'NEWER POST →'}</div>
+                <div class="mt-1 font-display text-[17px] font-semibold text-ctp-text">
+                  {(older ?? newer)!.data.title}
+                </div>
+              </a>
+            )
+          }
+        </div>
+      </article>
+
+      <!-- RAIL -->
+      <aside class="flex w-full flex-col gap-7 lg:w-[300px] lg:shrink-0">
+        {
+          toc.length > 0 && (
+            <nav data-toc>
+              <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">On this page</div>
+              <div class="flex flex-col">
+                {toc.map((h, i) => (
+                  <a
+                    href={`#${h.slug}`}
+                    data-toc-link={h.slug}
+                    class="toc-link flex gap-2.5 py-1.5 pl-2.5 text-[13.5px] text-ctp-subtext0 transition-colors"
+                  >
+                    <span class="toc-index font-mono text-[12px] text-ctp-overlay1">{pad2(i + 1)}</span>
+                    <span>{h.text}</span>
+                  </a>
+                ))}
+              </div>
+            </nav>
+          )
+        }
+
+        {
+          recent.length > 0 && (
+            <div>
+              <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">Recent posts</div>
+              <div class="flex flex-col">
+                {recent.map((p) => (
+                  <a href={`/blog/${p.id}`} class="border-b border-ctp-surface0 py-3 last:border-0">
+                    <div class="flex items-center gap-2 font-mono text-[10.5px] text-ctp-overlay1">
+                      <span
+                        class="h-1.5 w-1.5 rounded-full"
+                        style={`background: var(--catppuccin-color-${tagAccent(p.data.tag)})`}
+                      />
+                      <span>{p.data.tag.toUpperCase()}</span>
+                      <span class="text-ctp-overlay0">·</span>
+                      <span>{fmtDate(p.data.date)}</span>
+                    </div>
+                    <div class="mt-1 font-display text-[15.5px] font-semibold text-ctp-text">{p.data.title}</div>
+                    <div class="mt-1 font-mono text-[11.5px] text-ctp-overlay1">
+                      ~{p.data.readMins} min <span class="text-ctp-peach">read →</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+              <a
+                href="/blog"
+                class="mt-3 block rounded-lg border border-ctp-surface2 py-2 text-center font-mono text-[12px] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
+              >
+                all posts →
+              </a>
+            </div>
+          )
+        }
+
+        <div>
+          <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">Share</div>
+          <div class="flex flex-col gap-2">
+            <button
+              type="button"
+              data-copy-link
+              class="flex items-center gap-3 rounded-lg border border-ctp-surface0 px-3 py-2 text-left font-mono text-[12.5px] text-ctp-subtext1 transition-colors hover:border-ctp-surface1"
+            >
+              <span class="w-[18px] text-ctp-peach">⎘</span> copy link
+            </button>
+            <a
+              href={`https://x.com/intent/tweet?text=${encodeURIComponent(post.data.title)}`}
+              class="flex items-center gap-3 rounded-lg border border-ctp-surface0 px-3 py-2 font-mono text-[12.5px] text-ctp-subtext1 transition-colors hover:border-ctp-surface1"
+            >
+              <span class="w-[18px] text-ctp-peach">✕</span> post on x
+            </a>
+            <a
+              href={rawUrl}
+              class="flex items-center gap-3 rounded-lg border border-ctp-surface0 px-3 py-2 font-mono text-[12.5px] text-ctp-subtext1 transition-colors hover:border-ctp-surface1"
+            >
+              <span class="w-[18px] text-ctp-peach">{'{ }'}</span> view raw .md
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">Filed under</div>
+          <span
+            class="inline-flex rounded border border-ctp-surface1 bg-ctp-mantle px-2 py-1 font-mono text-[11.5px] text-ctp-subtext1"
+            >#{post.data.tag.toLowerCase()}</span
+          >
+        </div>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Active TOC item driven by which section heading is in view.
+  const links = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('[data-toc-link]').forEach((el) => {
+    const slug = el.getAttribute('data-toc-link');
+    if (slug) links.set(slug, el);
+  });
+
+  const headings = Array.from(document.querySelectorAll<HTMLElement>('.prose h2[id]'));
+  if (headings.length && links.size) {
+    const setActive = (id: string) => {
+      links.forEach((el, slug) => el.toggleAttribute('data-active', slug === id));
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible[0]) setActive(visible[0].target.id);
+      },
+      { rootMargin: '0px 0px -70% 0px', threshold: 0 }
+    );
+    headings.forEach((h) => observer.observe(h));
+    setActive(headings[0]!.id);
+  }
+
+  // Copy-link button.
+  document.querySelector('[data-copy-link]')?.addEventListener('click', async (e) => {
+    const btn = e.currentTarget as HTMLElement;
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      const original = btn.innerHTML;
+      btn.innerHTML = '<span class="w-[18px] text-ctp-green">✓</span> copied';
+      setTimeout(() => (btn.innerHTML = original), 1500);
+    } catch {
+      /* clipboard unavailable */
+    }
+  });
+</script>
+
+<style>
+  /* Rendered-markdown prose. `<Content />` HTML has no scope hash, so target it
+     through :global() from the scoped .prose root. Type specs from
+     design_handoff §6. Code fences are owned by Expressive Code — not styled here. */
+  .prose {
+    counter-reset: h2;
+  }
+
+  .prose :global(p) {
+    margin-top: 22px;
+    font-size: 17.5px;
+    line-height: 1.72;
+    color: var(--catppuccin-color-subtext1);
+    text-wrap: pretty;
+  }
+  .prose :global(> :first-child) {
+    margin-top: 0;
+  }
+
+  .prose :global(h2) {
+    counter-increment: h2;
+    margin-top: 56px;
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--catppuccin-color-text);
+    scroll-margin-top: 24px;
+  }
+  .prose :global(h2)::before {
+    content: counter(h2, decimal-leading-zero);
+    margin-right: 12px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--catppuccin-color-peach);
+  }
+
+  .prose :global(h3) {
+    margin-top: 36px;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--catppuccin-color-text);
+  }
+
+  /* Inline code (not fenced blocks). */
+  .prose :global(:not(pre) > code) {
+    font-family: var(--font-mono);
+    font-size: 0.86em;
+    color: var(--catppuccin-color-teal);
+    background: var(--catppuccin-color-surface0);
+    border: 1px solid var(--catppuccin-color-surface1);
+    border-radius: 4px;
+    padding: 1.5px 6px;
+  }
+
+  .prose :global(a) {
+    color: var(--catppuccin-color-peach);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose :global(ul) {
+    margin-top: 22px;
+    padding-left: 1.25rem;
+    list-style: disc;
+    color: var(--catppuccin-color-subtext1);
+    font-size: 16.5px;
+    line-height: 1.7;
+  }
+  .prose :global(ul > li) {
+    margin-top: 8px;
+  }
+
+  /* Numbered lists render as the "four checks" badge rows. */
+  .prose :global(ol) {
+    counter-reset: oli;
+    margin-top: 22px;
+    padding-left: 0;
+    list-style: none;
+  }
+  .prose :global(ol > li) {
+    counter-increment: oli;
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    align-items: start;
+    gap: 6px;
+    margin-top: 18px;
+    font-size: 16.5px;
+    line-height: 1.6;
+    color: var(--catppuccin-color-subtext1);
+  }
+  .prose :global(ol > li)::before {
+    content: counter(oli);
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--catppuccin-color-peach);
+    color: var(--catppuccin-color-crust);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* Blockquote → left-accent callout. */
+  .prose :global(blockquote) {
+    margin: 32px 0;
+    border-left: 3px solid var(--catppuccin-color-peach);
+    border-radius: 0 8px 8px 0;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--catppuccin-color-peach) 8%, transparent),
+      transparent 70%
+    );
+    padding: 18px 22px;
+  }
+  .prose :global(blockquote p) {
+    margin-top: 0;
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--catppuccin-color-text);
+    text-wrap: balance;
+  }
+
+  /* Expressive Code blocks — the visual hero. Handoff spacing. */
+  .prose :global(.expressive-code) {
+    margin: 36px 0;
+  }
+
+  /* TOC active state. */
+  .toc-link[data-active] {
+    border-left: 2px solid var(--catppuccin-color-peach);
+    background: color-mix(in srgb, var(--catppuccin-color-peach) 7%, transparent);
+    color: var(--catppuccin-color-text);
+    font-weight: 600;
+  }
+  .toc-link[data-active] .toc-index {
+    color: var(--catppuccin-color-peach);
+  }
+</style>

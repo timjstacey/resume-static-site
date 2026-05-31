@@ -16,7 +16,7 @@ Live at **https://tim.sillysamoyed.com**.
 
 ## Stack
 
-Astro 6 · Tailwind 4 (CSS-first, no config file) · `@catppuccin/tailwindcss` (4 flavours, runtime switcher) · Zod · TypeScript · Vitest · Playwright · Cloudflare Pages.
+Astro 6 · Tailwind 4 (CSS-first, no config file) · `@catppuccin/tailwindcss` (4 flavours, runtime switcher) · Expressive Code (Shiki code blocks, Catppuccin themes) · Zod · TypeScript · Vitest · Playwright · Cloudflare Pages.
 
 Full version table lives in [`CLAUDE.md`](./CLAUDE.md#tech-stack).
 

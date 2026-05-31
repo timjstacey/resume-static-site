@@ -1,5 +1,5 @@
 ---
-import { Code } from 'astro:components';
+import { Code } from 'astro-expressive-code/components';
 import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import Button from '../components/Button.astro';
@@ -380,7 +380,7 @@ for (const job of jobs) {
       </Card>
       <TerminalWindow path="jobs.spec.ts" meta="UTF-8 · typescript">
         <div class="code-window">
-          <Code code={sampleSpec} lang="ts" theme="catppuccin-mocha" />
+          <Code code={sampleSpec} lang="ts" frame="none" />
         </div>
       </TerminalWindow>
     </div>
@@ -399,11 +399,18 @@ for (const job of jobs) {
 </Base>
 
 <style>
-  /* Strip Shiki's own <pre> chrome so the highlighted code sits flush in the terminal body. */
-  .code-window :global(pre) {
+  /* Strip Expressive Code's own frame chrome so the highlighted code sits flush in the
+     terminal body (the TerminalWindow already supplies the window). frame="none" drops
+     the editor frame; these reset the residual background/padding. */
+  .code-window :global(.expressive-code),
+  .code-window :global(.expressive-code pre) {
     background: transparent !important;
-    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
     margin: 0 !important;
+  }
+  .code-window :global(.expressive-code pre) {
+    padding: 0 !important;
     font-size: 13px;
     line-height: 1.7;
     overflow-x: auto;
