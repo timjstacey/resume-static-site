@@ -6,7 +6,7 @@ excerpt: 'Playwright v1.56 put a Planner, Generator, and Healer in the test runn
 readMins: 6
 hashtags: [Playwright, SoftwareTesting, AI, TestAutomation, QualityAssurance]
 preview:
-  - ['$', 'cat playwright-ai-agents-2025.md']
+  - ['$', 'cat playwright-ai-agents.md']
   - ['#', '# Playwright agents and the new QA skills gap']
   - [' ', '']
   - [' ', 'Playwright v1.56 put a Planner, Generator,']
