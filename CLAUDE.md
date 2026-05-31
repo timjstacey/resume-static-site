@@ -337,6 +337,36 @@ Managed by husky.
 | pre-commit | on `git commit` | lint-staged: `eslint --fix` + `prettier --write` on staged `.astro`/`.ts`/`.tsx`; `prettier --write` on staged `.css`/`.json`/`.md`/`.yaml`/`.yml`   |
 | pre-push   | on `git push`   | Validates the branch name against `type/issue#-slug` (rejects the push otherwise; `main` exempt), then `pnpm typecheck` — blocks push on type errors |
 
+## Testing
+
+Every code change ships with test coverage. **Prefer a unit test** (Vitest, a
+colocated `*.test.ts` next to the module); add an **e2e test** (Playwright, under
+`tests/`) only when the behaviour genuinely needs a browser — DOM wiring,
+navigation, focus, viewport/layout. Unit first, e2e as the fallback, not the
+default.
+
+- **Make logic unit-testable.** Keep decision logic pure and in `src/lib/`
+  (e.g. `toc.ts`, `feeds.ts`, `jobhunt.ts`, `stats.ts`). When the logic lives in
+  an `.astro` `<script>`, extract the pure part into a `lib/` function and import
+  it back, so the page stays thin glue and the rule gets a unit test. Tag such
+  modules `(unit-tested)` in the Component Architecture list.
+- **A bug fix adds a failing-first test.** Write (or tighten) a unit test that
+  fails on the old code and passes on the fix — if the existing test couldn't
+  have caught the regression, the test is wrong, not just missing. Watch for a
+  test that _encodes_ the bug (asserts the broken behaviour) and fix it too.
+- **Reach for e2e only for the un-unit-testable slice.** Render/interaction that
+  can't be exercised without a DOM goes in a Playwright spec; the underlying rule
+  it depends on should still have its own unit test.
+- **Cover every Zod schema.** Each schema in `src/lib/schemas.ts` gets a case in
+  `schemas.test.ts` — at least one valid parse and one rejected-invalid parse
+  (bad enum value, missing required field, malformed date). Add or update the
+  case in the same change that adds or edits the schema. The build only catches
+  malformed _data_ against the current schema; tests are what catch a schema
+  that's too loose or wrong.
+- **Refresh the counts.** New or removed specs change the generated totals — run
+  `pnpm stats:refresh` so `src/lib/testStats.ts` matches, or the `/testing` page
+  and its e2e assertions drift (and the PR's Playwright run fails).
+
 ## CI
 
 GitHub Actions workflows live in `.github/workflows/`.
