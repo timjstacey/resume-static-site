@@ -11,6 +11,7 @@ export const LANG_COLORS: Record<string, string> = {
   Python: '#3572a5',
   Go: '#00add8',
   Rust: '#dea584',
+  Shell: '#89e051',
 };
 
 export function langColor(lang: string | undefined): string {
