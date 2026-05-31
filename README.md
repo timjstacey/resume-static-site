@@ -75,7 +75,7 @@ Shape details and field-by-field examples live in [`CLAUDE.md`](./CLAUDE.md#data
 
 ## Testing
 
-Vitest runs unit tests colocated in `src/lib/*.test.ts`. Playwright runs E2E specs from `tests/` across seven projects, each scoped to the specs that benefit from it: content rendering on Chromium, keyboard/focus on Chromium + Firefox + WebKit, and responsive layout on Pixel 5 + iPhone 13 + iPad Pro 11. See [`CLAUDE.md`](./CLAUDE.md#ci) for the full routing table.
+Every change ships with test coverage, unit-first: Vitest unit tests colocated in `src/lib/*.test.ts`, with Playwright E2E reserved for behaviour that needs a browser. Playwright runs specs from `tests/` across seven projects, each scoped to the specs that benefit from it: content rendering on Chromium, keyboard/focus on Chromium + Firefox + WebKit, and responsive layout on Pixel 5 + iPhone 13 + iPad Pro 11. See [`CLAUDE.md`](./CLAUDE.md#testing) for the coverage policy and [`CLAUDE.md`](./CLAUDE.md#ci) for the full routing table.
 
 ```bash
 pnpm test         # unit
