@@ -18,24 +18,36 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
+          cache: pnpm
 
-      - name: Refresh snapshot
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Refresh CI snapshot
         env:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/refresh-ci-snapshot.mjs
 
+      - name: Refresh test stats
+        # Reads the spec inventory (playwright --list + vitest list); no browsers needed.
+        run: pnpm stats:refresh
+
       - name: Open PR on change
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: 'chore(ci): refresh ci-snapshot.json'
-          title: 'chore(ci): refresh ci-snapshot.json'
+          commit-message: 'chore(ci): refresh ci-snapshot.json + test stats'
+          title: 'chore(ci): refresh ci-snapshot.json + test stats'
           body: |
-            Nightly regeneration of `src/data/ci-snapshot.json` from the live
-            GitHub Actions API. Keeps the footer + `/testing` CI strip honest.
+            Nightly regeneration of `src/data/ci-snapshot.json` (live GitHub
+            Actions API) and `src/lib/testStats.ts` (spec inventory). Keeps the
+            footer + `/testing` CI strip and the test counts honest.
 
             🤖 Generated with [Claude Code](https://claude.com/claude-code)
           branch: chore/refresh-ci-snapshot
