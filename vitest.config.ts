@@ -10,14 +10,13 @@ export default defineConfig({
       // components are exercised by Playwright, not instrumented here.
       include: ['src/lib/**/*.ts'],
       exclude: ['src/lib/**/*.test.ts', 'src/lib/testStats.ts'],
-      // Ratchet floor — the baseline at the time coverage was added (see #104).
-      // CI fails if any metric drops below. Raise these as coverage climbs; the
-      // push toward 100% is tracked in #105.
+      // src/lib is fully covered (#105). CI fails if any metric drops below
+      // 100% — keep new logic in src/lib unit-tested to stay green.
       thresholds: {
-        statements: 89,
-        branches: 87,
-        functions: 87,
-        lines: 89,
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
       },
     },
   },

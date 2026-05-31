@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getResume, getProjects, getJobs, effectiveJobStatus } from './data';
+import { getResume, getProjects, getJobs, effectiveJobStatus, deriveSource, getTesting, getCiSnapshot } from './data';
 import type { Job } from './schemas';
 
 function makeJob(overrides: Partial<Job> = {}): Job {
@@ -88,4 +88,43 @@ describe('effectiveJobStatus', () => {
       expect(effectiveJobStatus(makeJob({ applied: '2020-01-01', status }), now)).toBe(status);
     }
   );
+});
+
+describe('deriveSource', () => {
+  it('prefers the explicit source field', () => {
+    expect(deriveSource(makeJob({ source: 'LinkedIn', notes: 'found on seek' }))).toBe('LinkedIn');
+  });
+
+  it.each([
+    ['Applied via Seek', 'Seek'],
+    ['saw it on LinkedIn', 'LinkedIn'],
+    ['Jobgether listing', 'Jobgether'],
+  ] as const)('derives %s → %s from notes', (notes, expected) => {
+    expect(deriveSource(makeJob({ notes }))).toBe(expected);
+  });
+
+  it('returns undefined when nothing matches', () => {
+    expect(deriveSource(makeJob({ notes: 'cold email' }))).toBeUndefined();
+  });
+
+  it('returns undefined when notes are absent', () => {
+    expect(deriveSource(makeJob())).toBeUndefined();
+  });
+});
+
+describe('getTesting', () => {
+  it('loads + validates testing.yml', () => {
+    const t = getTesting();
+    expect(Array.isArray(t.routing)).toBe(true);
+    expect(Array.isArray(t.workflows)).toBe(true);
+  });
+});
+
+describe('getCiSnapshot', () => {
+  it('loads + validates ci-snapshot.json', () => {
+    const snap = getCiSnapshot();
+    expect(typeof snap.branch).toBe('string');
+    expect(typeof snap.passing).toBe('boolean');
+    expect(Array.isArray(snap.runs)).toBe(true);
+  });
 });
