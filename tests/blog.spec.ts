@@ -1,14 +1,25 @@
 import { test, expect } from '@playwright/test';
-import { readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { parse } from 'yaml';
 import { getDrafts } from '../src/lib/data';
 import { FEATURES } from '../src/lib/features';
 
 // posts.ts imports `astro:content`, which only resolves inside the Astro
-// runtime — count the markdown sources directly instead.
-const postCount = readdirSync('src/content/posts').filter((f) => f.endsWith('.md')).length;
+// runtime — read the markdown sources directly instead.
+const POSTS_DIR = 'src/content/posts';
+const postFiles = readdirSync(POSTS_DIR).filter((f) => f.endsWith('.md'));
+const postCount = postFiles.length;
+// Newest post by frontmatter date — its filename stem is the detail-page slug.
+const newestSlug = postFiles
+  .map((f) => ({
+    slug: f.replace(/\.md$/, ''),
+    date: (parse(readFileSync(`${POSTS_DIR}/${f}`, 'utf-8').split('---')[1]!) as { date: string }).date,
+  }))
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.slug;
 const drafts = getDrafts();
 
-if (FEATURES.blog) {
+// Content-dependent specs only run when the blog is enabled AND posts exist.
+if (FEATURES.blog && postCount > 0) {
   test.describe('Blog page', () => {
     test.beforeEach(async ({ page }) => {
       await page.goto('/blog');
@@ -41,7 +52,7 @@ if (FEATURES.blog) {
 
   test.describe('Blog post detail page', () => {
     // Newest post — the one surfaced as "featured" on the index.
-    const slug = 'pushing-validation-out-of-the-ui';
+    const slug = newestSlug!;
 
     test.beforeEach(async ({ page }) => {
       await page.goto(`/blog/${slug}`);

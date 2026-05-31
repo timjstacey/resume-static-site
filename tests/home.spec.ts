@@ -49,7 +49,8 @@ test.describe('Home page', () => {
     await expect(page.getByText(`@ ${current.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`)).toBeVisible();
   });
 
-  if (FEATURES.blog) {
+  // Only when the blog is enabled and at least three posts exist to fill the row.
+  if (FEATURES.blog && latestPosts.length >= 3) {
     test('writing section surfaces recent posts linking to the blog', async ({ page }) => {
       await expect(page.getByRole('heading', { name: /From the blog/ })).toBeVisible();
       await expect(page.getByRole('link', { name: 'all posts →' })).toHaveAttribute('href', '/blog');
