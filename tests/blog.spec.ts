@@ -38,4 +38,30 @@ if (FEATURES.blog) {
       await expect(page.getByText(/Tags · \d+/)).toBeVisible();
     });
   });
+
+  test.describe('Blog post detail page', () => {
+    // Newest post — the one surfaced as "featured" on the index.
+    const slug = 'pushing-validation-out-of-the-ui';
+
+    test.beforeEach(async ({ page }) => {
+      await page.goto(`/blog/${slug}`);
+    });
+
+    test('renders the post title as the h1', async ({ page }) => {
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    });
+
+    test('shows the cat breadcrumb for the post', async ({ page }) => {
+      await expect(page.getByText(`${slug}.md`)).toBeVisible();
+    });
+
+    test('renders the markdown body as prose', async ({ page }) => {
+      await expect(page.locator('article.prose p').first()).toBeVisible();
+    });
+
+    test('rail links back to the index and offers copy-link', async ({ page }) => {
+      await expect(page.getByRole('link', { name: 'Back to the index' })).toBeVisible();
+      await expect(page.getByRole('button', { name: /copy link/ })).toBeVisible();
+    });
+  });
 }

@@ -6,14 +6,16 @@ Personal resume + job-application tracker. Static site hosted on Cloudflare Page
 
 ### Dependencies
 
-| Package                 | Version | Purpose                                    |
-| ----------------------- | ------- | ------------------------------------------ |
-| astro                   | 6.3.5   | Static site framework                      |
-| tailwindcss             | 4.3.0   | Utility-first styling                      |
-| @tailwindcss/vite       | 4.3.0   | Tailwind 4 Vite plugin (Astro integration) |
-| @catppuccin/tailwindcss | 1.0.0   | Catppuccin themes (all 4 flavours)         |
-| zod                     | 4.4.3   | Data schema validation                     |
-| yaml                    | 2.9.0   | YAML parser for data file loading          |
+| Package                              | Version | Purpose                                      |
+| ------------------------------------ | ------- | -------------------------------------------- |
+| astro                                | 6.3.5   | Static site framework                        |
+| tailwindcss                          | 4.3.0   | Utility-first styling                        |
+| @tailwindcss/vite                    | 4.3.0   | Tailwind 4 Vite plugin (Astro integration)   |
+| @catppuccin/tailwindcss              | 1.0.0   | Catppuccin themes (all 4 flavours)           |
+| astro-expressive-code                | 0.42.0  | Code-block rendering (Shiki frames, themes)  |
+| @expressive-code/plugin-line-numbers | 0.42.0  | Optional gutter line numbers for code blocks |
+| zod                                  | 4.4.3   | Data schema validation                       |
+| yaml                                 | 2.9.0   | YAML parser for data file loading            |
 
 ### Dev Dependencies
 
@@ -53,14 +55,15 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 
 ## Pages
 
-| Route       | File                       | Purpose                                                |
-| ----------- | -------------------------- | ------------------------------------------------------ |
-| `/`         | `src/pages/index.astro`    | Hero, bio, quick stats, CTA links                      |
-| `/resume`   | `src/pages/resume.astro`   | Full resume from data                                  |
-| `/projects` | `src/pages/projects.astro` | Project portfolio from data                            |
-| `/blog`     | `src/pages/blog.astro`     | Blog index — featured post, published rows, drafts     |
-| `/job-hunt` | `src/pages/job-hunt.astro` | Job hunt dashboard                                     |
-| `/testing`  | `src/pages/testing.astro`  | Test strategy narrative + build-time stats (portfolio) |
+| Route          | File                          | Purpose                                                         |
+| -------------- | ----------------------------- | --------------------------------------------------------------- |
+| `/`            | `src/pages/index.astro`       | Hero, bio, quick stats, CTA links                               |
+| `/resume`      | `src/pages/resume.astro`      | Full resume from data                                           |
+| `/projects`    | `src/pages/projects.astro`    | Project portfolio from data                                     |
+| `/blog`        | `src/pages/blog.astro`        | Blog index — featured post, published rows, drafts              |
+| `/blog/[slug]` | `src/pages/blog/[slug].astro` | Single post — hero, rendered markdown body, TOC rail, prev/next |
+| `/job-hunt`    | `src/pages/job-hunt.astro`    | Job hunt dashboard                                              |
+| `/testing`     | `src/pages/testing.astro`     | Test strategy narrative + build-time stats (portfolio)          |
 
 ## Job Application Statuses
 
@@ -152,6 +155,19 @@ frontmatter: `title`, `date`, `tag` (`Strategy | Practice | Meta | Team | Tools`
 the prefix is `"$"` (shell), `"#"` (markdown heading), or `" "` (body line). The
 `<TerminalWindow>` renderer turns `preview` into the post's auto-illustrated cover.
 
+The post **body** is plain markdown beneath the frontmatter. `src/pages/blog/[slug].astro`
+renders it with `render()` from `astro:content` (`<Content />`) — no hand-written HTML.
+Body prose is styled via scoped `.prose :global(...)` rules in that page; fenced code
+blocks are owned by **Expressive Code** (do not restyle `<pre>`). Write the post's lead
+code fence as its visual hero — there is no hero imagery. The on-this-page TOC is built
+from the collection entry's `getHeadings()` (`<h2>`s).
+
+Expressive Code is configured in **`ec.config.mjs`** (repo root, not `astro.config.mjs` —
+the `<Code>` component rejects non-serializable options like `themeCssSelector`). It
+registers all four Catppuccin Shiki themes and emits a per-flavour CSS selector
+(`.latte`/`.frappe`/`.macchiato`/`.mocha`) matching the class `Base.astro` puts on
+`<html>`, so code blocks re-theme with the rest of the page.
+
 `src/data/drafts.yml` drives the "drafts in flight" cards: `title`, `tag`,
 `status` (`idea | drafting | editing`), `note`.
 
@@ -202,6 +218,7 @@ src/
     resume.astro
     projects.astro
     blog.astro          # blog index (new)
+    blog/[slug].astro   # single post — renders markdown body via render()/<Content />
     job-hunt.astro
     testing.astro
   data/
