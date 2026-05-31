@@ -103,26 +103,26 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
 
         <!-- author card -->
         <div
-          class="mt-12 grid grid-cols-[64px_1fr_auto] items-center gap-5 rounded-[0_10px_10px_0] bg-ctp-mantle p-6"
+          class="mt-12 grid grid-cols-[56px_1fr] items-center gap-4 rounded-[0_10px_10px_0] bg-ctp-mantle p-5 sm:grid-cols-[64px_1fr_auto] sm:gap-5 sm:p-6"
           style="border-left: 3px solid var(--catppuccin-color-peach)"
         >
-          <div class="h-16 w-16 overflow-hidden rounded-[10px] bg-ctp-surface0">
+          <div class="h-14 w-14 overflow-hidden rounded-[10px] bg-ctp-surface0 sm:h-16 sm:w-16">
             <Image src={profile} alt="Tim Stacey" width={64} height={64} class="h-full w-full object-cover" />
           </div>
-          <div>
+          <div class="min-w-0">
             <div class="mono-caption text-ctp-overlay2">Written by</div>
             <div class="mt-1 font-display text-xl font-semibold text-ctp-text">Tim Stacey</div>
             <div class="mt-1 text-[14px] text-ctp-subtext0">Lead quality engineer. Writes about testing strategy.</div>
           </div>
-          <div class="flex flex-col gap-2">
+          <div class="col-span-2 flex gap-2 sm:col-span-1 sm:flex-col">
             <a
               href="https://github.com/timjstacey"
-              class="rounded-lg border border-ctp-surface2 px-3 py-2 font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0"
+              class="flex-1 rounded-lg border border-ctp-surface2 px-3 py-2 text-center font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0 sm:flex-none sm:text-left"
               >github ↗</a
             >
             <a
               href="https://www.linkedin.com/in/timjstacey"
-              class="rounded-lg border border-ctp-surface2 px-3 py-2 font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0"
+              class="flex-1 rounded-lg border border-ctp-surface2 px-3 py-2 text-center font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0 sm:flex-none sm:text-left"
               >linkedin ↗</a
             >
           </div>
