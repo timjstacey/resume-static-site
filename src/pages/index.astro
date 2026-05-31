@@ -58,7 +58,7 @@ const meta = current
           E2E, contract checks at every seam.
         </p>
         <div class="mt-9 flex flex-wrap gap-3">
-          <Button variant="primary" href="/resume">▸ ./resume.md</Button>
+          <Button variant="primary" href="/resume">▸ cat resume.tex</Button>
           {
             resume.contact.github && (
               <Button variant="ghost" href={resume.contact.github}>
@@ -115,7 +115,7 @@ const meta = current
       <SectionLabel>// about.md</SectionLabel>
       {resume.bio && <p class="mt-6 text-lg leading-relaxed text-ctp-subtext1">{resume.bio}</p>}
     </div>
-    <TerminalWindow path="$ cat resume.md | grep current">
+    <TerminalWindow path="$ yq '.experience[0]' resume.yml">
       <span slot="status" class="text-ctp-green">● live</span>
       <div class="font-display text-3xl font-bold tracking-[-0.02em] text-ctp-text">{current?.role}</div>
       <div class="mt-1 text-ctp-teal">@ {current?.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</div>

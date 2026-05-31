@@ -129,7 +129,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
               )}
               <div class="mt-7 flex flex-wrap gap-3">
                 <Button variant="primary" href={`/blog/${featured.id}`}>
-                  ▸ ./read --post {featured.id}
+                  ▸ cat posts/{featured.id}.md
                 </Button>
                 <Button
                   variant="ghost"

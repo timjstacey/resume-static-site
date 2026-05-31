@@ -24,12 +24,12 @@ test.describe('Resume page', () => {
     await expect(page.getByText('experience · 2015 — 2026')).toBeVisible();
   });
 
-  test('renders the download.pdf button', async ({ page }) => {
-    await expect(page.getByRole('link', { name: /download\.pdf/i })).toBeVisible();
+  test('renders the resume.pdf download button', async ({ page }) => {
+    await expect(page.getByRole('link', { name: /resume\.pdf/i })).toBeVisible();
   });
 
-  test('download.pdf link serves the actual PDF (200 + pdf content-type)', async ({ page, request }) => {
-    const link = page.getByRole('link', { name: /download\.pdf/i });
+  test('resume.pdf link serves the actual PDF (200 + pdf content-type)', async ({ page, request }) => {
+    const link = page.getByRole('link', { name: /resume\.pdf/i });
     await expect(link).toHaveAttribute('href', '/tim-stacey-resume.pdf');
     await expect(link).toHaveAttribute('download', 'tim-stacey-resume.pdf');
 
