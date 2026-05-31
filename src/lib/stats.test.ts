@@ -62,4 +62,10 @@ describe('yearsOfExp', () => {
     const exp = [makeExperience('2023-01', 'present')];
     expect(yearsOfExp(exp)).toBe(3);
   });
+
+  it('finds the earliest start even when it is not first', () => {
+    vi.setSystemTime(new Date('2026-01-01'));
+    const exp = [makeExperience('2023-01', 'present'), makeExperience('2020-01', 'present')];
+    expect(yearsOfExp(exp)).toBe(6);
+  });
 });

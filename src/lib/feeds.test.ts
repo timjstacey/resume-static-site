@@ -70,6 +70,12 @@ describe('buildAtom', () => {
     expect(xml).toContain('<category term="Playwright"/>');
     expect(xml).toContain('<category term="AI"/>');
   });
+
+  it('falls back to "now" for the updated stamp when there are no items', () => {
+    const empty = buildAtom([], { ...meta, site: meta.site });
+    expect(empty).toContain('<feed xmlns="http://www.w3.org/2005/Atom">');
+    expect(empty).toMatch(/<updated>\d{4}-\d{2}-\d{2}T/);
+  });
 });
 
 describe('buildJsonFeed', () => {
