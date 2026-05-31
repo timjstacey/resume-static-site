@@ -13,6 +13,7 @@ function sh(cmd) {
   return execSync(cmd, { cwd: ROOT, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'inherit'] });
 }
 
+// Routed runs: each spec is multiplied by the projects it's assigned to.
 function countPwSpecs(node) {
   let n = 0;
   for (const s of node.specs ?? []) n += (s.tests ?? []).length;
@@ -20,10 +21,23 @@ function countPwSpecs(node) {
   return n;
 }
 
+// Unique test declarations. `--list` expands each spec once per project it runs
+// in, so dedupe by file + title to get the true count of distinct tests.
+function collectSpecKeys(node, file, out) {
+  const f = node.file ?? file;
+  for (const s of node.specs ?? []) out.add(`${f}::${s.title}`);
+  for (const c of node.suites ?? []) collectSpecKeys(c, f, out);
+}
+
 const pwJson = JSON.parse(sh('pnpm exec playwright test --list --reporter=json'));
 const e2e = (pwJson.suites ?? []).reduce((acc, s) => acc + countPwSpecs(s), 0);
 const e2eFiles = (pwJson.suites ?? []).length;
 const projects = (pwJson.config?.projects ?? []).length;
+
+const specKeys = new Set();
+for (const s of pwJson.suites ?? []) collectSpecKeys(s, undefined, specKeys);
+// Naive total if every distinct spec ran on every project — what routing avoids.
+const e2eNaive = specKeys.size * projects;
 
 const engineFamilies = new Set();
 for (const p of pwJson.config?.projects ?? []) {
@@ -43,6 +57,7 @@ export const TEST_STATS = {
   unitFiles: ${unitFiles},
   e2e: ${e2e},
   e2eFiles: ${e2eFiles},
+  e2eNaive: ${e2eNaive},
   projects: ${projects},
   engines: ${engines},
 } as const;
@@ -51,4 +66,6 @@ export type TestStats = typeof TEST_STATS;
 `;
 
 writeFileSync(OUT, body);
-console.log(`wrote ${path.relative(ROOT, OUT)}: unit=${unit}, e2e=${e2e}, projects=${projects}, engines=${engines}`);
+console.log(
+  `wrote ${path.relative(ROOT, OUT)}: unit=${unit}, e2e=${e2e}, e2eNaive=${e2eNaive}, projects=${projects}, engines=${engines}`
+);

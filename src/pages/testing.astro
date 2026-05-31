@@ -19,6 +19,8 @@ const runColor = (r: string) => (r === 'pass' ? 'green' : r === 'flake' ? 'yello
 const engineColor = (e: string) => (e === 'chromium' ? 'yellow' : e === 'firefox' ? 'peach' : 'sapphire');
 
 const maxSpecs = Math.max(TEST_STATS.unit, TEST_STATS.e2e);
+// Routing saving: routed runs vs the naive "every spec on every project" total.
+const dedupPct = TEST_STATS.e2eNaive ? Math.round((1 - TEST_STATS.e2e / TEST_STATS.e2eNaive) * 100) : 0;
 const layers = [
   {
     name: 'vitest',
@@ -235,11 +237,11 @@ for (const job of jobs) {
     >
       <div class="flex flex-col gap-1 md:flex-row md:items-baseline md:gap-3">
         <div class="flex items-baseline gap-3">
-          <span class="font-display text-[42px] font-bold text-ctp-overlay1 line-through">415</span>
+          <span class="font-display text-[42px] font-bold text-ctp-overlay1 line-through">{TEST_STATS.e2eNaive}</span>
           <span class="text-ctp-overlay1">→</span>
-          <span class="font-display text-[56px] font-bold text-ctp-peach">122</span>
+          <span class="font-display text-[56px] font-bold text-ctp-peach">{TEST_STATS.e2e}</span>
         </div>
-        <span class="font-mono text-[12px] text-ctp-overlay1">runs · -71%</span>
+        <span class="font-mono text-[12px] text-ctp-overlay1">runs · -{dedupPct}%</span>
       </div>
       <p class="flex-1 text-[14px] text-ctp-subtext1">
         Content renders identically across engines, so it runs once. Only keyboard, focus, and viewport behaviour fan
