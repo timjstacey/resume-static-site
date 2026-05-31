@@ -89,3 +89,12 @@
     animation: none;
   }
 }
+
+/* Keep the filter/sort View Transitions (blog tags, projects, job-hunt board)
+   short and gentle — a quick cross-fade, not a slow dissolve. */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 180ms;
+  }
+}

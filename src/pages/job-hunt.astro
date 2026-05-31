@@ -260,6 +260,16 @@ const avatars: { label: string; accent: string }[] = [
   const cards = Array.from(document.querySelectorAll<HTMLElement>('article[data-search]'));
   const boardCols = Array.from(document.querySelectorAll<HTMLElement>('.board-column'));
 
+  // Subtle cross-fade when filters change, via the View Transitions API. Used
+  // for the dropdowns + clear (not the live search input, which fires per
+  // keystroke). No-ops to an instant apply under reduced-motion / no support.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+  const withTransition = (fn: () => void) => {
+    if (reduceMotion.matches || !doc.startViewTransition) fn();
+    else doc.startViewTransition(fn);
+  };
+
   function applyFilters() {
     const q = (search?.value ?? '').trim().toLowerCase();
     const epic = epicSel?.value ?? '';
@@ -285,10 +295,10 @@ const avatars: { label: string; accent: string }[] = [
   }
 
   search?.addEventListener('input', applyFilters);
-  [epicSel, prioSel, srcSel].forEach((s) => s?.addEventListener('change', applyFilters));
+  [epicSel, prioSel, srcSel].forEach((s) => s?.addEventListener('change', () => withTransition(applyFilters)));
   clearBtn?.addEventListener('click', () => {
     if (search) search.value = '';
     for (const s of [epicSel, prioSel, srcSel]) if (s) s.value = '';
-    applyFilters();
+    withTransition(applyFilters);
   });
 </script>
