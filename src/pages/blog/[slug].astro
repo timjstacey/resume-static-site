@@ -268,17 +268,34 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
       links.forEach((el, slug) => el.toggleAttribute('data-active', slug === id));
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActive(visible[0].target.id);
-      },
-      { rootMargin: '0px 0px -70% 0px', threshold: 0 }
-    );
-    headings.forEach((h) => observer.observe(h));
-    setActive(headings[0]!.id);
+    // Active = the last heading whose top has scrolled past a line ~100px below
+    // the viewport top. A bottom guard forces the final heading when the page is
+    // scrolled to the end (it can sit too low to ever cross the line otherwise —
+    // which is why clicking the last TOC item used to highlight the one above).
+    const OFFSET = 100;
+    const update = () => {
+      let current = headings[0]!.id;
+      for (const h of headings) {
+        if (h.getBoundingClientRect().top - OFFSET <= 0) current = h.id;
+        else break;
+      }
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom) current = headings[headings.length - 1]!.id;
+      setActive(current);
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        update();
+        ticking = false;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
   }
 
   // Copy-link button.
