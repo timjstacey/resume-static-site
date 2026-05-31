@@ -1,0 +1,57 @@
+name: Refresh test stats
+
+# Test counts on /testing (src/lib/testStats.ts) only change when specs change.
+# Fire on pushes to main that touch test files, regenerate, and commit back.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/**'
+      - '**/*.test.ts'
+      - 'playwright.config.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    name: Regenerate testStats.ts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Admin PAT: pushing to main needs to bypass the branch ruleset, the
+          # same way version-bump.yml does.
+          token: ${{ secrets.VERSION_BUMP_TOKEN }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Refresh test stats
+        # Reads the spec inventory (playwright --list + vitest list); no browsers needed.
+        run: pnpm stats:refresh
+
+      - name: Commit on change
+        run: |
+          if git diff --quiet -- src/lib/testStats.ts; then
+            echo "testStats.ts unchanged. Nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # The commit touches only src/lib/testStats.ts, which matches neither
+          # this workflow's paths filter (no self-trigger) nor version-bump's
+          # (paths-ignore lists it, so no bump no-op).
+          git commit -am "chore(testing): refresh test stats"
+          git push
