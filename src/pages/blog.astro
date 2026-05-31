@@ -54,7 +54,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
 <Base title="Blog" description="Field notes on testing and quality engineering by Tim Stacey">
   {
     !enabled && (
-      <section class="px-14 py-24 text-center">
+      <section class="px-5 py-24 text-center sm:px-14">
         <SectionLabel color="teal">// blog.md</SectionLabel>
         <h1 class="mt-5 font-display text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-ctp-text md:text-6xl">
           Coming soon<span class="text-ctp-peach">.</span>
@@ -67,7 +67,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
   <!-- HEADER -->
   {
     enabled && (
-      <header class="grid gap-10 px-14 pt-14 lg:grid-cols-[1.4fr_1fr]">
+      <header class="grid gap-10 px-5 pt-14 sm:px-14 lg:grid-cols-[1.4fr_1fr]">
         <div>
           <SectionLabel color="teal">// blog.md</SectionLabel>
           <h1 class="mt-5 font-display text-5xl leading-[0.98] font-bold tracking-[-0.035em] text-ctp-text md:text-[80px]">
@@ -97,7 +97,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
   <!-- FEATURED -->
   {
     enabled && featured && (
-      <section class="px-14 pt-14" data-post data-hashtags={featured.data.hashtags.join(' ')}>
+      <section class="px-5 pt-14 sm:px-14" data-post data-hashtags={featured.data.hashtags.join(' ')}>
         <div
           class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-8"
           style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--catppuccin-color-peach) 8%, transparent), transparent 70%), var(--catppuccin-color-mantle)"
@@ -161,7 +161,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
   <!-- PUBLISHED + SIDEBAR -->
   {
     enabled && (
-      <section class="grid gap-14 px-14 pt-18 lg:grid-cols-[1fr_280px]">
+      <section class="grid gap-14 px-5 pt-18 sm:px-14 lg:grid-cols-[1fr_280px]">
         <div>
           <div class="flex items-center justify-between border-b border-ctp-surface0 pb-3">
             <SectionLabel>// published</SectionLabel>
@@ -174,23 +174,28 @@ const pad = (n: number) => String(n).padStart(3, '0');
                 data-testid="published-row"
                 data-post
                 data-hashtags={post.data.hashtags.join(' ')}
-                class="grid grid-cols-[60px_6px_1fr_auto] items-center gap-4 border-b border-ctp-surface0 py-5 transition-colors hover:bg-ctp-mantle"
+                class="flex gap-3 border-b border-ctp-surface0 py-5 transition-colors hover:bg-ctp-mantle sm:grid sm:grid-cols-[60px_6px_1fr_auto] sm:items-center sm:gap-4"
               >
-                <span class="font-mono text-[13px] text-ctp-overlay1">{pad(rest.length - i)}</span>
+                <span class="hidden font-mono text-[13px] text-ctp-overlay1 sm:block">{pad(rest.length - i)}</span>
                 <span
-                  class="h-14 w-1.5 rounded-full"
+                  class="w-1.5 shrink-0 self-stretch rounded-full sm:h-14 sm:self-auto"
                   style={`background: var(--catppuccin-color-${tagAccent(post.data.tag)})`}
                 />
-                <span class="min-w-0">
-                  <span class="flex items-center gap-3">
-                    <span class="font-display text-xl font-semibold tracking-[-0.01em] text-ctp-text">
+                <span class="min-w-0 flex-1">
+                  <span class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span class="font-display text-lg font-semibold tracking-[-0.01em] text-ctp-text sm:text-xl">
                       {post.data.title}
                     </span>
                     <Chip color={tagAccent(post.data.tag)}>{post.data.tag}</Chip>
                   </span>
                   <span class="mt-1 block text-[14.5px] text-ctp-subtext0">{post.data.excerpt}</span>
+                  <span class="mt-2 flex items-center gap-3 font-mono text-[12px] text-ctp-overlay1 sm:hidden">
+                    <span>{fmtDate(post.data.date)}</span>
+                    <span>~{post.data.readMins}min</span>
+                    <span class="text-ctp-peach">read →</span>
+                  </span>
                 </span>
-                <span class="text-right font-mono text-[12px] text-ctp-overlay1">
+                <span class="hidden text-right font-mono text-[12px] text-ctp-overlay1 sm:block">
                   <span class="block">{fmtDate(post.data.date)}</span>
                   <span class="block">~{post.data.readMins}min</span>
                   <span class="block text-ctp-peach">read →</span>

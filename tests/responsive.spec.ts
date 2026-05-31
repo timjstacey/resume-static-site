@@ -1,6 +1,21 @@
 import { test, expect, type Page } from '@playwright/test';
+import { readFileSync, readdirSync } from 'node:fs';
+import { parse } from 'yaml';
+import { FEATURES } from '../src/lib/features';
+
+// Include the newest post's detail page — its code blocks are the likeliest
+// source of horizontal overflow on a phone.
+const POSTS_DIR = 'src/content/posts';
+const newestSlug = readdirSync(POSTS_DIR)
+  .filter((f) => f.endsWith('.md'))
+  .map((f) => ({
+    slug: f.replace(/\.md$/, ''),
+    date: (parse(readFileSync(`${POSTS_DIR}/${f}`, 'utf-8').split('---')[1]!) as { date: string }).date,
+  }))
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]?.slug;
 
 const allPages = ['/', '/resume', '/projects', '/blog', '/job-hunt', '/testing'];
+if (FEATURES.blog && newestSlug) allPages.push(`/blog/${newestSlug}`);
 
 function hasHorizontalScroll(page: Page): Promise<boolean> {
   return page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
