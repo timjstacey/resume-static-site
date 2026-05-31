@@ -80,6 +80,14 @@ const filters = PROJECT_FILTERS;
     const cards = Array.from(document.querySelectorAll('[data-project]'));
     const empty = document.getElementById('empty-state');
 
+    // Subtle cross-fade on filter + sort changes via the View Transitions API;
+    // instant fallback when unsupported or the user prefers reduced motion.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function withTransition(fn) {
+      if (reduceMotion.matches || !document.startViewTransition) fn();
+      else document.startViewTransition(fn);
+    }
+
     function apply(filter) {
       let shown = 0;
       cards.forEach(function (card) {
@@ -101,7 +109,9 @@ const filters = PROJECT_FILTERS;
 
     buttons.forEach(function (b) {
       b.addEventListener('click', function () {
-        apply(b.dataset.filter);
+        withTransition(function () {
+          apply(b.dataset.filter);
+        });
       });
     });
 
@@ -127,7 +137,7 @@ const filters = PROJECT_FILTERS;
     if (sortBtn && grid) {
       sortBtn.addEventListener('click', function () {
         desc = !desc;
-        sort();
+        withTransition(sort);
       });
       sort();
     }

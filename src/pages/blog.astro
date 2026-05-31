@@ -279,6 +279,15 @@ const pad = (n: number) => String(n).padStart(3, '0');
     const posts = Array.from(document.querySelectorAll<HTMLElement>('[data-post]'));
     let active: string | null = null;
 
+    // Subtle cross-fade on filter changes via the View Transitions API. Skips
+    // the animation when unsupported or when the user prefers reduced motion.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
+    const withTransition = (fn: () => void) => {
+      if (reduceMotion.matches || !doc.startViewTransition) fn();
+      else doc.startViewTransition(fn);
+    };
+
     const apply = () => {
       for (const post of posts) {
         const tags = (post.getAttribute('data-hashtags') ?? '').split(/\s+/).filter(Boolean);
@@ -292,7 +301,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
     for (const btn of buttons) {
       btn.addEventListener('click', () => {
         active = active === btn.dataset.tagFilter ? null : (btn.dataset.tagFilter ?? null);
-        apply();
+        withTransition(apply);
       });
     }
   })();
