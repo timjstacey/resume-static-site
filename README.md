@@ -11,7 +11,7 @@ Live at **https://tim.sillysamoyed.com**.
 | `/`            | Hero, bio, quick stats, links to other pages       |
 | `/resume`      | Full resume rendered from `src/data/resume.yml`    |
 | `/projects`    | Project portfolio from `src/data/projects.yml`     |
-| `/blog`        | Blog index — featured post, published list, drafts |
+| `/blog`        | Blog index — featured post, published list         |
 | `/blog/[slug]` | Single post — rendered markdown, code blocks, TOC  |
 | `/job-hunt`    | Job hunt dashboard from `src/data/jobs.yml`        |
 | `/testing`     | Test pyramid, project routing, CI pipeline writeup |

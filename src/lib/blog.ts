@@ -1,23 +1,8 @@
-import type { Draft, PostTag } from './schemas';
+import type { PostTag } from './schemas';
 
 export interface PostLike {
   tag: PostTag;
   date: Date;
-}
-
-export interface TagCount {
-  tag: PostTag;
-  count: number;
-}
-
-// Tag occurrences across published posts + drafts, ranked most-used first.
-export function tagCounts(posts: PostLike[], drafts: Draft[]): TagCount[] {
-  const counts = new Map<PostTag, number>();
-  for (const p of posts) counts.set(p.tag, (counts.get(p.tag) ?? 0) + 1);
-  for (const d of drafts) counts.set(d.tag, (counts.get(d.tag) ?? 0) + 1);
-  return [...counts.entries()]
-    .map(([tag, count]) => ({ tag, count }))
-    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
 
 export interface HashtagCount {

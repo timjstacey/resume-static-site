@@ -61,7 +61,7 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 | `/`            | `src/pages/index.astro`       | Hero, bio, quick stats, CTA links                               |
 | `/resume`      | `src/pages/resume.astro`      | Full resume from data                                           |
 | `/projects`    | `src/pages/projects.astro`    | Project portfolio from data                                     |
-| `/blog`        | `src/pages/blog.astro`        | Blog index — featured post, published rows, drafts              |
+| `/blog`        | `src/pages/blog.astro`        | Blog index — featured post, published rows                      |
 | `/blog/[slug]` | `src/pages/blog/[slug].astro` | Single post — hero, rendered markdown body, TOC rail, prev/next |
 | `/job-hunt`    | `src/pages/job-hunt.astro`    | Job hunt dashboard                                              |
 | `/testing`     | `src/pages/testing.astro`     | Test strategy narrative + build-time stats (portfolio)          |
@@ -151,7 +151,7 @@ skills:
   updated: 2d ago # free-text "last commit" label shown in the card footer
 ```
 
-### Blog data (`src/content/posts/*.md` + `src/data/drafts.yml`)
+### Blog data (`src/content/posts/*.md`)
 
 Posts use an Astro **content collection** (`src/content.config.ts`). Each post's
 frontmatter: `title`, `date`, `tag` (`Strategy | Practice | Meta | Team | Tools`),
@@ -177,9 +177,6 @@ the `<Code>` component rejects non-serializable options like `themeCssSelector`)
 registers all four Catppuccin Shiki themes and emits a per-flavour CSS selector
 (`.latte`/`.frappe`/`.macchiato`/`.mocha`) matching the class `Base.astro` puts on
 `<html>`, so code blocks re-theme with the rest of the page.
-
-`src/data/drafts.yml` drives the "drafts in flight" cards: `title`, `tag`,
-`status` (`idea | drafting | editing`), `note`.
 
 ### testing.yml + ci-snapshot.json
 
@@ -235,18 +232,17 @@ src/
     resume.yml
     projects.yml
     jobs.yml
-    drafts.yml          # blog "drafts in flight" (idea | drafting | editing)
     testing.yml         # /testing routing matrix + CI gate pipelines
     ci-snapshot.json    # static CI signals (branch/sha/last-10-runs/p50/p95) — refresh nightly
   lib/
     schemas.ts          # Zod schemas + inferred types for all data files
-    data.ts             # getResume/getProjects/getJobs/getDrafts/getTesting/getCiSnapshot loaders
+    data.ts             # getResume/getProjects/getJobs/getTesting/getCiSnapshot loaders
     posts.ts            # getPosts() — blog content-collection loader (date-desc)
     nav.ts              # NAV_ITEMS list + isActivePath() helper
     format.ts           # fmtYM() — YYYY-MM → "Jan 2023" (en-GB)
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
     jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys — JIRA board logic
-    blog.ts             # tagCounts() + hashtagCounts() + archive() — blog sidebar aggregation
+    blog.ts             # hashtagCounts() + archive() — blog sidebar aggregation
     feeds.ts            # pure RSS/Atom/JSON feed builders (unit-tested)
     feedSource.ts       # FEED_META + CollectionEntry→FeedPost mapper for the feed endpoints
     langColors.ts       # LANG_COLORS — language brand dots for the projects grid
