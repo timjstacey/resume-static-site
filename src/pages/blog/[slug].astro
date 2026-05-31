@@ -225,7 +225,14 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
               href={rawUrl}
               class="flex items-center gap-3 rounded-lg border border-ctp-surface0 px-3 py-2 font-mono text-[12.5px] text-ctp-subtext1 transition-colors hover:border-ctp-surface1"
             >
-              <span class="w-[18px] text-ctp-peach">{'{ }'}</span> view raw .md
+              <span class="flex w-[18px] shrink-0 justify-center text-ctp-peach" aria-hidden="true">
+                <svg viewBox="0 0 208 128" class="w-full" fill="currentColor">
+                  <rect x="5" y="5" width="198" height="118" rx="10" fill="none" stroke="currentColor" stroke-width="10"
+                  ></rect>
+                  <path d="M30 98V30h20l20 25 20-25h20v68H90V59L70 84 50 59v39H30zM155 98l-30-33h20V30h20v35h20l-30 33z"
+                  ></path>
+                </svg>
+              </span> view raw .md
             </a>
           </div>
         </div>
