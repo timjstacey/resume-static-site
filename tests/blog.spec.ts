@@ -40,6 +40,12 @@ if (FEATURES.blog && postCount > 0) {
       await expect(page.getByText('featured · latest')).toBeVisible();
     });
 
+    test('featured post number matches the total post count', async ({ page }) => {
+      // Guards against the label reverting to a hardcoded "// post 001".
+      const padded = String(postCount).padStart(3, '0');
+      await expect(page.getByText(`// post ${padded}`)).toBeVisible();
+    });
+
     test('published list shows a row per non-featured post', async ({ page }) => {
       const rows = page.locator('a[href^="/blog/"]').filter({ hasText: 'read →' });
       await expect(rows).toHaveCount(postCount - 1);
