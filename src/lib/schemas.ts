@@ -93,7 +93,7 @@ export const ResumeSchema = z.object({
   skills: z.array(SkillCategorySchema),
 });
 
-// --- Blog tags (shared by posts content collection + drafts) ---
+// --- Blog tags (posts content collection) ---
 
 export const PostTagSchema = z.enum(['Strategy', 'Practice', 'Meta', 'Team', 'Tools']);
 
@@ -110,19 +110,6 @@ export const PostSchema = z.object({
   preview: z.array(z.tuple([z.string(), z.string()])),
   hashtags: z.array(z.string()).default([]),
 });
-
-// --- Drafts (Blog "drafts in flight") ---
-
-export const DraftStatusSchema = z.enum(['idea', 'drafting', 'editing']);
-
-export const DraftSchema = z.object({
-  title: z.string().min(1),
-  tag: PostTagSchema,
-  status: DraftStatusSchema,
-  note: z.string(),
-});
-
-export const DraftsSchema = z.array(DraftSchema);
 
 // --- Testing page config (routing matrix + CI gate pipelines) ---
 
@@ -176,8 +163,6 @@ export type Project = z.infer<typeof ProjectSchema>;
 export type Resume = z.infer<typeof ResumeSchema>;
 export type PostTag = z.infer<typeof PostTagSchema>;
 export type PostFrontmatter = z.infer<typeof PostSchema>;
-export type DraftStatus = z.infer<typeof DraftStatusSchema>;
-export type Draft = z.infer<typeof DraftSchema>;
 export type Testing = z.infer<typeof TestingSchema>;
 export type CiRun = z.infer<typeof CiRunSchema>;
 export type CiSnapshot = z.infer<typeof CiSnapshotSchema>;

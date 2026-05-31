@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parse } from 'yaml';
-import { getDrafts } from '../src/lib/data';
 
 // posts.ts imports `astro:content`, which only resolves inside the Astro
 // runtime — read the markdown sources directly instead.
@@ -21,7 +20,6 @@ const newest = postFiles
   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 const newestSlug = newest?.slug;
 const newestHashtags = newest?.hashtags ?? [];
-const drafts = getDrafts();
 
 // Content-dependent specs only run when posts exist.
 if (postCount > 0) {
@@ -48,12 +46,6 @@ if (postCount > 0) {
     test('published list shows a row per non-featured post', async ({ page }) => {
       const rows = page.locator('a[href^="/blog/"]').filter({ hasText: 'read →' });
       await expect(rows).toHaveCount(postCount - 1);
-    });
-
-    test('drafts in flight render every draft', async ({ page }) => {
-      for (const draft of drafts.slice(0, 6)) {
-        await expect(page.getByText(draft.title, { exact: true })).toBeVisible();
-      }
     });
 
     test('sidebar lists tag counts', async ({ page }) => {

@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
-import { CiSnapshotSchema, DraftsSchema, JobsSchema, ProjectsSchema, ResumeSchema, TestingSchema } from './schemas';
-import type { CiSnapshot, Draft, Job, JobSource, JobStatus, Project, Resume, Testing } from './schemas';
+import { CiSnapshotSchema, JobsSchema, ProjectsSchema, ResumeSchema, TestingSchema } from './schemas';
+import type { CiSnapshot, Job, JobSource, JobStatus, Project, Resume, Testing } from './schemas';
 
 function dataPath(filename: string): string {
   return join(process.cwd(), 'src', 'data', filename);
@@ -47,10 +47,6 @@ export function getJobs(): Job[] {
     status: effectiveJobStatus(j, now),
     source: deriveSource(j),
   }));
-}
-
-export function getDrafts(): Draft[] {
-  return DraftsSchema.parse(loadYaml('drafts.yml'));
 }
 
 export function getTesting(): Testing {
