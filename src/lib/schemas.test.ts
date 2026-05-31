@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CiRunSchema,
+  CiSnapshotSchema,
   JobSchema,
+  JobSourceSchema,
   JobStatusSchema,
   JobsSchema,
   PostSchema,
+  PostTagSchema,
   ProjectSchema,
   ProjectStatusSchema,
+  ProjectsSchema,
   ResumeSchema,
+  TestingSchema,
 } from './schemas';
 
 describe('JobStatusSchema', () => {
@@ -76,6 +82,18 @@ describe('JobsSchema', () => {
   });
 });
 
+describe('JobSourceSchema', () => {
+  it('accepts the four known sources', () => {
+    for (const source of ['Seek', 'LinkedIn', 'Jobgether', 'Other']) {
+      expect(() => JobSourceSchema.parse(source)).not.toThrow();
+    }
+  });
+
+  it('rejects an unknown source', () => {
+    expect(() => JobSourceSchema.parse('Indeed')).toThrow();
+  });
+});
+
 describe('ProjectStatusSchema', () => {
   it('accepts active, wip, archived', () => {
     for (const status of ['active', 'wip', 'archived']) {
@@ -105,8 +123,27 @@ describe('ProjectSchema', () => {
     expect(() => ProjectSchema.parse(project)).not.toThrow();
   });
 
+  it('coerces a YAML Date in updatedAt to YYYY-MM-DD', () => {
+    const result = ProjectSchema.parse({ ...validProject, updatedAt: new Date('2026-05-27') });
+    expect(result.updatedAt).toBe('2026-05-27');
+  });
+
+  it('rejects a malformed updatedAt', () => {
+    expect(() => ProjectSchema.parse({ ...validProject, updatedAt: '4d ago' })).toThrow();
+  });
+
   it('rejects missing name', () => {
     expect(() => ProjectSchema.parse({ ...validProject, name: '' })).toThrow();
+  });
+});
+
+describe('ProjectsSchema', () => {
+  it('parses an array of projects', () => {
+    expect(() => ProjectsSchema.parse([validProject])).not.toThrow();
+  });
+
+  it('rejects an array with an invalid entry', () => {
+    expect(() => ProjectsSchema.parse([validProject, { name: 'x' }])).toThrow();
   });
 });
 
@@ -188,5 +225,78 @@ describe('PostSchema', () => {
 
   it('rejects malformed preview tuples', () => {
     expect(() => PostSchema.parse({ ...validPost, preview: [['$']] })).toThrow();
+  });
+});
+
+describe('PostTagSchema', () => {
+  it('accepts the five categories', () => {
+    for (const tag of ['Strategy', 'Practice', 'Meta', 'Team', 'Tools']) {
+      expect(() => PostTagSchema.parse(tag)).not.toThrow();
+    }
+  });
+
+  it('rejects an unknown tag', () => {
+    expect(() => PostTagSchema.parse('News')).toThrow();
+  });
+});
+
+const validTesting = {
+  routing: [{ project: 'content', device: 'Desktop Chrome', engine: 'chromium', specs: ['home'] }],
+  workflows: [{ file: 'ci.yml', accent: 'peach', on: 'pull_request', steps: [{ name: 'lint', duration: '12s' }] }],
+};
+
+describe('TestingSchema', () => {
+  it('parses a valid testing config', () => {
+    expect(() => TestingSchema.parse(validTesting)).not.toThrow();
+  });
+
+  it('rejects an unknown engine', () => {
+    const bad = { ...validTesting, routing: [{ ...validTesting.routing[0], engine: 'blink' }] };
+    expect(() => TestingSchema.parse(bad)).toThrow();
+  });
+
+  it('rejects a workflow step missing its duration', () => {
+    const bad = { ...validTesting, workflows: [{ ...validTesting.workflows[0], steps: [{ name: 'lint' }] }] };
+    expect(() => TestingSchema.parse(bad)).toThrow();
+  });
+});
+
+describe('CiRunSchema', () => {
+  it('accepts pass, flake, fail', () => {
+    for (const run of ['pass', 'flake', 'fail']) {
+      expect(() => CiRunSchema.parse(run)).not.toThrow();
+    }
+  });
+
+  it('rejects an unknown run result', () => {
+    expect(() => CiRunSchema.parse('error')).toThrow();
+  });
+});
+
+const validSnapshot = {
+  branch: 'main',
+  passing: true,
+  sha: 'abc1234',
+  commitMessage: 'fix: thing',
+  commitAgo: '2h ago',
+  lastDeployAgo: '1h ago',
+  runs: ['pass', 'flake', 'pass'],
+  p50: '3m',
+  p95: '5m',
+  p50Delta: '-4s',
+  p95Delta: '+1s',
+};
+
+describe('CiSnapshotSchema', () => {
+  it('parses a valid snapshot', () => {
+    expect(() => CiSnapshotSchema.parse(validSnapshot)).not.toThrow();
+  });
+
+  it('rejects an invalid run result in the runs array', () => {
+    expect(() => CiSnapshotSchema.parse({ ...validSnapshot, runs: ['pass', 'boom'] })).toThrow();
+  });
+
+  it('rejects a non-boolean passing flag', () => {
+    expect(() => CiSnapshotSchema.parse({ ...validSnapshot, passing: 'yes' })).toThrow();
   });
 });
