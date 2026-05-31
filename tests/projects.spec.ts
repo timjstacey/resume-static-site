@@ -1,6 +1,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { getProjects } from '../src/lib/data';
 import { PROJECT_FILTERS } from '../src/lib/projectFilters';
+import { daysAgo } from '../src/lib/format';
 import type { Project } from '../src/lib/schemas';
 
 // Throws at module load if YAML is missing or fails schema validation.
@@ -28,11 +29,9 @@ function urlFor(filter: string): RegExp {
   return filter === 'all' ? /\/projects\/?$/ : new RegExp(`\\?tag=${filter}`);
 }
 
-// Mirror ProjectCard's data-updated parse ("2d ago" -> 2, "1w ago" -> 7, ...).
-const UNIT_DAYS: Record<string, number> = { d: 1, w: 7, mo: 30, y: 365 };
+// Mirror ProjectCard's data-updated: whole days since updatedAt, no date sorts last.
 function updatedDays(p: Project): number {
-  const m = p.updated?.match(/(\d+)\s*(mo|d|w|y)/);
-  return m ? Number(m[1]) * UNIT_DAYS[m[2]!]! : 99999;
+  return p.updatedAt ? daysAgo(p.updatedAt) : 99999;
 }
 
 function visibleNames(page: Page): Promise<string[]> {
