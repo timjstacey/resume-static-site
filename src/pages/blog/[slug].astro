@@ -255,6 +255,8 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
 </Base>
 
 <script>
+  import { activeHeadingId } from '../../lib/toc';
+
   // Active TOC item driven by which section heading is in view.
   const links = new Map<string, HTMLElement>();
   document.querySelectorAll<HTMLElement>('[data-toc-link]').forEach((el) => {
@@ -264,24 +266,17 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
 
   const headings = Array.from(document.querySelectorAll<HTMLElement>('.prose h2[id]'));
   if (headings.length && links.size) {
-    const setActive = (id: string) => {
+    const setActive = (id: string | null) => {
       links.forEach((el, slug) => el.toggleAttribute('data-active', slug === id));
     };
 
-    // Active = the last heading whose top has scrolled past a line ~100px below
-    // the viewport top. A bottom guard forces the final heading when the page is
-    // scrolled to the end (it can sit too low to ever cross the line otherwise —
-    // which is why clicking the last TOC item used to highlight the one above).
+    // The selection rule (last heading past the offset line, with a bottom-of-
+    // page guard for the final item) lives in lib/toc.ts so it can be unit-tested.
     const OFFSET = 100;
     const update = () => {
-      let current = headings[0]!.id;
-      for (const h of headings) {
-        if (h.getBoundingClientRect().top - OFFSET <= 0) current = h.id;
-        else break;
-      }
+      const positions = headings.map((h) => ({ id: h.id, top: h.getBoundingClientRect().top }));
       const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
-      if (atBottom) current = headings[headings.length - 1]!.id;
-      setActive(current);
+      setActive(activeHeadingId(positions, { offset: OFFSET, atBottom }));
     };
 
     let ticking = false;
