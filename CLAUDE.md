@@ -246,7 +246,7 @@ src/
     feeds.ts            # pure RSS/Atom/JSON feed builders (unit-tested)
     feedSource.ts       # FEED_META + CollectionEntry→FeedPost mapper for the feed endpoints
     langColors.ts       # LANG_COLORS — language brand dots for the projects grid
-    projectFilters.ts   # PROJECT_FILTERS list — shared by projects page + e2e spec
+    projectFilters.ts   # PROJECT_FILTERS — all + langs (derived from data) + pinned; shared by projects page + e2e spec
     themes.ts           # FLAVORS list + THEME_TRIGGER_LABEL — shared by ThemePicker + tests
     projectStatus.ts    # PROJECT_STATUS_LABEL / _COLOUR maps — shared by ProjectCard + tests
     copy.ts             # Page heading strings shared between pages + tests
