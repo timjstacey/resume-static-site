@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { archive, tagCounts, type PostLike } from './blog';
+import { archive, hashtagCounts, tagCounts, type PostLike } from './blog';
 import type { Draft } from './schemas';
 
 const posts: PostLike[] = [
@@ -24,6 +24,18 @@ describe('tagCounts', () => {
 
   it('returns empty for no input', () => {
     expect(tagCounts([], [])).toEqual([]);
+  });
+});
+
+describe('hashtagCounts', () => {
+  it('counts hashtags across posts, ranked desc then alpha', () => {
+    const result = hashtagCounts([{ hashtags: ['Playwright', 'AI'] }, { hashtags: ['Playwright', 'Testing'] }]);
+    expect(result[0]).toEqual({ tag: 'Playwright', count: 2 });
+    expect(result.map((t) => t.tag)).toEqual(['Playwright', 'AI', 'Testing']);
+  });
+
+  it('returns empty for no posts', () => {
+    expect(hashtagCounts([])).toEqual([]);
   });
 });
 

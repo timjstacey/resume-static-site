@@ -20,6 +20,21 @@ export function tagCounts(posts: PostLike[], drafts: Draft[]): TagCount[] {
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
 
+export interface HashtagCount {
+  tag: string;
+  count: number;
+}
+
+// Hashtag occurrences across published posts, ranked most-used first. These
+// carry over from the source LinkedIn post and drive the /blog Tags sidebar.
+export function hashtagCounts(posts: { hashtags: string[] }[]): HashtagCount[] {
+  const counts = new Map<string, number>();
+  for (const p of posts) for (const h of p.hashtags) counts.set(h, (counts.get(h) ?? 0) + 1);
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
+}
+
 export interface ArchiveMonth {
   month: string;
   count: number;

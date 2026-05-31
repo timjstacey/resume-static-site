@@ -9,6 +9,7 @@ Personal resume + job-application tracker. Static site hosted on Cloudflare Page
 | Package                              | Version | Purpose                                      |
 | ------------------------------------ | ------- | -------------------------------------------- |
 | astro                                | 6.3.5   | Static site framework                        |
+| @astrojs/rss                         | 4.0.18  | RSS 2.0 feed generation (`/rss.xml`)         |
 | tailwindcss                          | 4.3.0   | Utility-first styling                        |
 | @tailwindcss/vite                    | 4.3.0   | Tailwind 4 Vite plugin (Astro integration)   |
 | @catppuccin/tailwindcss              | 1.0.0   | Catppuccin themes (all 4 flavours)           |
@@ -64,6 +65,9 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 | `/blog/[slug]` | `src/pages/blog/[slug].astro` | Single post — hero, rendered markdown body, TOC rail, prev/next |
 | `/job-hunt`    | `src/pages/job-hunt.astro`    | Job hunt dashboard                                              |
 | `/testing`     | `src/pages/testing.astro`     | Test strategy narrative + build-time stats (portfolio)          |
+| `/rss.xml`     | `src/pages/rss.xml.ts`        | RSS 2.0 feed of posts (excerpt-only)                            |
+| `/atom.xml`    | `src/pages/atom.xml.ts`       | Atom 1.0 feed of posts (excerpt-only)                           |
+| `/feed.json`   | `src/pages/feed.json.ts`      | JSON Feed 1.1 of posts (excerpt-only)                           |
 
 ## Job Application Statuses
 
@@ -151,9 +155,15 @@ skills:
 
 Posts use an Astro **content collection** (`src/content.config.ts`). Each post's
 frontmatter: `title`, `date`, `tag` (`Strategy | Practice | Meta | Team | Tools`),
-`excerpt`, `readMins`, and `preview` — a list of `[prefix, text]` tuples where
-the prefix is `"$"` (shell), `"#"` (markdown heading), or `" "` (body line). The
-`<TerminalWindow>` renderer turns `preview` into the post's auto-illustrated cover.
+`excerpt`, `readMins`, `preview` — a list of `[prefix, text]` tuples where
+the prefix is `"$"` (shell), `"#"` (markdown heading), or `" "` (body line) — and
+`hashtags` (string list, defaults to `[]`). The `<TerminalWindow>` renderer turns
+`preview` into the post's auto-illustrated cover.
+
+`tag` is the primary category and drives the accent colour. `hashtags` carry over
+from the source LinkedIn post (the LPG `blog` skill copies the post's footer tags,
+`#` stripped) and drive the `/blog` Tags sidebar via `hashtagCounts()` in
+`src/lib/blog.ts`; each hashtag gets a stable accent from a palette hash.
 
 The post **body** is plain markdown beneath the frontmatter. `src/pages/blog/[slug].astro`
 renders it with `render()` from `astro:content` (`<Content />`) — no hand-written HTML.
