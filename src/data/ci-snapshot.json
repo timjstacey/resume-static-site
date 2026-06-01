@@ -1,13 +1,13 @@
 {
   "branch": "main",
   "passing": true,
-  "sha": "45d7896",
-  "commitMessage": "docs: require playwright-expert + stable selectors for e2e",
-  "commitAgo": "8m ago",
-  "lastDeployAgo": "7m ago",
+  "sha": "124f1d9",
+  "commitMessage": "chore(release): v1.10.0",
+  "commitAgo": "5h ago",
+  "lastDeployAgo": "6h ago",
   "runs": [
     "pass",
-    "fail",
+    "pass",
     "pass",
     "pass",
     "pass",
@@ -17,8 +17,8 @@
     "pass",
     "pass"
   ],
-  "p50": "37s",
-  "p95": "45s",
-  "p50Delta": "+1s",
-  "p95Delta": "+4s"
+  "p50": "38s",
+  "p95": "44s",
+  "p50Delta": "+0s",
+  "p95Delta": "-1s"
 }
