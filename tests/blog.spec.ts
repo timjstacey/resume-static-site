@@ -46,6 +46,7 @@ if (postCount > 0) {
     });
 
     test('published list shows a row per non-featured post', async ({ page }) => {
+      // Counts all DOM rows including hidden pagination pages — tests completeness, not visibility.
       const rows = page.locator('a[href^="/blog/"]').filter({ hasText: 'read →' });
       await expect(rows).toHaveCount(postCount - 1);
     });
@@ -56,7 +57,7 @@ if (postCount > 0) {
 
     if (newestHashtags.length > 0) {
       test('sidebar renders a real hashtag from the newest post', async ({ page }) => {
-        await expect(page.getByText(`#${newestHashtags[0]}`).first()).toBeVisible();
+        await expect(page.getByTestId('hashtag-list').getByText(`#${newestHashtags[0]}`)).toBeVisible();
       });
 
       test('clicking a sidebar tag toggles the filter', async ({ page }) => {
@@ -64,7 +65,7 @@ if (postCount > 0) {
         await btn.click();
         await expect(btn).toHaveAttribute('aria-pressed', 'true');
         // The newest post carries this hashtag, so its row/featured stays visible.
-        await expect(page.locator('[data-post]').first()).toBeVisible();
+        await expect(page.locator('section[data-post]')).toBeVisible();
         await btn.click();
         await expect(btn).toHaveAttribute('aria-pressed', 'false');
       });
@@ -77,31 +78,39 @@ if (postCount > 0) {
       });
 
       test('pagination nav is visible with multiple pages', async ({ page }) => {
-        await expect(page.locator('[data-pagination]')).toBeVisible();
+        await expect(page.getByTestId('pagination-nav')).toBeVisible();
       });
 
       test('prev button is disabled on first page', async ({ page }) => {
-        await expect(page.locator('[data-page-prev]')).toBeDisabled();
+        await expect(page.getByRole('button', { name: 'Previous page' })).toBeDisabled();
+      });
+
+      test('next button is disabled on last page', async ({ page }) => {
+        const totalPages = Math.ceil((postCount - 1) / PAGE_SIZE);
+        for (let i = 1; i < totalPages; i++) {
+          await page.getByRole('button', { name: 'Next page' }).click();
+        }
+        await expect(page.getByRole('button', { name: 'Next page' })).toBeDisabled();
       });
 
       test('next page button advances to the second page', async ({ page }) => {
-        await page.locator('[data-page-next]').click();
+        await page.getByRole('button', { name: 'Next page' }).click();
         const visibleOnPage2 = page.locator('[data-testid="published-row"]:not([hidden])');
         const expectedPage2Count = Math.min(PAGE_SIZE, postCount - 1 - PAGE_SIZE);
         await expect(visibleOnPage2).toHaveCount(expectedPage2Count);
-        await expect(page.locator('[data-page-prev]')).toBeEnabled();
+        await expect(page.getByRole('button', { name: 'Previous page' })).toBeEnabled();
       });
 
       test('page number button marks the active page with aria-current', async ({ page }) => {
-        await expect(page.locator('[data-page-btn="0"]')).toHaveAttribute('aria-current', 'page');
-        await page.locator('[data-page-next]').click();
-        await expect(page.locator('[data-page-btn="1"]')).toHaveAttribute('aria-current', 'page');
-        await expect(page.locator('[data-page-btn="0"]')).not.toHaveAttribute('aria-current');
+        await expect(page.getByRole('button', { name: '1' })).toHaveAttribute('aria-current', 'page');
+        await page.getByRole('button', { name: 'Next page' }).click();
+        await expect(page.getByRole('button', { name: '2' })).toHaveAttribute('aria-current', 'page');
+        await expect(page.getByRole('button', { name: '1' })).not.toHaveAttribute('aria-current');
       });
 
       if (newestHashtags.length > 0) {
         test('activating a tag filter hides the pagination nav', async ({ page }) => {
-          const nav = page.locator('[data-pagination]');
+          const nav = page.getByTestId('pagination-nav');
           const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
           await btn.click();
           await expect(nav).toBeHidden();
@@ -129,7 +138,7 @@ if (postCount > 0) {
     });
 
     test('renders the markdown body as prose', async ({ page }) => {
-      await expect(page.locator('article.prose p').first()).toBeVisible();
+      await expect(page.getByTestId('post-body').locator('p').first()).toBeVisible();
     });
 
     test('rail links back to the index and offers copy-link', async ({ page }) => {
@@ -147,8 +156,8 @@ if (postCount > 0) {
 
     if (newestHashtags.length > 0) {
       test('"Filed under" lists the post hashtags', async ({ page }) => {
-        await expect(page.getByText('Filed under')).toBeVisible();
-        await expect(page.getByText(`#${newestHashtags[0]}`).first()).toBeVisible();
+        await expect(page.getByTestId('filed-under')).toBeVisible();
+        await expect(page.getByTestId('filed-under').getByText(`#${newestHashtags[0]}`)).toBeVisible();
       });
     }
   });
