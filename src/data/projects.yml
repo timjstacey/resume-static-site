@@ -1,6 +1,7 @@
-# Redesign metadata (pinned / stars / forks / lang / updatedAt) is static and
-# hand-maintained — no live GitHub API call at build time. Update by hand.
-# updatedAt is an ISO date (YYYY-MM-DD); the card derives the "2d ago" label.
+# Hand-authored project metadata (name / description / url / repo / tags /
+# status / pinned / lang). GitHub stats (stars / forks / updatedAt) are NOT
+# here — they live in the generated project-stats.json (refreshed nightly) and
+# are merged in by getProjects(). Edit those by running `pnpm projects:refresh`.
 - name: Resume Static Site
   description: Personal resume and job application tracker built with Astro, Tailwind, and Catppuccin.
   url: ''
@@ -9,9 +10,6 @@
   status: active
   pinned: true
   lang: Astro
-  stars: 3
-  forks: 0
-  updatedAt: '2026-05-29'
 
 - name: LinkedIn Post Generator
   description: Claude researches a topic weekly, writes a LinkedIn post, and opens a PR for review. Merge to publish.
@@ -21,9 +19,6 @@
   status: active
   pinned: true
   lang: TypeScript
-  stars: 5
-  forks: 1
-  updatedAt: '2026-05-24'
 
 - name: Funny Animal Videos
   description: Pulls funny animal clips from Reddit, stitches landscape videos into 10-minute compilations, and uploads portrait clips as YouTube Shorts.
@@ -33,9 +28,6 @@
   status: active
   pinned: false
   lang: Python
-  stars: 2
-  forks: 0
-  updatedAt: '2026-05-10'
 
 - name: Agent Sandbox
   description: Dockerized Claude Code sandbox. Runs Claude Code and dev tooling in an isolated container against bind-mounted host repos, with UID/GID matching so edited files stay owned by you.
@@ -45,6 +37,3 @@
   status: active
   pinned: false
   lang: Shell
-  stars: 0
-  forks: 0
-  updatedAt: '2026-05-27'

@@ -1,0 +1,43 @@
+name: Refresh project stats
+
+on:
+  schedule:
+    # 06:15 UTC daily — keeps src/data/project-stats.json from going stale.
+    - cron: '15 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    name: Regenerate project-stats.json
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Refresh project stats
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/refresh-project-stats.mjs
+
+      - name: Open PR on change
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: 'chore(projects): refresh project-stats.json'
+          title: 'chore(projects): refresh project-stats.json'
+          body: |
+            Nightly regeneration of `src/data/project-stats.json` from the live
+            GitHub repos API. Keeps the projects-grid stars / forks / updated
+            labels honest.
+
+            🤖 Generated with [Claude Code](https://claude.com/claude-code)
+          branch: chore/refresh-project-stats
+          delete-branch: true

@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { getResume, getProjects, getJobs, effectiveJobStatus, deriveSource, getTesting, getCiSnapshot } from './data';
-import type { Job } from './schemas';
+import {
+  getResume,
+  getProjects,
+  getJobs,
+  effectiveJobStatus,
+  deriveSource,
+  getTesting,
+  getCiSnapshot,
+  getProjectStats,
+  mergeProjectStats,
+} from './data';
+import type { Job, Project, ProjectStats } from './schemas';
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return { company: 'Acme', role: 'Engineer', applied: '2026-01-01', status: 'Applied', ...overrides };
@@ -126,5 +136,53 @@ describe('getCiSnapshot', () => {
     expect(typeof snap.branch).toBe('string');
     expect(typeof snap.passing).toBe('boolean');
     expect(Array.isArray(snap.runs)).toBe(true);
+  });
+});
+
+describe('getProjectStats', () => {
+  it('loads + validates project-stats.json', () => {
+    const stats = getProjectStats();
+    for (const s of Object.values(stats)) {
+      expect(Number.isInteger(s.stars)).toBe(true);
+      expect(Number.isInteger(s.forks)).toBe(true);
+      expect(s.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+  });
+});
+
+describe('mergeProjectStats', () => {
+  const base = (over: Partial<Project> = {}): Project => ({
+    name: 'P',
+    description: '',
+    tags: [],
+    status: 'active',
+    repo: 'https://github.com/x/y',
+    ...over,
+  });
+  const stats: ProjectStats = { 'https://github.com/x/y': { stars: 9, forks: 2, updatedAt: '2026-05-31' } };
+
+  it('merges stats onto a project whose repo matches', () => {
+    const p = mergeProjectStats([base()], stats)[0]!;
+    expect(p).toMatchObject({ stars: 9, forks: 2, updatedAt: '2026-05-31' });
+  });
+
+  it('leaves a project with a repo but no matching stats unchanged', () => {
+    const p = mergeProjectStats([base({ repo: 'https://github.com/a/b' })], stats)[0]!;
+    expect(p.stars).toBeUndefined();
+  });
+
+  it('leaves a project with no repo unchanged', () => {
+    const p = mergeProjectStats([base({ repo: undefined })], stats)[0]!;
+    expect(p.stars).toBeUndefined();
+  });
+
+  it('reflects the merge through getProjects', () => {
+    const projects = getProjects();
+    for (const p of projects) {
+      if (p.repo) {
+        expect(Number.isInteger(p.stars)).toBe(true);
+        expect(p.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      }
+    }
   });
 });

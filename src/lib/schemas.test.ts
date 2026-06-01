@@ -9,6 +9,7 @@ import {
   PostSchema,
   PostTagSchema,
   ProjectSchema,
+  ProjectStatsSchema,
   ProjectStatusSchema,
   ProjectsSchema,
   ResumeSchema,
@@ -144,6 +145,33 @@ describe('ProjectsSchema', () => {
 
   it('rejects an array with an invalid entry', () => {
     expect(() => ProjectsSchema.parse([validProject, { name: 'x' }])).toThrow();
+  });
+});
+
+describe('ProjectStatsSchema', () => {
+  const valid = {
+    'https://github.com/timjstacey/resume-static-site': { stars: 3, forks: 1, updatedAt: '2026-05-31' },
+  };
+
+  it('parses a repo → stats record', () => {
+    expect(() => ProjectStatsSchema.parse(valid)).not.toThrow();
+  });
+
+  it('parses an empty record', () => {
+    expect(() => ProjectStatsSchema.parse({})).not.toThrow();
+  });
+
+  it('coerces a YAML Date in updatedAt to YYYY-MM-DD', () => {
+    const parsed = ProjectStatsSchema.parse({ repo: { stars: 0, forks: 0, updatedAt: new Date('2026-05-27') } });
+    expect(parsed.repo!.updatedAt).toBe('2026-05-27');
+  });
+
+  it('rejects a non-integer star count', () => {
+    expect(() => ProjectStatsSchema.parse({ repo: { stars: 1.5, forks: 0, updatedAt: '2026-05-27' } })).toThrow();
+  });
+
+  it('rejects a missing field', () => {
+    expect(() => ProjectStatsSchema.parse({ repo: { stars: 1, forks: 0 } })).toThrow();
   });
 });
 

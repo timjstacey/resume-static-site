@@ -1,8 +1,15 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'yaml';
-import { CiSnapshotSchema, JobsSchema, ProjectsSchema, ResumeSchema, TestingSchema } from './schemas';
-import type { CiSnapshot, Job, JobSource, JobStatus, Project, Resume, Testing } from './schemas';
+import {
+  CiSnapshotSchema,
+  JobsSchema,
+  ProjectsSchema,
+  ProjectStatsSchema,
+  ResumeSchema,
+  TestingSchema,
+} from './schemas';
+import type { CiSnapshot, Job, JobSource, JobStatus, Project, ProjectStats, Resume, Testing } from './schemas';
 
 function dataPath(filename: string): string {
   return join(process.cwd(), 'src', 'data', filename);
@@ -16,8 +23,22 @@ export function getResume(): Resume {
   return ResumeSchema.parse(loadYaml('resume.yml'));
 }
 
+export function getProjectStats(): ProjectStats {
+  return ProjectStatsSchema.parse(JSON.parse(readFileSync(dataPath('project-stats.json'), 'utf-8')));
+}
+
+// Merge generated GitHub stats (keyed by repo URL) onto the hand-authored
+// projects. A project with no repo, or no matching stats entry, is left as-is.
+export function mergeProjectStats(projects: Project[], stats: ProjectStats): Project[] {
+  return projects.map((p) => {
+    const s = p.repo ? stats[p.repo] : undefined;
+    return s ? { ...p, stars: s.stars, forks: s.forks, updatedAt: s.updatedAt } : p;
+  });
+}
+
 export function getProjects(): Project[] {
-  return ProjectsSchema.parse(loadYaml('projects.yml'));
+  const projects = ProjectsSchema.parse(loadYaml('projects.yml'));
+  return mergeProjectStats(projects, getProjectStats());
 }
 
 const GHOST_AFTER_DAYS = 28;

@@ -39,19 +39,20 @@ pnpm dev   # http://localhost:4321
 
 ### Commands
 
-| Command              | What                                                                |
-| -------------------- | ------------------------------------------------------------------- |
-| `pnpm dev`           | Dev server at `localhost:4321` with HMR                             |
-| `pnpm build`         | Static output to `dist/`                                            |
-| `pnpm preview`       | Serve the built site locally                                        |
-| `pnpm typecheck`     | `astro check` across all `.astro` / `.ts` files                     |
-| `pnpm test`          | Vitest unit tests (`src/lib/*.test.ts`)                             |
-| `pnpm test:coverage` | Vitest unit tests + V8 coverage report (gate; thresholds in config) |
-| `pnpm test:e2e`      | Playwright E2E (auto-starts dev server, or reuses if running)       |
-| `pnpm lint`          | ESLint                                                              |
-| `pnpm lint:fix`      | ESLint with `--fix`                                                 |
-| `pnpm stats:refresh` | Regenerate `src/lib/testStats.ts` from current spec inventory       |
-| `pnpm ci:refresh`    | Regenerate `src/data/ci-snapshot.json` from the live Actions API    |
+| Command                 | What                                                                    |
+| ----------------------- | ----------------------------------------------------------------------- |
+| `pnpm dev`              | Dev server at `localhost:4321` with HMR                                 |
+| `pnpm build`            | Static output to `dist/`                                                |
+| `pnpm preview`          | Serve the built site locally                                            |
+| `pnpm typecheck`        | `astro check` across all `.astro` / `.ts` files                         |
+| `pnpm test`             | Vitest unit tests (`src/lib/*.test.ts`)                                 |
+| `pnpm test:coverage`    | Vitest unit tests + V8 coverage report (gate; thresholds in config)     |
+| `pnpm test:e2e`         | Playwright E2E (auto-starts dev server, or reuses if running)           |
+| `pnpm lint`             | ESLint                                                                  |
+| `pnpm lint:fix`         | ESLint with `--fix`                                                     |
+| `pnpm stats:refresh`    | Regenerate `src/lib/testStats.ts` from current spec inventory           |
+| `pnpm ci:refresh`       | Regenerate `src/data/ci-snapshot.json` from the live Actions API        |
+| `pnpm projects:refresh` | Regenerate `src/data/project-stats.json` from the live GitHub repos API |
 
 ## Project structure
 
@@ -89,13 +90,14 @@ Push to `main` and Cloudflare Pages builds + publishes to https://tim.sillysamoy
 
 GitHub Actions workflows:
 
-| Workflow                  | Trigger                    | Steps                                                                                                       |
-| ------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                  | PR → `main`                | `check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (coverage gate) → `pnpm typecheck` → `pnpm build` |
-| `playwright.yml`          | PR → `main`                | Wait for Cloudflare preview → run Playwright against the preview URL (all projects)                         |
-| `refresh-ci-snapshot.yml` | nightly cron               | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then open a PR                            |
-| `refresh-test-stats.yml`  | push → `main` (test files) | Regenerate `src/lib/testStats.ts` (the `/testing` counts) when specs change, commit back to `main`          |
-| `version-bump.yml`        | push → `main`              | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major)           |
+| Workflow                    | Trigger                    | Steps                                                                                                        |
+| --------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `ci.yml`                    | PR → `main`                | `check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (coverage gate) → `pnpm typecheck` → `pnpm build`  |
+| `playwright.yml`            | PR → `main`                | Wait for Cloudflare preview → run Playwright against the preview URL (all projects)                          |
+| `refresh-ci-snapshot.yml`   | nightly cron               | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then open a PR                             |
+| `refresh-project-stats.yml` | nightly cron               | Regenerate `src/data/project-stats.json` (repo stars/forks/updated) from the live GitHub API, then open a PR |
+| `refresh-test-stats.yml`    | push → `main` (test files) | Regenerate `src/lib/testStats.ts` (the `/testing` counts) when specs change, commit back to `main`           |
+| `version-bump.yml`          | push → `main`              | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major)            |
 
 ## Contributing
 
