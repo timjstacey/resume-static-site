@@ -2,6 +2,8 @@ import { test, expect } from '@playwright/test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parse } from 'yaml';
 
+const PAGE_SIZE = 10;
+
 // posts.ts imports `astro:content`, which only resolves inside the Astro
 // runtime — read the markdown sources directly instead.
 const POSTS_DIR = 'src/content/posts';
@@ -65,6 +67,48 @@ if (postCount > 0) {
         await expect(page.locator('[data-post]').first()).toBeVisible();
         await btn.click();
         await expect(btn).toHaveAttribute('aria-pressed', 'false');
+      });
+
+      test('activating a tag filter hides the pagination nav', async ({ page }) => {
+        // Only meaningful when the pagination nav is present.
+        const nav = page.locator('[data-pagination]');
+        const navExists = (await nav.count()) > 0;
+        if (!navExists) return;
+        const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
+        await btn.click();
+        await expect(nav).toBeHidden();
+        await btn.click();
+        await expect(nav).toBeVisible();
+      });
+    }
+
+    if (postCount > PAGE_SIZE + 1) {
+      test('shows only the first page of rows initially', async ({ page }) => {
+        const visible = page.locator('[data-testid="published-row"]:not([hidden])');
+        await expect(visible).toHaveCount(PAGE_SIZE);
+      });
+
+      test('pagination nav is visible with multiple pages', async ({ page }) => {
+        await expect(page.locator('[data-pagination]')).toBeVisible();
+      });
+
+      test('prev button is disabled on first page', async ({ page }) => {
+        await expect(page.locator('[data-page-prev]')).toBeDisabled();
+      });
+
+      test('next page button advances to the second page', async ({ page }) => {
+        await page.locator('[data-page-next]').click();
+        const visibleOnPage2 = page.locator('[data-testid="published-row"]:not([hidden])');
+        const expectedPage2Count = Math.min(PAGE_SIZE, postCount - 1 - PAGE_SIZE);
+        await expect(visibleOnPage2).toHaveCount(expectedPage2Count);
+        await expect(page.locator('[data-page-prev]')).toBeEnabled();
+      });
+
+      test('page number button marks the active page with aria-current', async ({ page }) => {
+        await expect(page.locator('[data-page-btn="0"]')).toHaveAttribute('aria-current', 'page');
+        await page.locator('[data-page-next]').click();
+        await expect(page.locator('[data-page-btn="1"]')).toHaveAttribute('aria-current', 'page');
+        await expect(page.locator('[data-page-btn="0"]')).not.toHaveAttribute('aria-current');
       });
     }
   });

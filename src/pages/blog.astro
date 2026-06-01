@@ -11,6 +11,9 @@ const posts = await getPosts();
 const featured = posts[0];
 const rest = posts.slice(1);
 
+const PAGE_SIZE = 10;
+const totalPages = Math.ceil(rest.length / PAGE_SIZE);
+
 const postLikes = posts.map((p) => ({ tag: p.data.tag, date: p.data.date }));
 const tags = hashtagCounts(posts.map((p) => ({ hashtags: p.data.hashtags })));
 const years = archive(postLikes);
@@ -151,7 +154,9 @@ const pad = (n: number) => String(n).padStart(3, '0');
               href={`/blog/${post.id}`}
               data-testid="published-row"
               data-post
+              data-page-idx={i}
               data-hashtags={post.data.hashtags.join(' ')}
+              hidden={i >= PAGE_SIZE || undefined}
               class="flex gap-3 border-b border-ctp-surface0 py-5 transition-colors hover:bg-ctp-mantle sm:grid sm:grid-cols-[60px_6px_1fr_auto] sm:items-center sm:gap-4"
             >
               <span class="hidden font-mono text-[13px] text-ctp-overlay1 sm:block">{pad(rest.length - i)}</span>
@@ -182,6 +187,43 @@ const pad = (n: number) => String(n).padStart(3, '0');
           ))
         }
       </div>
+      {
+        totalPages > 1 && (
+          <nav
+            aria-label="Published posts pagination"
+            data-pagination
+            class="flex items-center justify-center gap-1.5 border-t border-ctp-surface0 pt-6 font-mono text-[12px]"
+          >
+            <button
+              type="button"
+              data-page-prev
+              aria-label="Previous page"
+              disabled
+              class="rounded px-2.5 py-1 text-ctp-subtext1 transition-colors hover:bg-ctp-surface0 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ← prev
+            </button>
+            {Array.from({ length: totalPages }, (_, p) => (
+              <button
+                type="button"
+                data-page-btn={p}
+                aria-current={p === 0 ? 'page' : undefined}
+                class="rounded px-2.5 py-1 text-ctp-subtext1 transition-colors hover:bg-ctp-surface0"
+              >
+                {p + 1}
+              </button>
+            ))}
+            <button
+              type="button"
+              data-page-next
+              aria-label="Next page"
+              class="rounded px-2.5 py-1 text-ctp-subtext1 transition-colors hover:bg-ctp-surface0 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              next →
+            </button>
+          </nav>
+        )
+      }
     </div>
 
     <aside class="flex flex-col gap-8">
@@ -271,16 +313,22 @@ const pad = (n: number) => String(n).padStart(3, '0');
     }
   });
 
-  // Tag filter — click a sidebar tag to show only posts carrying that hashtag;
-  // click the active tag again to clear. Pure show/hide, no navigation.
+  // Unified tag filter + pagination — shared state, shared view transition.
   (() => {
-    const buttons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tag-filter]'));
-    if (buttons.length === 0) return;
-    const posts = Array.from(document.querySelectorAll<HTMLElement>('[data-post]'));
-    let active: string | null = null;
+    const PAGE_SIZE = 10;
 
-    // Subtle cross-fade on filter changes via the View Transitions API. Skips
-    // the animation when unsupported or when the user prefers reduced motion.
+    const allPosts = Array.from(document.querySelectorAll<HTMLElement>('[data-post]'));
+    const tagButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tag-filter]'));
+    const paginationNav = document.querySelector<HTMLElement>('[data-pagination]');
+    const prevBtn = document.querySelector<HTMLButtonElement>('[data-page-prev]');
+    const nextBtn = document.querySelector<HTMLButtonElement>('[data-page-next]');
+    const pageButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-page-btn]'));
+    const paginatedPosts = allPosts.filter((p) => p.hasAttribute('data-page-idx'));
+    const totalPages = Math.ceil(paginatedPosts.length / PAGE_SIZE);
+
+    let activeTag: string | null = null;
+    let currentPage = 0;
+
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const doc = document as Document & { startViewTransition?: (cb: () => void) => void };
     const withTransition = (fn: () => void) => {
@@ -289,21 +337,71 @@ const pad = (n: number) => String(n).padStart(3, '0');
     };
 
     const apply = () => {
-      for (const post of posts) {
-        const tags = (post.getAttribute('data-hashtags') ?? '').split(/\s+/).filter(Boolean);
-        post.hidden = active !== null && !tags.includes(active);
+      const filterActive = activeTag !== null;
+      const start = currentPage * PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+
+      for (const post of allPosts) {
+        const hashtags = (post.getAttribute('data-hashtags') ?? '').split(/\s+/).filter(Boolean);
+        const idx = post.getAttribute('data-page-idx');
+
+        if (filterActive) {
+          post.hidden = !hashtags.includes(activeTag!);
+        } else if (idx !== null) {
+          const i = Number(idx);
+          post.hidden = i < start || i >= end;
+        } else {
+          post.hidden = false;
+        }
       }
-      for (const btn of buttons) {
-        btn.setAttribute('aria-pressed', String(btn.dataset.tagFilter === active));
+
+      if (paginationNav) paginationNav.hidden = filterActive;
+      if (prevBtn) prevBtn.disabled = currentPage === 0;
+      if (nextBtn) nextBtn.disabled = currentPage === totalPages - 1;
+      for (const btn of pageButtons) {
+        const p = Number(btn.getAttribute('data-page-btn'));
+        if (p === currentPage) btn.setAttribute('aria-current', 'page');
+        else btn.removeAttribute('aria-current');
+      }
+
+      for (const btn of tagButtons) {
+        btn.setAttribute('aria-pressed', String(btn.dataset.tagFilter === activeTag));
       }
     };
 
-    for (const btn of buttons) {
+    for (const btn of tagButtons) {
       btn.addEventListener('click', () => {
-        active = active === btn.dataset.tagFilter ? null : (btn.dataset.tagFilter ?? null);
+        activeTag = activeTag === btn.dataset.tagFilter ? null : (btn.dataset.tagFilter ?? null);
+        currentPage = 0;
         withTransition(apply);
       });
     }
+
+    prevBtn?.addEventListener('click', () => {
+      if (currentPage > 0) {
+        currentPage--;
+        withTransition(apply);
+      }
+    });
+
+    nextBtn?.addEventListener('click', () => {
+      if (currentPage < totalPages - 1) {
+        currentPage++;
+        withTransition(apply);
+      }
+    });
+
+    for (const btn of pageButtons) {
+      btn.addEventListener('click', () => {
+        const p = Number(btn.getAttribute('data-page-btn'));
+        if (p !== currentPage) {
+          currentPage = p;
+          withTransition(apply);
+        }
+      });
+    }
+
+    apply();
   })();
 </script>
 
@@ -313,5 +411,10 @@ const pad = (n: number) => String(n).padStart(3, '0');
   }
   .tag-filter[aria-pressed='true'] span:nth-child(2) {
     color: var(--catppuccin-color-text);
+  }
+
+  [data-page-btn][aria-current='page'] {
+    background: var(--catppuccin-color-surface0);
+    color: var(--catppuccin-color-peach);
   }
 </style>
