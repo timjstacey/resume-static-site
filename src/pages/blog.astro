@@ -192,6 +192,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
           <nav
             aria-label="Published posts pagination"
             data-pagination
+            data-testid="pagination-nav"
             class="flex items-center justify-center gap-1.5 border-t border-ctp-surface0 pt-6 font-mono text-[12px]"
           >
             <button
@@ -231,7 +232,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
         <div class="mb-3 border-b border-ctp-surface0 pb-2 mono-caption text-ctp-overlay2">
           Tags · {tags.length}
         </div>
-        <div class="flex flex-col gap-1" data-tag-filters>
+        <div class="flex flex-col gap-1" data-tag-filters data-testid="hashtag-list">
           {
             tags.map((t) => (
               <button
