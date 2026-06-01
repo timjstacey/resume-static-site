@@ -143,11 +143,11 @@ const pad = (n: number) => String(n).padStart(3, '0');
   <!-- PUBLISHED + SIDEBAR -->
   <section class="grid gap-14 px-5 pt-18 sm:px-14 lg:grid-cols-[1fr_280px]">
     <div>
-      <div class="flex items-center justify-between border-b border-ctp-surface0 pb-3">
+      <div id="published" class="flex scroll-mt-20 items-center justify-between border-b border-ctp-surface0 pb-3">
         <SectionLabel>// published</SectionLabel>
         <span class="font-mono text-[11px] text-ctp-overlay1">{posts.length} posts · newest first</span>
       </div>
-      <div>
+      <div data-page-size={PAGE_SIZE}>
         {
           rest.map((post, i) => (
             <a
@@ -315,7 +315,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
 
   // Unified tag filter + pagination — shared state, shared view transition.
   (() => {
-    const PAGE_SIZE = 10;
+    const PAGE_SIZE = Number(document.querySelector<HTMLElement>('[data-page-size]')?.dataset.pageSize ?? '10');
 
     const allPosts = Array.from(document.querySelectorAll<HTMLElement>('[data-post]'));
     const tagButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-tag-filter]'));
@@ -335,6 +335,13 @@ const pad = (n: number) => String(n).padStart(3, '0');
       if (reduceMotion.matches || !doc.startViewTransition) fn();
       else doc.startViewTransition(fn);
     };
+
+    const publishedHeader = document.getElementById('published');
+    const scrollToList = () =>
+      publishedHeader?.scrollIntoView({
+        behavior: reduceMotion.matches ? 'instant' : 'smooth',
+        block: 'start',
+      });
 
     const apply = () => {
       const filterActive = activeTag !== null;
@@ -381,6 +388,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
       if (currentPage > 0) {
         currentPage--;
         withTransition(apply);
+        scrollToList();
       }
     });
 
@@ -388,6 +396,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
       if (currentPage < totalPages - 1) {
         currentPage++;
         withTransition(apply);
+        scrollToList();
       }
     });
 
@@ -397,11 +406,10 @@ const pad = (n: number) => String(n).padStart(3, '0');
         if (p !== currentPage) {
           currentPage = p;
           withTransition(apply);
+          scrollToList();
         }
       });
     }
-
-    apply();
   })();
 </script>
 
