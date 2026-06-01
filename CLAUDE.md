@@ -256,6 +256,7 @@ src/
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
     jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys — JIRA board logic
     blog.ts             # hashtagCounts() + archive() — blog sidebar aggregation
+    blogPagination.ts   # pageView()/pageCount()/inWindow() — /blog published-list paging math (unit-tested)
     toc.ts              # activeHeadingId() — post TOC scrollspy selection (unit-tested)
     feeds.ts            # pure RSS/Atom/JSON feed builders (unit-tested)
     feedSource.ts       # FEED_META + CollectionEntry→FeedPost mapper for the feed endpoints

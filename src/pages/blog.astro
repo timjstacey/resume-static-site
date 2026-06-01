@@ -6,13 +6,14 @@ import Chip from '../components/Chip.astro';
 import TerminalWindow from '../components/TerminalWindow.astro';
 import { getPosts } from '../lib/posts';
 import { hashtagCounts, archive } from '../lib/blog';
+import { pageCount } from '../lib/blogPagination';
 
 const posts = await getPosts();
 const featured = posts[0];
 const rest = posts.slice(1);
 
 const PAGE_SIZE = 10;
-const totalPages = Math.ceil(rest.length / PAGE_SIZE);
+const totalPages = pageCount(rest.length, PAGE_SIZE);
 
 const postLikes = posts.map((p) => ({ tag: p.data.tag, date: p.data.date }));
 const tags = hashtagCounts(posts.map((p) => ({ hashtags: p.data.hashtags })));
@@ -298,6 +299,8 @@ const pad = (n: number) => String(n).padStart(3, '0');
 </Base>
 
 <script>
+  import { inWindow, pageView } from '../lib/blogPagination';
+
   // Featured "copy link" — copies the post's absolute URL to the clipboard.
   document.querySelector('[data-copy-link]')?.addEventListener('click', async (e) => {
     const btn = e.currentTarget as HTMLElement;
@@ -314,7 +317,9 @@ const pad = (n: number) => String(n).padStart(3, '0');
     }
   });
 
-  // Unified tag filter + pagination — shared state, shared view transition.
+  // Unified tag filter + pagination — thin DOM glue over the pure view math in
+  // lib/blogPagination.ts (window bounds, nav/button state). State lives here;
+  // every derivation lives there.
   (() => {
     const PAGE_SIZE = Number(document.querySelector<HTMLElement>('[data-page-size]')?.dataset.pageSize ?? '10');
 
@@ -324,8 +329,7 @@ const pad = (n: number) => String(n).padStart(3, '0');
     const prevBtn = document.querySelector<HTMLButtonElement>('[data-page-prev]');
     const nextBtn = document.querySelector<HTMLButtonElement>('[data-page-next]');
     const pageButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-page-btn]'));
-    const paginatedPosts = allPosts.filter((p) => p.hasAttribute('data-page-idx'));
-    const totalPages = Math.ceil(paginatedPosts.length / PAGE_SIZE);
+    const total = allPosts.filter((p) => p.hasAttribute('data-page-idx')).length;
 
     let activeTag: string | null = null;
     let currentPage = 0;
@@ -346,26 +350,24 @@ const pad = (n: number) => String(n).padStart(3, '0');
 
     const apply = () => {
       const filterActive = activeTag !== null;
-      const start = currentPage * PAGE_SIZE;
-      const end = start + PAGE_SIZE;
+      const view = pageView({ total, pageSize: PAGE_SIZE, currentPage, filterActive });
+      currentPage = view.currentPage;
 
       for (const post of allPosts) {
-        const hashtags = (post.getAttribute('data-hashtags') ?? '').split(/\s+/).filter(Boolean);
         const idx = post.getAttribute('data-page-idx');
-
         if (filterActive) {
+          const hashtags = (post.getAttribute('data-hashtags') ?? '').split(/\s+/).filter(Boolean);
           post.hidden = !hashtags.includes(activeTag!);
         } else if (idx !== null) {
-          const i = Number(idx);
-          post.hidden = i < start || i >= end;
+          post.hidden = !inWindow(Number(idx), view);
         } else {
           post.hidden = false;
         }
       }
 
-      if (paginationNav) paginationNav.hidden = filterActive;
-      if (prevBtn) prevBtn.disabled = currentPage === 0;
-      if (nextBtn) nextBtn.disabled = currentPage === totalPages - 1;
+      if (paginationNav) paginationNav.hidden = !view.showNav;
+      if (prevBtn) prevBtn.disabled = view.prevDisabled;
+      if (nextBtn) nextBtn.disabled = view.nextDisabled;
       for (const btn of pageButtons) {
         const p = Number(btn.getAttribute('data-page-btn'));
         if (p === currentPage) btn.setAttribute('aria-current', 'page');
@@ -377,6 +379,13 @@ const pad = (n: number) => String(n).padStart(3, '0');
       }
     };
 
+    const goToPage = (p: number) => {
+      if (p === currentPage) return;
+      currentPage = p;
+      withTransition(apply);
+      scrollToList();
+    };
+
     for (const btn of tagButtons) {
       btn.addEventListener('click', () => {
         activeTag = activeTag === btn.dataset.tagFilter ? null : (btn.dataset.tagFilter ?? null);
@@ -385,31 +394,10 @@ const pad = (n: number) => String(n).padStart(3, '0');
       });
     }
 
-    prevBtn?.addEventListener('click', () => {
-      if (currentPage > 0) {
-        currentPage--;
-        withTransition(apply);
-        scrollToList();
-      }
-    });
-
-    nextBtn?.addEventListener('click', () => {
-      if (currentPage < totalPages - 1) {
-        currentPage++;
-        withTransition(apply);
-        scrollToList();
-      }
-    });
-
+    prevBtn?.addEventListener('click', () => goToPage(currentPage - 1));
+    nextBtn?.addEventListener('click', () => goToPage(currentPage + 1));
     for (const btn of pageButtons) {
-      btn.addEventListener('click', () => {
-        const p = Number(btn.getAttribute('data-page-btn'));
-        if (p !== currentPage) {
-          currentPage = p;
-          withTransition(apply);
-          scrollToList();
-        }
-      });
+      btn.addEventListener('click', () => goToPage(Number(btn.getAttribute('data-page-btn'))));
     }
   })();
 </script>
