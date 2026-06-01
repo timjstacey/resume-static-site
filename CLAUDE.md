@@ -422,6 +422,16 @@ Content rendering is identical across engines, so it runs once. Keyboard/focus b
 
 Node version is pinned via `.nvmrc` (currently `v24.13.0`); pnpm version is pinned via `packageManager` in `package.json` (`10.33.0`).
 
+## Analytics
+
+Cloudflare Web Analytics — privacy-first, cookieless, no consent banner. `Base.astro`
+injects the beacon **only when `CF_BEACON_TOKEN` is set at build time**, so local dev
+and the per-PR preview deploys (token unset) never report. Set the token on the
+Cloudflare Pages **Production** environment only (Manual-setup token from the Web
+Analytics dashboard; it's public, it ships in the page HTML). `.env.example` documents
+the variable. We use the manual beacon rather than Cloudflare's automatic injection,
+which is per-hostname and didn't cover the `tim.` subdomain.
+
 ## Verification Checklist
 
 - [ ] `pnpm dev` starts with no console errors

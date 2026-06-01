@@ -10,6 +10,12 @@ interface Props {
 }
 
 const { title, description = 'Tim Stacey — software engineer' } = Astro.props;
+
+// Cloudflare Web Analytics — privacy-first, cookieless, no consent banner. The
+// beacon only renders when CF_BEACON_TOKEN is set at build time, so local dev
+// and preview builds (token unset) never report. Set the token on the
+// Production environment only in the Cloudflare Pages project settings.
+const cfBeaconToken = import.meta.env.CF_BEACON_TOKEN;
 ---
 
 <!doctype html>
@@ -55,5 +61,15 @@ const { title, description = 'Tim Stacey — software engineer' } = Astro.props;
       <slot />
     </main>
     <Footer />
+    {
+      cfBeaconToken && (
+        <script
+          is:inline
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: cfBeaconToken })}
+        />
+      )
+    }
   </body>
 </html>
