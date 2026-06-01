@@ -68,16 +68,6 @@ if (postCount > 0) {
         await btn.click();
         await expect(btn).toHaveAttribute('aria-pressed', 'false');
       });
-
-      test('activating a tag filter hides the pagination nav', async ({ page }) => {
-        const nav = page.locator('[data-pagination]');
-        test.skip((await nav.count()) === 0, 'pagination nav absent — postCount ≤ PAGE_SIZE');
-        const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
-        await btn.click();
-        await expect(nav).toBeHidden();
-        await btn.click();
-        await expect(nav).toBeVisible();
-      });
     }
 
     if (postCount > PAGE_SIZE + 1) {
@@ -108,6 +98,17 @@ if (postCount > 0) {
         await expect(page.locator('[data-page-btn="1"]')).toHaveAttribute('aria-current', 'page');
         await expect(page.locator('[data-page-btn="0"]')).not.toHaveAttribute('aria-current');
       });
+
+      if (newestHashtags.length > 0) {
+        test('activating a tag filter hides the pagination nav', async ({ page }) => {
+          const nav = page.locator('[data-pagination]');
+          const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
+          await btn.click();
+          await expect(nav).toBeHidden();
+          await btn.click();
+          await expect(nav).toBeVisible();
+        });
+      }
     }
   });
 
