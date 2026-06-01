@@ -12,7 +12,7 @@ const ctpV = v('@catppuccin/tailwindcss');
 
 <footer class="mt-20 border-t border-ctp-surface0 bg-ctp-mantle">
   <div
-    class="mx-auto grid max-w-[1440px] grid-cols-2 gap-8 px-14 py-8 font-mono text-xs text-ctp-subtext0 md:grid-cols-4"
+    class="mx-auto grid max-w-[1440px] grid-cols-2 gap-8 px-6 py-8 font-mono text-xs text-ctp-subtext0 sm:px-14 md:grid-cols-4"
   >
     <div>
       <div class="mb-2 mono-caption text-ctp-overlay2">[ build ]</div>
@@ -31,7 +31,7 @@ const ctpV = v('@catppuccin/tailwindcss');
       <div class="text-ctp-text">{TEST_STATS.unit} unit · {TEST_STATS.e2e} e2e</div>
       <div>{TEST_STATS.engines} engines</div>
     </div>
-    <div class="text-right">
+    <div class="md:text-right">
       <div class="mb-2 mono-caption text-ctp-overlay2">[ © 2026 ]</div>
       <div class="text-ctp-text">tim stacey</div>
       <div>v{pkg.version}</div>
