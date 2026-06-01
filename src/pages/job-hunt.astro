@@ -42,13 +42,7 @@ const avatars: { label: string; accent: string }[] = [
         class="inline-flex h-[18px] w-[18px] items-center justify-center rounded-[3px] bg-ctp-peach text-[10px] font-bold text-ctp-crust"
         aria-hidden="true">JH</span
       >
-      <span>Projects</span>
-      <span aria-hidden="true">›</span>
-      <span class="text-ctp-subtext1">Job Hunt 2026</span>
-      <span aria-hidden="true">›</span>
-      <span>boards</span>
-      <span aria-hidden="true">›</span>
-      <span class="text-ctp-text">Active Pipeline</span>
+      <span>Spaces / Silly Samoyed</span>
     </nav>
 
     <!-- title row -->
@@ -56,12 +50,7 @@ const avatars: { label: string; accent: string }[] = [
       <div>
         <div class="mb-2 flex flex-wrap items-center gap-3">
           <span class="text-[18px] text-ctp-yellow" aria-hidden="true">★</span>
-          <h1 class="font-display text-[32px] font-bold tracking-[-0.02em] text-ctp-text">Active Pipeline</h1>
-          <span
-            class="rounded border border-ctp-surface1 bg-ctp-surface0 px-2.5 py-1 font-mono text-[11px] tracking-[0.04em] text-ctp-subtext0"
-          >
-            Sprint 4 · 12d remaining
-          </span>
+          <h1 class="font-display text-[32px] font-bold tracking-[-0.02em] text-ctp-text">Job Hunt</h1>
         </div>
         <div class="flex flex-wrap items-center gap-4 font-mono text-[12px] text-ctp-subtext0">
           <span>{total} issues</span>
@@ -75,19 +64,6 @@ const avatars: { label: string; accent: string }[] = [
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
-        <div class="mr-1 flex" aria-hidden="true">
-          {
-            avatars.map((a, i) => (
-              <span
-                class="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-ctp-crust font-display text-[11px] font-bold text-ctp-crust"
-                class:list={[i > 0 && '-ml-2']}
-                style={`background: var(--catppuccin-color-${a.accent})`}
-              >
-                {a.label}
-              </span>
-            ))
-          }
-        </div>
         <Button class="px-3.5 py-2 text-[13px]">Complete sprint</Button>
         <Button variant="ghost" class="px-3 py-2 text-[13px]">ⓘ Insights</Button>
         <Button variant="ghost" class="px-3 py-2 text-[13px]" aria-label="More board actions">⋯</Button>
@@ -108,6 +84,20 @@ const avatars: { label: string; accent: string }[] = [
           aria-label="Search this board"
         />
       </label>
+
+      <div class="mr-1 flex" aria-hidden="true">
+        {
+          avatars.map((a, i) => (
+            <span
+              class="inline-flex h-7 w-7 items-center justify-center rounded-full border-2 border-ctp-crust font-display text-[11px] font-bold text-ctp-crust"
+              class:list={[i > 0 && '-ml-2']}
+              style={`background: var(--catppuccin-color-${a.accent})`}
+            >
+              {a.label}
+            </span>
+          ))
+        }
+      </div>
 
       <div class="relative inline-flex">
         <select
