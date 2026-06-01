@@ -277,7 +277,7 @@ Open work is tracked at https://github.com/timjstacey/resume-static-site/issues.
 
 Branch off `main`. Name branches `type/issue#-slug`:
 
-- `type` is the Conventional Commit type — `feat | fix | chore | docs | refactor | test | ci | perf`.
+- `type` is the Conventional Commit type — `feat | fix | chore | docs | refactor | test | ci | perf`, plus `claude` for automated Claude Code routine PRs (the blog cross-post routine can only push `claude/`-prefixed branches).
 - `issue#` is the GitHub issue the work closes; **omit it** (giving `type/slug`) only when there is no issue.
 - `slug` is a short kebab-case summary.
 
@@ -285,6 +285,7 @@ Branch off `main`. Name branches `type/issue#-slug`:
 feat/68-ci-snapshot-refresh    # issue-linked
 fix/48-icon-colours            # issue-linked
 chore/add-mit-license          # no issue → type/slug
+claude/blog-some-post          # automated blog routine PR
 ```
 
 Commits follow [Conventional Commits](https://www.conventionalcommits.org) (`type(scope): subject`). This is not cosmetic: `version-bump.yml` derives the semver bump from the merged commit subjects — `feat`→minor, `fix`/`perf`→patch, `type!:` or a `BREAKING CHANGE` footer→major, anything else (`chore`/`docs`/`ci`/`test`/`refactor`)→no bump. Pick the type with the intended release impact in mind.
