@@ -46,15 +46,30 @@ export const ProjectSchema = z.object({
   repo: z.string().optional(),
   tags: z.array(z.string()),
   status: ProjectStatusSchema,
-  // Redesign metadata — static, hand-maintained (no live GitHub API).
+  // Hand-authored redesign metadata.
   pinned: z.boolean().optional(),
+  lang: z.string().optional(),
+  // GitHub stats — not in projects.yml; merged in from project-stats.json by
+  // getProjects() (keyed on `repo`). Optional so a repo-less project still parses.
   stars: z.number().int().optional(),
   forks: z.number().int().optional(),
-  lang: z.string().optional(),
   updatedAt: yamlDate.optional(),
 });
 
 export const ProjectsSchema = z.array(ProjectSchema);
+
+// --- Project stats (generated: src/data/project-stats.json, keyed by repo URL) ---
+// Live GitHub counts, refreshed nightly by scripts/refresh-project-stats.mjs —
+// do not hand-edit. Merged onto projects by getProjects().
+
+export const ProjectStatsSchema = z.record(
+  z.string(),
+  z.object({
+    stars: z.number().int(),
+    forks: z.number().int(),
+    updatedAt: yamlDate,
+  })
+);
 
 // --- Resume ---
 
@@ -160,6 +175,7 @@ export type JobSource = z.infer<typeof JobSourceSchema>;
 export type Job = z.infer<typeof JobSchema>;
 export type ProjectStatus = z.infer<typeof ProjectStatusSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
+export type ProjectStats = z.infer<typeof ProjectStatsSchema>;
 export type Resume = z.infer<typeof ResumeSchema>;
 export type PostTag = z.infer<typeof PostTagSchema>;
 export type PostFrontmatter = z.infer<typeof PostSchema>;
