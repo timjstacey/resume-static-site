@@ -82,10 +82,10 @@ const pad = (n: number) => String(n).padStart(3, '0');
     featured && (
       <section class="px-5 pt-14 sm:px-14" data-post data-hashtags={featured.data.hashtags.join(' ')}>
         <div
-          class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-8"
+          class="relative overflow-hidden rounded-lg border border-ctp-surface0 bg-ctp-mantle p-5 sm:p-8"
           style="background: radial-gradient(ellipse 700px 380px at 20% 30%, color-mix(in srgb, var(--catppuccin-color-peach) 8%, transparent), transparent 70%), var(--catppuccin-color-mantle)"
         >
-          <span class="absolute top-6 right-6 flex items-center gap-2 font-mono text-[11px] text-ctp-green">
+          <span class="mb-4 flex w-fit items-center gap-2 font-mono text-[11px] text-ctp-green sm:absolute sm:top-6 sm:right-6 sm:mb-0">
             <span class="h-2 w-2 rounded-full bg-ctp-green" />
             featured · latest
           </span>

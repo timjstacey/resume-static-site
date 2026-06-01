@@ -14,10 +14,14 @@ const topBorder = accent ? `border-top: 2px solid var(--catppuccin-color-${accen
 const valueStyle = accent ? `color: var(--catppuccin-color-${accent})` : undefined;
 ---
 
-<div class:list={[alt ? 'bg-ctp-mantle' : 'bg-ctp-crust', 'p-9', extra]} style={topBorder} data-stat-label={label}>
+<div
+  class:list={[alt ? 'bg-ctp-mantle' : 'bg-ctp-crust', 'p-6 sm:p-9', extra]}
+  style={topBorder}
+  data-stat-label={label}
+>
   {index && <div class="mono-caption text-ctp-overlay1">{index}_</div>}
   <div
-    class="mt-2 font-display text-[64px] leading-none font-bold tracking-[-0.03em] text-ctp-text"
+    class="mt-2 font-display text-5xl leading-none font-bold tracking-[-0.03em] text-ctp-text sm:text-[64px]"
     style={valueStyle}
     data-stat-value
   >

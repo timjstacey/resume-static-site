@@ -14,7 +14,7 @@ const filters = PROJECT_FILTERS;
 
 <Base title="Projects" description="Open-source and side projects by Tim Stacey">
   <!-- HEADER -->
-  <header class="border-b border-ctp-surface0 px-14 pt-14 pb-12">
+  <header class="border-b border-ctp-surface0 px-5 pt-14 pb-12 sm:px-14">
     <div class="grid items-end gap-10 md:grid-cols-[1.5fr_1fr]">
       <div>
         <SectionLabel>// projects.yml</SectionLabel>
@@ -41,7 +41,7 @@ const filters = PROJECT_FILTERS;
   </header>
 
   <!-- FILTER BAR -->
-  <div class="flex flex-wrap items-center justify-between gap-4 border-b border-ctp-surface0 px-14 py-8">
+  <div class="flex flex-wrap items-center justify-between gap-4 border-b border-ctp-surface0 px-5 py-8 sm:px-14">
     <div class="flex flex-wrap items-center gap-2">
       <span class="mr-1 mono-caption text-ctp-overlay2">filter:</span>
       {
@@ -66,7 +66,7 @@ const filters = PROJECT_FILTERS;
   </div>
 
   <!-- GRID -->
-  <section class="px-14 pt-8 pb-4">
+  <section class="px-5 pt-8 pb-4 sm:px-14">
     <div id="project-grid" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {projects.map((project) => <ProjectCard project={project} />)}
     </div>

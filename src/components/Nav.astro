@@ -12,7 +12,7 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
 <nav aria-label="Primary" class="border-b border-ctp-surface0 bg-ctp-mantle">
   <div class="mx-auto flex max-w-[1440px] items-stretch">
     <!-- Brand block -->
-    <a href="/" class="flex min-w-0 items-center gap-3.5 border-r border-ctp-surface0 px-5 py-5 md:w-[280px] md:px-7">
+    <a href="/" class="flex min-w-0 items-center gap-3.5 border-r border-ctp-surface0 px-5 py-5 lg:w-[280px] lg:px-7">
       <span
         class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] bg-ctp-peach font-display text-lg font-bold tracking-[-0.02em] text-ctp-crust"
       >
@@ -29,7 +29,7 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
     </a>
 
     <!-- Centre links: desktop -->
-    <div class="hidden flex-1 items-stretch md:flex">
+    <div class="hidden flex-1 items-stretch lg:flex">
       {
         links.map(({ href, label }) => {
           const isActive = isActivePath(href, currentPath);
@@ -54,14 +54,14 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
 
     <!-- Right block -->
     <div
-      class="ml-auto flex items-center gap-4 px-5 font-mono text-xs text-ctp-subtext0 md:ml-0 md:border-l md:border-ctp-surface0 md:px-7"
+      class="ml-auto flex items-center gap-4 px-5 font-mono text-xs text-ctp-subtext0 lg:ml-0 lg:border-l lg:border-ctp-surface0 lg:px-7"
     >
       <slot />
 
       <!-- Hamburger: mobile only -->
       <button
         id="nav-toggle"
-        class="flex items-center justify-center text-ctp-subtext0 hover:text-ctp-text md:hidden"
+        class="flex items-center justify-center text-ctp-subtext0 hover:text-ctp-text lg:hidden"
         aria-label="Toggle navigation"
         aria-expanded="false"
         aria-controls="nav-mobile"
@@ -93,7 +93,7 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
   </div>
 
   <!-- Mobile drawer -->
-  <div id="nav-mobile" class="hidden border-t border-ctp-surface0 md:hidden">
+  <div id="nav-mobile" class="hidden border-t border-ctp-surface0 lg:hidden">
     <ul class="flex flex-col px-5 py-2">
       {
         links.map(({ href, label }) => {

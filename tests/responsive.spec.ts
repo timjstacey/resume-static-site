@@ -50,3 +50,37 @@ test.describe('Responsive layout — mobile (375px)', () => {
     await expect(page.getByRole('heading', { name: 'Active Pipeline' })).toBeVisible();
   });
 });
+
+// Mobile S is the narrowest device tier we support; the px-14 page gutters and
+// big stat numbers overflowed here before responsive padding/sizing landed.
+test.describe('Responsive layout — Mobile S (320px)', () => {
+  test.use({ viewport: { width: 320, height: 658 } });
+
+  for (const path of allPages) {
+    test(`no horizontal overflow on ${path}`, async ({ page }) => {
+      await page.goto(path);
+      expect(await hasHorizontalScroll(page)).toBe(false);
+    });
+  }
+});
+
+// The desktop nav links overflowed before the collapse breakpoint, so the
+// hamburger must already be showing below the lg (1024px) breakpoint.
+test.describe('Nav collapse breakpoint', () => {
+  const toggleName = 'Toggle navigation';
+
+  test('hamburger is shown just below lg (1000px)', async ({ page }) => {
+    await page.setViewportSize({ width: 1000, height: 720 });
+    await page.goto('/');
+    await expect(page.getByRole('navigation').getByRole('button', { name: toggleName })).toBeVisible();
+  });
+
+  test('desktop links replace the hamburger at lg (1024px)', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 720 });
+    await page.goto('/');
+    const nav = page.getByRole('navigation');
+    await expect(nav.getByRole('button', { name: toggleName })).toBeHidden();
+    // Drawer + desktop copies both exist in the DOM; the visible one is the desktop row.
+    await expect(nav.getByRole('link', { name: 'Testing' }).locator('visible=true')).toBeVisible();
+  });
+});
