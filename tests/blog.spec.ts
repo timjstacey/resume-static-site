@@ -70,10 +70,8 @@ if (postCount > 0) {
       });
 
       test('activating a tag filter hides the pagination nav', async ({ page }) => {
-        // Only meaningful when the pagination nav is present.
         const nav = page.locator('[data-pagination]');
-        const navExists = (await nav.count()) > 0;
-        if (!navExists) return;
+        test.skip((await nav.count()) === 0, 'pagination nav absent — postCount ≤ PAGE_SIZE');
         const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
         await btn.click();
         await expect(nav).toBeHidden();
