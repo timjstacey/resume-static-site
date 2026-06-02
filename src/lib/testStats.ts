@@ -3,9 +3,9 @@
 export const TEST_STATS = {
   unit: 247,
   unitFiles: 20,
-  e2e: 212,
+  e2e: 213,
   e2eFiles: 11,
-  e2eNaive: 777,
+  e2eNaive: 784,
   projects: 7,
   engines: 3,
 } as const;

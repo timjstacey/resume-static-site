@@ -164,4 +164,16 @@ test.describe('Job Hunt board — read-only drag', () => {
     await expect(page.getByTestId('board-toast')).toHaveCount(1);
     await expect(page.getByTestId('board-toast')).toHaveAttribute('data-show', 'true');
   });
+
+  test('drag is disabled below the single-column breakpoint (<768px)', async ({ page }) => {
+    // matchMedia is live, so narrowing past the accordion breakpoint disarms drag.
+    await page.setViewportSize({ width: 760, height: 900 });
+    const card = page.locator('.column-body article[data-search]').first();
+    const fromCol = (await card.getAttribute('data-column'))!;
+    const target = page.locator(`[data-board-column]:not([data-board-column="${fromCol}"])`).first();
+
+    await dragCardToColumn(page, card, target);
+
+    await expect(page.getByTestId('board-toast')).not.toHaveAttribute('data-show', 'true');
+  });
 });
