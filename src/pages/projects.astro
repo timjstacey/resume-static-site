@@ -42,7 +42,16 @@ const filters = PROJECT_FILTERS;
 
   <!-- FILTER BAR -->
   <div class="flex flex-wrap items-center justify-between gap-4 border-b border-ctp-surface0 px-5 py-8 sm:px-14">
-    <div class="flex flex-wrap items-center gap-2">
+    <!-- Mobile: a single select keeps the row tidy and aligned with the sort control. -->
+    <select
+      data-filter-select
+      aria-label="Filter projects"
+      class="rounded border border-ctp-surface2 bg-ctp-base px-2.5 py-1 font-mono text-[12px] text-ctp-subtext0 sm:hidden"
+    >
+      {filters.map((f) => <option value={f}>{f}</option>)}
+    </select>
+    <!-- sm+: inline chip buttons. -->
+    <div class="hidden flex-wrap items-center gap-2 sm:flex">
       <span class="mr-1 mono-caption text-ctp-overlay2">filter:</span>
       {
         filters.map((f) => (
@@ -77,6 +86,7 @@ const filters = PROJECT_FILTERS;
 <script is:inline>
   (function () {
     const buttons = Array.from(document.querySelectorAll('[data-filter]'));
+    const select = document.querySelector('[data-filter-select]');
     const cards = Array.from(document.querySelectorAll('[data-project]'));
     const empty = document.getElementById('empty-state');
 
@@ -100,6 +110,7 @@ const filters = PROJECT_FILTERS;
         if (b.dataset.filter === filter) b.setAttribute('data-active', '');
         else b.removeAttribute('data-active');
       });
+      if (select && select.value !== filter) select.value = filter;
       if (empty) empty.classList.toggle('hidden', shown !== 0);
       const url = new URL(window.location.href);
       if (filter === 'all') url.searchParams.delete('tag');
@@ -114,6 +125,14 @@ const filters = PROJECT_FILTERS;
         });
       });
     });
+
+    if (select) {
+      select.addEventListener('change', function () {
+        withTransition(function () {
+          apply(select.value);
+        });
+      });
+    }
 
     const initial = new URL(window.location.href).searchParams.get('tag');
     apply(buttons.some((b) => b.dataset.filter === initial) ? initial : 'all');
