@@ -35,8 +35,9 @@ function updatedDays(p: Project): number {
 }
 
 function visibleNames(page: Page): Promise<string[]> {
+  // Visible cards by stable attribute + visibility, not the toggled `.hidden` class.
   return page
-    .locator('#project-grid [data-project]:not(.hidden)')
+    .locator('#project-grid [data-project]:visible')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label') ?? ''));
 }
 
@@ -47,7 +48,7 @@ test.describe('Projects page', () => {
 
   test('shows the terminal heading + repo count', async ({ page }) => {
     await expect(page.getByRole('heading', { name: /cat projects\.yml/ })).toBeVisible();
-    await expect(page.getByText(String(projects.length), { exact: true }).first()).toBeVisible();
+    await expect(page.getByTestId('stat-repos')).toHaveText(String(projects.length));
   });
 
   test('renders a card per project', async ({ page }) => {

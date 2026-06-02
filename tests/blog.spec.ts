@@ -47,7 +47,7 @@ if (postCount > 0) {
 
     test('published list shows a row per non-featured post', async ({ page }) => {
       // Counts all DOM rows including hidden pagination pages — tests completeness, not visibility.
-      const rows = page.locator('a[href^="/blog/"]').filter({ hasText: 'read →' });
+      const rows = page.getByTestId('published-row');
       await expect(rows).toHaveCount(postCount - 1);
     });
 
@@ -147,7 +147,9 @@ if (postCount > 0) {
     });
 
     test('renders an Expressive Code block in the article', async ({ page }) => {
-      await expect(page.locator('article pre').first()).toBeVisible();
+      // Expressive Code owns the <pre> output, so target it under the stable
+      // post-body testid rather than a bare tag selector.
+      await expect(page.getByTestId('post-body').locator('pre').first()).toBeVisible();
     });
 
     test('shows the on-this-page TOC', async ({ page }) => {

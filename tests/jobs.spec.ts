@@ -76,39 +76,41 @@ test.describe('Job Hunt board', () => {
     await expect(region.getByText('─ no issues ─')).toBeVisible();
   });
 
-  const shown = () => 'article[data-search]:not(.hidden)';
+  // Visible (not display:none) cards, by stable data attribute + visibility —
+  // no reaching through the toggled `.hidden` class.
+  const shown = () => 'article[data-search]:visible';
 
   test('search filters cards by role/company text', async ({ page }) => {
     const q = 'senior';
     const expected = jobs.filter((j) => `${j.role} ${j.company}`.toLowerCase().includes(q)).length;
-    await page.locator('#board-search').fill(q);
+    await page.getByRole('searchbox', { name: 'Search this board' }).fill(q);
     await expect(page.locator(shown())).toHaveCount(expected);
   });
 
   test('priority filter shows only matching cards', async ({ page }) => {
     const expected = jobs.filter((j) => priorityFor(j.role) === 'highest').length;
-    await page.locator('#filter-priority').selectOption('highest');
+    await page.getByRole('combobox', { name: 'Filter by priority' }).selectOption('highest');
     await expect(page.locator(shown())).toHaveCount(expected);
   });
 
   test('source filter shows only matching cards', async ({ page }) => {
     const source = jobs[0]!.source ?? 'Other';
     const expected = jobs.filter((j) => (j.source ?? 'Other') === source).length;
-    await page.locator('#filter-source').selectOption(source);
+    await page.getByRole('combobox', { name: 'Filter by source' }).selectOption(source);
     await expect(page.locator(shown())).toHaveCount(expected);
   });
 
   test('epic (company) filter shows only that company', async ({ page }) => {
     const company = jobs[0]!.company;
     const expected = jobs.filter((j) => j.company === company).length;
-    await page.locator('#filter-epic').selectOption(company);
+    await page.getByRole('combobox', { name: 'Filter by company' }).selectOption(company);
     await expect(page.locator(shown())).toHaveCount(expected);
   });
 
   test('clear resets all filters', async ({ page }) => {
-    await page.locator('#filter-priority').selectOption('highest');
+    await page.getByRole('combobox', { name: 'Filter by priority' }).selectOption('highest');
     await expect(page.locator(shown())).not.toHaveCount(jobs.length);
-    await page.locator('#filter-clear').click();
+    await page.getByRole('button', { name: '✕ clear' }).click();
     await expect(page.locator(shown())).toHaveCount(jobs.length);
   });
 });

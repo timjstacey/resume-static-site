@@ -85,8 +85,9 @@ test.describe('Resume page', () => {
   });
 
   test('bullet points render with peach arrow prefix', async ({ page }) => {
-    // At least one bullet with → prefix should be visible
-    const arrows = page.locator('li').filter({ hasText: '→' });
-    await expect(arrows.first()).toBeVisible();
+    // At least one experience bullet, carrying the → prefix, should be visible.
+    const bullet = page.getByTestId('resume-bullet').first();
+    await expect(bullet).toBeVisible();
+    await expect(bullet).toContainText('→');
   });
 });
