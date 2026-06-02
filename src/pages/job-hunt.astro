@@ -172,12 +172,33 @@ const avatars: { label: string; accent: string }[] = [
   >
     {
       STATUS_COLUMNS.map((col) => (
-        <div class="board-cell w-[280px] shrink-0 snap-start lg:w-auto lg:shrink">
+        <div class="board-cell w-[280px] shrink-0 snap-start lg:w-auto lg:shrink" data-board-column={col.id}>
           <JiraColumn label={col.label} accent={col.accent} jobs={byColumn.get(col.id) ?? []} />
         </div>
       ))
     }
   </section>
+
+  {
+    /* Read-only board: a drag is a wink, not a mutation. Dropping a card on
+      another column snaps it back and surfaces this JIRA-style permission flag
+      (bottom-left, one at a time). */
+  }
+  <div
+    data-board-toast
+    data-testid="board-toast"
+    role="status"
+    aria-live="polite"
+    class="pointer-events-none fixed bottom-6 left-6 z-[70] flex max-w-[340px] translate-y-3 items-start gap-3 rounded border border-ctp-surface1 bg-ctp-mantle p-3.5 opacity-0 shadow-lg transition-[opacity,transform] duration-200 ease-out data-[show]:translate-y-0 data-[show]:opacity-100"
+  >
+    <span
+      class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-ctp-red text-[12px] font-bold text-ctp-crust"
+      aria-hidden="true">!</span
+    >
+    <span class="font-mono text-[12.5px] leading-snug text-ctp-subtext1">
+      You do not have permission to perform this action, contact your site administrator.
+    </span>
+  </div>
 </Base>
 
 <style>
@@ -205,12 +226,22 @@ const avatars: { label: string; accent: string }[] = [
       transform: rotate(90deg);
     }
   }
+
+  /* Drag affordance — desktop, fine pointer only (mobile is the accordion).
+     The drag ghost itself is styled inline in JS (it's appended to <body>,
+     outside this component's style scope). */
+  @media (min-width: 1024px) and (pointer: fine) {
+    .column-body article {
+      cursor: grab;
+      touch-action: none;
+    }
+  }
 </style>
 
 <script>
-  // Board-filter predicate + "any filter active" rule live in lib/jobhunt.ts
-  // (unit-tested); this script is the DOM glue (inputs, card toggle, counts).
-  import { jobCardMatches, anyJobFilterActive } from '../lib/jobhunt';
+  // Board-filter predicate, "any filter active", and the read-only-drag rule
+  // live in lib/jobhunt.ts (unit-tested); this script is the DOM glue.
+  import { jobCardMatches, anyJobFilterActive, isIllegalMove } from '../lib/jobhunt';
 
   // Mobile accordion: collapse all but the first column, toggle on header tap.
   const mq = window.matchMedia('(max-width: 767px)');
@@ -306,4 +337,104 @@ const avatars: { label: string; accent: string }[] = [
     for (const s of [epicSel, prioSel, srcSel]) if (s) s.value = '';
     withTransition(applyFilters);
   });
+
+  // Read-only board drag (#90): cards lift on desktop, but any attempt to move
+  // one to another column snaps it back and flashes a single JIRA-style
+  // permission toast. No data changes — the board re-renders from jobs.yml.
+  // Desktop grid only (mobile/tablet is the accordion). Touch is excluded via
+  // the pointerType check below, so width alone is the right gate here.
+  const deskDrag = window.matchMedia('(min-width: 1024px)');
+  const toast = document.querySelector<HTMLElement>('[data-board-toast]');
+  let toastTimer: ReturnType<typeof setTimeout> | undefined;
+  function flashToast() {
+    if (!toast) return;
+    const t = toast; // one reused element — re-triggering resets it, never stacks
+    t.dataset.show = 'true';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      delete t.dataset.show;
+    }, 2600);
+  }
+
+  function columnUnder(x: number, y: number): string | null {
+    const el = document.elementFromPoint(x, y);
+    return el?.closest<HTMLElement>('[data-board-column]')?.dataset.boardColumn ?? null;
+  }
+
+  for (const card of cards) {
+    card.addEventListener('pointerdown', (e) => {
+      if (!deskDrag.matches || e.button !== 0 || e.pointerType === 'touch') return;
+      const from = card.dataset.column ?? '';
+      const rect = card.getBoundingClientRect();
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const offX = startX - rect.left;
+      const offY = startY - rect.top;
+      let ghost: HTMLElement | null = null;
+      const at = (x: number, y: number) => `translate(${Math.round(x - offX)}px, ${Math.round(y - offY)}px)`;
+
+      const onMove = (ev: PointerEvent) => {
+        if (!ghost) {
+          // Small threshold so a click/select isn't treated as a drag.
+          if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < 6) return;
+          ghost = card.cloneNode(true) as HTMLElement;
+          ghost.setAttribute('data-drag-ghost', '');
+          // Styles set inline (not via the scoped <style>) because the ghost is
+          // appended to <body>, outside this component's style scope. Crucially
+          // pointer-events:none keeps it out of elementFromPoint at drop time.
+          Object.assign(ghost.style, {
+            position: 'fixed',
+            left: '0',
+            top: '0',
+            margin: '0',
+            width: `${rect.width}px`,
+            zIndex: '60',
+            pointerEvents: 'none',
+            boxShadow: '0 12px 28px rgba(0, 0, 0, 0.45)',
+            opacity: '0.96',
+            transform: at(ev.clientX, ev.clientY),
+          });
+          document.body.appendChild(ghost);
+          card.style.opacity = '0.4';
+          document.body.style.cursor = 'grabbing';
+        } else {
+          ghost.style.transform = `${at(ev.clientX, ev.clientY)} rotate(2deg)`;
+        }
+      };
+
+      const finish = () => {
+        card.removeEventListener('pointermove', onMove);
+        card.removeEventListener('pointerup', onUp);
+        card.removeEventListener('pointercancel', onUp);
+        document.body.style.cursor = '';
+      };
+
+      const onUp = (ev: PointerEvent) => {
+        finish();
+        if (!ghost) return; // never crossed the threshold — it was a click
+        const g = ghost;
+        if (isIllegalMove(from, columnUnder(ev.clientX, ev.clientY))) flashToast();
+
+        const cleanup = () => {
+          g.remove();
+          card.style.opacity = '';
+        };
+        if (reduceMotion.matches) {
+          cleanup();
+        } else {
+          // Snap the clone back to the (unmoved) card, then drop it.
+          const back = card.getBoundingClientRect();
+          g.style.transition = 'transform 180ms ease-out';
+          g.style.transform = at(back.left + offX, back.top + offY);
+          g.addEventListener('transitionend', cleanup, { once: true });
+          setTimeout(cleanup, 280); // fallback if transitionend is missed
+        }
+      };
+
+      card.setPointerCapture(e.pointerId);
+      card.addEventListener('pointermove', onMove);
+      card.addEventListener('pointerup', onUp);
+      card.addEventListener('pointercancel', onUp);
+    });
+  }
 </script>
