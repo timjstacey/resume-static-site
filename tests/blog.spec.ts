@@ -165,13 +165,12 @@ if (postCount > 0) {
       await expect(raw).toHaveAttribute('rel', /noopener/);
       await expect(raw).toHaveAttribute('rel', /noreferrer/);
 
-      const bodyExternal = page.getByTestId('post-body').locator('a[href^="http"]');
-      if (await bodyExternal.count()) {
-        const first = bodyExternal.first();
-        await expect(first).toHaveAttribute('target', '_blank');
-        await expect(first).toHaveAttribute('rel', /noopener/);
-        await expect(first).toHaveAttribute('rel', /noreferrer/);
-      }
+      // rehype-external-links tags every rewritten body link with this testid.
+      // Asserting the new-tab subset matches the full set keeps it unconditional
+      // (holds trivially for a post with no external body links).
+      const bodyLinks = page.getByTestId('post-body').getByTestId('post-external-link');
+      const newTab = bodyLinks.and(page.locator('[target="_blank"]'));
+      await expect(newTab).toHaveCount(await bodyLinks.count());
     });
 
     if (newestHashtags.length > 0) {

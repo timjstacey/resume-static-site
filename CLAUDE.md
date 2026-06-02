@@ -359,8 +359,8 @@ pnpm typecheck     # astro check — full TS diagnostics across all .astro/.ts f
 pnpm test          # vitest run — unit tests (schemas, nav logic)
 pnpm test:coverage # vitest run --coverage — unit tests + V8 coverage gate (text/html/lcov)
 pnpm test:e2e      # playwright — E2E tests (requires dev server or auto-starts it)
-pnpm lint          # run ESLint
-pnpm lint:fix      # run ESLint with auto-fix
+pnpm lint          # run ESLint — fails on any warning (--max-warnings 0)
+pnpm lint:fix      # run ESLint with auto-fix (also --max-warnings 0)
 pnpm stats:refresh # regenerate src/lib/testStats.ts from current spec inventory
 pnpm ci:refresh    # regenerate src/data/ci-snapshot.json (CI strip + per-step gate durations) from the live Actions API
 pnpm projects:refresh # regenerate src/data/project-stats.json from the live GitHub repos API
@@ -370,10 +370,20 @@ pnpm projects:refresh # regenerate src/data/project-stats.json from the live Git
 
 Managed by husky.
 
-| Hook       | Runs            | What                                                                                                                                                 |
-| ---------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| pre-commit | on `git commit` | lint-staged: `eslint --fix` + `prettier --write` on staged `.astro`/`.ts`/`.tsx`; `prettier --write` on staged `.css`/`.json`/`.md`/`.yaml`/`.yml`   |
-| pre-push   | on `git push`   | Validates the branch name against `type/issue#-slug` (rejects the push otherwise; `main` exempt), then `pnpm typecheck` — blocks push on type errors |
+| Hook       | Runs            | What                                                                                                                                                                                                                                                 |
+| ---------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| pre-commit | on `git commit` | lint-staged: `eslint --fix --max-warnings 0` + `prettier --write` on staged `.astro`/`.ts`/`.tsx`; `prettier --write` on staged `.css`/`.json`/`.md`/`.yaml`/`.yml`. The `--max-warnings 0` blocks the commit if any warning remains after auto-fix. |
+| pre-push   | on `git push`   | Validates the branch name against `type/issue#-slug` (rejects the push otherwise; `main` exempt), then `pnpm typecheck` — blocks push on type errors                                                                                                 |
+
+## Linting
+
+**ESLint warnings are treated as errors.** `pnpm lint` runs with `--max-warnings 0`,
+so any warning fails the lint step — locally, on pre-commit (lint-staged auto-fixes
+what it can, then blocks the commit if a warning remains), and in CI (`ci.yml` runs
+`pnpm lint`). Fix every warning at the time you write the code; never commit one and
+never silence a rule wholesale. A scoped `// eslint-disable-next-line <rule> -- <reason>`
+is allowed only where the rule is genuinely wrong for that line, and must carry the
+`-- reason`.
 
 ## Testing
 

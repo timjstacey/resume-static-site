@@ -23,6 +23,9 @@ export default defineConfig({
           target: '_blank',
           rel: ['noopener', 'noreferrer'],
           protocols: ['http', 'https'],
+          // Tag rewritten body links so tests can target them by id instead of
+          // an attribute-soup selector.
+          properties: { 'data-testid': 'post-external-link' },
           content: {
             type: 'element',
             tagName: 'span',
