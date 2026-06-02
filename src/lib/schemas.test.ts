@@ -270,7 +270,7 @@ describe('PostTagSchema', () => {
 
 const validTesting = {
   routing: [{ project: 'content', device: 'Desktop Chrome', engine: 'chromium', specs: ['home'] }],
-  workflows: [{ file: 'ci.yml', accent: 'peach', on: 'pull_request', steps: [{ name: 'lint', duration: '12s' }] }],
+  workflows: [{ file: 'ci.yml', accent: 'peach', on: 'pull_request', steps: [{ name: 'lint', match: 'Lint' }] }],
 };
 
 describe('TestingSchema', () => {
@@ -283,7 +283,7 @@ describe('TestingSchema', () => {
     expect(() => TestingSchema.parse(bad)).toThrow();
   });
 
-  it('rejects a workflow step missing its duration', () => {
+  it('rejects a workflow step missing its match', () => {
     const bad = { ...validTesting, workflows: [{ ...validTesting.workflows[0], steps: [{ name: 'lint' }] }] };
     expect(() => TestingSchema.parse(bad)).toThrow();
   });
@@ -326,5 +326,15 @@ describe('CiSnapshotSchema', () => {
 
   it('rejects a non-boolean passing flag', () => {
     expect(() => CiSnapshotSchema.parse({ ...validSnapshot, passing: 'yes' })).toThrow();
+  });
+
+  it('accepts an optional gates map (workflow → step → duration)', () => {
+    const withGates = { ...validSnapshot, gates: { 'ci.yml': { Lint: '11s', Build: '24s' } } };
+    expect(() => CiSnapshotSchema.parse(withGates)).not.toThrow();
+  });
+
+  it('rejects a gates duration that is not a string', () => {
+    const bad = { ...validSnapshot, gates: { 'ci.yml': { Lint: 11 } } };
+    expect(() => CiSnapshotSchema.parse(bad)).toThrow();
   });
 });

@@ -136,8 +136,8 @@ const RoutingRowSchema = z.object({
 });
 
 const WorkflowStepSchema = z.object({
-  name: z.string().min(1),
-  duration: z.string().min(1),
+  name: z.string().min(1), // display label on the gate card
+  match: z.string().min(1), // GitHub Actions step name to read the real duration from (ci-snapshot `gates`)
 });
 
 const WorkflowSchema = z.object({
@@ -168,6 +168,11 @@ export const CiSnapshotSchema = z.object({
   p95: z.string(),
   p50Delta: z.string(),
   p95Delta: z.string(),
+  // Real per-step durations from the latest successful run of each workflow,
+  // keyed workflow file → GHA step name → formatted duration (e.g. "11s").
+  // Optional: an older snapshot (or a renamed step) degrades to a "—" on the
+  // gate card rather than breaking the build.
+  gates: z.record(z.string(), z.record(z.string(), z.string())).optional(),
 });
 
 export type JobStatus = z.infer<typeof JobStatusSchema>;

@@ -203,14 +203,21 @@ registers all four Catppuccin Shiki themes and emits a per-flavour CSS selector
 
 `src/data/testing.yml` holds the `/testing` page's routing matrix (one row per
 Playwright project: `project / device / engine / specs`) and CI gate pipelines
-(`file / accent / on / steps[]`). Keep in sync with `playwright.config.ts` and
-`.github/workflows/`.
+(`file / accent / on / steps[]`). Each step is `{ name, match }` — `name` is the
+card label, `match` is the **GitHub Actions step name** whose real duration is
+merged in from `ci-snapshot.json` `gates` (steps carry no hardcoded duration).
+Keep `match` in sync with the step names in `.github/workflows/*.yml`.
 
 `src/data/ci-snapshot.json` holds CI signals (`branch`, `passing`, `sha`,
-`commitMessage`, `commitAgo`, `lastDeployAgo`, `runs[]`, `p50`, `p95`, deltas).
-Regenerated from the live GitHub Actions API by `pnpm ci:refresh`
-(`scripts/refresh-ci-snapshot.mjs`), run nightly by the `refresh-ci-snapshot.yml`
-workflow which opens a PR with the bump — do not hand-edit or fake these.
+`commitMessage`, `commitAgo`, `lastDeployAgo`, `runs[]`, `p50`, `p95`, deltas)
+plus `gates` — real per-step durations from the latest successful run of each
+gate workflow, keyed `workflow file → GHA step name → duration`. The
+`/testing` gate cards resolve each `testing.yml` step's `match` against `gates`
+via `stepDuration()` (`src/lib/ciGates.ts`), falling back to "— no data" when a
+step has no measured timing. Regenerated from the live GitHub Actions API by
+`pnpm ci:refresh` (`scripts/refresh-ci-snapshot.mjs`), run nightly by the
+`refresh-ci-snapshot.yml` workflow which opens a PR with the bump — do not
+hand-edit or fake these.
 
 ## Component Architecture
 
@@ -254,7 +261,7 @@ src/
     projects.yml
     jobs.yml
     testing.yml         # /testing routing matrix + CI gate pipelines
-    ci-snapshot.json    # static CI signals (branch/sha/last-10-runs/p50/p95) — refresh nightly
+    ci-snapshot.json    # generated CI signals (branch/sha/last-10-runs/p50/p95 + per-step gate durations) — refresh nightly (pnpm ci:refresh)
     project-stats.json  # generated GitHub stars/forks/updatedAt per repo — refresh nightly (pnpm projects:refresh)
   lib/
     schemas.ts          # Zod schemas + inferred types for all data files
@@ -262,6 +269,7 @@ src/
     posts.ts            # getPosts() — blog content-collection loader (date-desc)
     nav.ts              # NAV_ITEMS + isActivePath() + trapFocusTarget() — mobile-drawer focus-trap math (unit-tested)
     links.ts            # isExternalUrl() — external-link detection for new-tab handling in Button (unit-tested)
+    ciGates.ts          # stepDuration() — resolve a /testing gate step's real duration from ci-snapshot `gates` (unit-tested)
     format.ts           # fmtYM() YYYY-MM → "Jan 2023"; daysAgo()/fmtRelative() ISO date → recency + "2d ago"
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
     jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys + jobCardMatches/anyJobFilterActive — board logic + filter predicate (unit-tested)
@@ -353,7 +361,7 @@ pnpm test:e2e      # playwright — E2E tests (requires dev server or auto-start
 pnpm lint          # run ESLint
 pnpm lint:fix      # run ESLint with auto-fix
 pnpm stats:refresh # regenerate src/lib/testStats.ts from current spec inventory
-pnpm ci:refresh    # regenerate src/data/ci-snapshot.json from the live Actions API
+pnpm ci:refresh    # regenerate src/data/ci-snapshot.json (CI strip + per-step gate durations) from the live Actions API
 pnpm projects:refresh # regenerate src/data/project-stats.json from the live GitHub repos API
 ```
 
@@ -413,7 +421,7 @@ GitHub Actions workflows live in `.github/workflows/`.
 | --------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ci.yml`                    | `pull_request` → `main`                                                                  | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (V8 coverage gate, thresholds in `vitest.config.ts`) → `pnpm typecheck` → `pnpm build`                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `playwright.yml`            | `pull_request` → `main` / manual                                                         | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead.                                                                                                                                                                                                                                                                                                                                                                                               |
-| `refresh-ci-snapshot.yml`   | nightly cron (`0 6 * * *`) / manual                                                      | Runs `pnpm ci:refresh` to regenerate `src/data/ci-snapshot.json` from the live Actions API, then opens a PR with the bump if it changed. Keeps the footer + `/testing` CI strip from going stale.                                                                                                                                                                                                                                                                                                                                                                                        |
+| `refresh-ci-snapshot.yml`   | nightly cron (`0 6 * * *`) / manual                                                      | Runs `pnpm ci:refresh` to regenerate `src/data/ci-snapshot.json` from the live Actions API (CI strip signals + real per-step `gates` durations for the `/testing` CI-gate cards), then opens a PR with the bump if it changed. Keeps the footer + `/testing` CI strip and gate timings from going stale.                                                                                                                                                                                                                                                                                 |
 | `refresh-project-stats.yml` | nightly cron (`15 6 * * *`) / manual                                                     | Runs `pnpm projects:refresh` to regenerate `src/data/project-stats.json` (stars/forks/updatedAt per repo) from the live GitHub repos API, then opens a PR if it changed. `version-bump.yml` ignores the file so the refresh never bumps the version.                                                                                                                                                                                                                                                                                                                                     |
 | `refresh-test-stats.yml`    | `push` → `main` (`paths: tests/**`, `**/*.test.ts`, `playwright.config.ts`) / manual     | Runs `pnpm stats:refresh` to regenerate `src/lib/testStats.ts` (the `/testing` unit/E2E counts) whenever specs change, then commits it back to `main` via `VERSION_BUMP_TOKEN` if it changed. The commit touches only `testStats.ts`, which matches neither this workflow's `paths` filter (no self-trigger) nor version-bump's `paths-ignore` (no bump no-op).                                                                                                                                                                                                                          |
 | `version-bump.yml`          | `push` → `main` (`paths-ignore: ci-snapshot.json`, `project-stats.json`, `testStats.ts`) | Reads the merged commits via Conventional Commits — `feat`→minor, `fix`/`perf`→patch, `feat!`/`BREAKING CHANGE`→major, anything else→no bump — then `npm version <level> --no-git-tag-version` and commits the bump back to `main`. The bump commit deliberately omits `[skip ci]` (Cloudflare Pages honors it, which would stop the footer version from ever deploying); its `chore(release)` subject re-runs this workflow once as a no-op rather than looping. The `paths-ignore` keeps the generated-file refreshes (ci-snapshot, project-stats, test stats) from triggering a bump. |

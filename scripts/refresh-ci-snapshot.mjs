@@ -15,6 +15,8 @@ const ROOT = path.resolve(fileURLToPath(import.meta.url), '../..');
 const OUT = path.join(ROOT, 'src', 'data', 'ci-snapshot.json');
 const WORKFLOW = 'ci.yml';
 const WINDOW = 10;
+// Workflows whose per-step durations feed the /testing CI-gate cards.
+const GATE_WORKFLOWS = ['ci.yml', 'playwright.yml'];
 
 const repo = process.env.GITHUB_REPOSITORY || sh('gh repo view --json nameWithOwner -q .nameWithOwner').trim();
 
@@ -64,6 +66,25 @@ function durationSecs(run) {
   return Math.max(0, (new Date(run.updated_at).getTime() - new Date(run.run_started_at).getTime()) / 1000);
 }
 
+// Per-step durations from the latest successful run of a workflow, keyed by the
+// GitHub Actions step name → formatted duration. testing.yml's `match` fields
+// point at these names. Setup steps are included too (harmless extra keys).
+function gatesFor(file) {
+  const res = ghJson(`repos/${repo}/actions/workflows/${file}/runs?status=success&per_page=1`);
+  const run = (res.workflow_runs ?? [])[0];
+  if (!run) return {};
+  const { jobs = [] } = ghJson(`repos/${repo}/actions/runs/${run.id}/jobs`);
+  const steps = {};
+  for (const job of jobs) {
+    for (const step of job.steps ?? []) {
+      if (step.conclusion !== 'success' || !step.started_at || !step.completed_at) continue;
+      const secs = Math.max(0, (new Date(step.completed_at).getTime() - new Date(step.started_at).getTime()) / 1000);
+      steps[step.name] = fmtDur(secs);
+    }
+  }
+  return steps;
+}
+
 // Most recent completed ci.yml runs, newest first.
 const all = ghJson(`repos/${repo}/actions/workflows/${WORKFLOW}/runs?status=completed&per_page=${WINDOW * 2}`);
 const runs = (all.workflow_runs ?? []).filter((r) => r.run_started_at && r.updated_at);
@@ -86,6 +107,9 @@ const prevP95 = prevDur.length ? percentile(prevDur, 95) : p95;
 // Latest commit on the default branch (drives sha/message/commitAgo).
 const head = ghJson(`repos/${repo}/commits/${latest.head_branch === 'main' ? latest.head_sha : 'main'}`);
 
+// Real per-step durations for the CI-gate cards on /testing.
+const gates = Object.fromEntries(GATE_WORKFLOWS.map((wf) => [wf, gatesFor(wf)]));
+
 const snapshot = {
   branch: 'main',
   passing: latest.conclusion === 'success',
@@ -98,6 +122,7 @@ const snapshot = {
   p95: fmtDur(p95),
   p50Delta: fmtDelta(p50 - prevP50),
   p95Delta: fmtDelta(p95 - prevP95),
+  gates,
 };
 
 writeFileSync(OUT, JSON.stringify(snapshot, null, 2) + '\n');
