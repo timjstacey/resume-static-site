@@ -4,7 +4,7 @@ routing:
   - project: content
     device: Desktop Chrome
     engine: chromium
-    specs: [home, jobs, projects, resume]
+    specs: [home, jobs, projects, resume, a11y]
   - project: a11y-chromium
     device: Desktop Chrome
     engine: chromium

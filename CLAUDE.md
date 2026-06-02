@@ -410,15 +410,15 @@ GitHub Actions workflows live in `.github/workflows/`.
 
 Playwright projects (see `playwright.config.ts`) route specs by `testMatch` so each spec runs only where it's meaningful:
 
-| Project                    | Device          | Specs                                |
-| -------------------------- | --------------- | ------------------------------------ |
-| `content`                  | Desktop Chrome  | `home`, `jobs`, `projects`, `resume` |
-| `a11y-chromium`            | Desktop Chrome  | `nav`, `theme-picker`                |
-| `a11y-firefox`             | Desktop Firefox | `nav`, `theme-picker`                |
-| `a11y-webkit`              | Desktop Safari  | `nav`, `theme-picker`                |
-| `responsive-mobile-chrome` | Pixel 5         | `responsive`                         |
-| `responsive-mobile-safari` | iPhone 13       | `responsive`                         |
-| `responsive-tablet-safari` | iPad Pro 11     | `responsive`                         |
+| Project                    | Device          | Specs                                        |
+| -------------------------- | --------------- | -------------------------------------------- |
+| `content`                  | Desktop Chrome  | `home`, `jobs`, `projects`, `resume`, `a11y` |
+| `a11y-chromium`            | Desktop Chrome  | `nav`, `theme-picker`                        |
+| `a11y-firefox`             | Desktop Firefox | `nav`, `theme-picker`                        |
+| `a11y-webkit`              | Desktop Safari  | `nav`, `theme-picker`                        |
+| `responsive-mobile-chrome` | Pixel 5         | `responsive`                                 |
+| `responsive-mobile-safari` | iPhone 13       | `responsive`                                 |
+| `responsive-tablet-safari` | iPad Pro 11     | `responsive`                                 |
 
 Content rendering is identical across engines, so it runs once. Keyboard/focus behaviour varies, so a11y specs run on all three engines. Viewport-dependent layout runs on mobile + tablet only. Locally `pnpm test:e2e` reuses an existing dev server or starts one; in CI `PLAYWRIGHT_BASE_URL` is injected and the auto-start `webServer` block is skipped.
 

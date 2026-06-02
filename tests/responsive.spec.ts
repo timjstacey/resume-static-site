@@ -49,6 +49,23 @@ test.describe('Responsive layout — mobile (375px)', () => {
     await page.goto('/job-hunt');
     await expect(page.getByRole('heading', { name: 'Active Pipeline' })).toBeVisible();
   });
+
+  // Mobile-only: each board column header becomes a keyboard-operable accordion
+  // toggle (role=button, aria-expanded, Enter/Space). a11y coverage for the
+  // wiring over lib/jobhunt; collapsed-by-default + the toggle live here.
+  test('board column accordion is keyboard-operable on mobile', async ({ page }) => {
+    await page.goto('/job-hunt');
+    // First column is expanded by default, the rest collapsed.
+    const screening = page.getByRole('button', { name: /Screening/ });
+    await expect(screening).toHaveAttribute('aria-expanded', 'false');
+
+    await screening.focus();
+    await page.keyboard.press('Enter');
+    await expect(screening).toHaveAttribute('aria-expanded', 'true');
+
+    await page.keyboard.press(' ');
+    await expect(screening).toHaveAttribute('aria-expanded', 'false');
+  });
 });
 
 // Mobile S is the narrowest device tier we support; the px-14 page gutters and

@@ -158,8 +158,10 @@ function padIndex(n: number) {
         }
       </aside>
 
-      <!-- ===== MAIN: EXPERIENCE ===== -->
-      <main>
+      <!-- ===== EXPERIENCE ===== -->
+      <!-- A labelled region, not a <main>: Base.astro already provides the page's
+           single main landmark, and nesting a second one is invalid. -->
+      <section aria-label="Experience">
         <SectionLabel>experience · 2015 — 2026</SectionLabel>
 
         <div class="mt-8 flex flex-col gap-5">
@@ -227,7 +229,7 @@ function padIndex(n: number) {
             })()
           }
         </div>
-      </main>
+      </section>
     </div>
   </div>
 </Base>
