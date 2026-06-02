@@ -42,14 +42,21 @@ const filters = PROJECT_FILTERS;
 
   <!-- FILTER BAR -->
   <div class="flex flex-wrap items-center justify-between gap-4 border-b border-ctp-surface0 px-5 py-8 sm:px-14">
-    <!-- Mobile: a single select keeps the row tidy and aligned with the sort control. -->
-    <select
-      data-filter-select
-      aria-label="Filter projects"
-      class="rounded border border-ctp-surface2 bg-ctp-base px-2.5 py-1 font-mono text-[12px] text-ctp-subtext0 sm:hidden"
-    >
-      {filters.map((f) => <option value={f}>{f}</option>)}
-    </select>
+    <!-- Mobile: a single select keeps the row tidy and aligned with the sort control.
+         Custom chevron (appearance-none + ▾ span) mirrors the job-hunt selects. -->
+    <div class="relative inline-flex sm:hidden">
+      <select
+        data-filter-select
+        aria-label="Filter projects"
+        class="cursor-pointer appearance-none rounded border border-ctp-surface2 bg-ctp-base py-1 pr-8 pl-2.5 font-mono text-[12px] text-ctp-subtext0 transition-colors hover:text-ctp-text"
+      >
+        {filters.map((f) => <option value={f}>{f}</option>)}
+      </select>
+      <span
+        class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[9px] text-ctp-overlay1"
+        aria-hidden="true">▾</span
+      >
+    </div>
     <!-- sm+: inline chip buttons. -->
     <div class="hidden flex-wrap items-center gap-2 sm:flex">
       <span class="mr-1 mono-caption text-ctp-overlay2">filter:</span>
