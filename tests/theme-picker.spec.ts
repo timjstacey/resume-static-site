@@ -43,6 +43,30 @@ test.describe('ThemePicker', () => {
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
   });
 
+  test('arrow keys rove focus across the menu items, wrapping at both ends', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: THEME_TRIGGER_LABEL }).click();
+
+    const optionName = (i: number) => `${FLAVORS[i]!.label} theme`;
+    // Opening focuses the checked item (mocha = last). Home jumps to the first.
+    await page.keyboard.press('Home');
+    await expect(page.getByRole('menuitemradio', { name: optionName(0) })).toBeFocused();
+
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('menuitemradio', { name: optionName(1) })).toBeFocused();
+
+    // ArrowUp from the first item wraps to the last.
+    await page.keyboard.press('Home');
+    await page.keyboard.press('ArrowUp');
+    await expect(page.getByRole('menuitemradio', { name: optionName(FLAVORS.length - 1) })).toBeFocused();
+
+    // End jumps to the last; ArrowDown from there wraps back to the first.
+    await page.keyboard.press('End');
+    await expect(page.getByRole('menuitemradio', { name: optionName(FLAVORS.length - 1) })).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('menuitemradio', { name: optionName(0) })).toBeFocused();
+  });
+
   test('viewport resize closes open dropdown', async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 800 });
     await page.goto('/');
