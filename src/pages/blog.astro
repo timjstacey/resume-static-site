@@ -91,7 +91,9 @@ const pad = (n: number) => String(n).padStart(3, '0');
                 <SectionLabel color={tagAccent(featured.data.tag)}>// post {pad(posts.length)}</SectionLabel>
                 <span class="flex shrink-0 items-center gap-2 font-mono text-[11px] text-ctp-green sm:absolute sm:top-6 sm:right-6">
                   <span class="h-2 w-2 rounded-full bg-ctp-green" />
-                  featured · latest
+                  <span>
+                    featured<span class="hidden sm:inline"> · latest</span>
+                  </span>
                 </span>
               </div>
               <h2 class="mt-5 font-display text-4xl leading-[1.02] font-bold tracking-[-0.03em] text-balance text-ctp-text md:text-[56px]">
