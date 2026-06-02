@@ -22,13 +22,17 @@ const engineColor = (e: string) => (e === 'chromium' ? 'yellow' : e === 'firefox
 const maxSpecs = Math.max(TEST_STATS.unit, TEST_STATS.e2e);
 // Routing saving: routed runs vs the naive "every spec on every project" total.
 const dedupPct = TEST_STATS.e2eNaive ? Math.round((1 - TEST_STATS.e2e / TEST_STATS.e2eNaive) * 100) : 0;
+
+// Real run durations from CI (same `gates` source as the gate cards): the
+// vitest layer = the coverage-gate test step, playwright = the E2E run step.
+// Null (old snapshot) → the layer just omits the duration suffix.
 const layers = [
   {
     name: 'vitest',
     accent: 'green',
     count: TEST_STATS.unit,
     caption: 'cheap checks',
-    dur: '0.3s',
+    dur: stepDuration(ci.gates, 'ci.yml', 'Test (with coverage gate)'),
     scope: ['schema validation', 'pure helpers', 'data loaders', 'nav + format logic'],
   },
   {
@@ -36,7 +40,7 @@ const layers = [
     accent: 'sapphire',
     count: TEST_STATS.e2e,
     caption: 'rendered surface',
-    dur: '6s',
+    dur: stepDuration(ci.gates, 'playwright.yml', 'Run pnpm exec playwright test'),
     scope: ['page content per route', 'keyboard + focus a11y', 'responsive layout', 'theme switching'],
   },
 ];
@@ -181,7 +185,8 @@ for (const job of jobs) {
                   {l.name} <span class="font-mono text-[12px] font-normal text-ctp-overlay1">· {l.caption}</span>
                 </span>
                 <span class="font-mono text-[12px] text-ctp-subtext0">
-                  {l.count} specs · {l.dur}
+                  {l.count} specs
+                  {l.dur && ` · ${l.dur}`}
                 </span>
               </div>
               <div class="mt-1.5 h-[18px] w-full rounded bg-ctp-surface0">
