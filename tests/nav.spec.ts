@@ -38,6 +38,18 @@ test.describe('Nav — mobile', () => {
     });
   }
 
+  // The brand block carries the right-hand separator; a fixed width keeps it
+  // from shifting as the breadcrumb changes length between routes (#122).
+  test('brand separator stays fixed across routes despite breadcrumb length', async ({ page }) => {
+    const brandWidth = async (path: string) => {
+      await page.goto(path);
+      const box = await page.getByTestId('nav-brand').boundingBox();
+      return box!.width;
+    };
+    // '/' → "~/" (shortest), '/job-hunt' → "~/job-hunt" (longest crumb).
+    expect(await brandWidth('/job-hunt')).toBe(await brandWidth('/'));
+  });
+
   test('hamburger opens drawer, shows all links, focuses first', async ({ page }) => {
     await page.goto('/');
     const nav = page.getByRole('navigation');
