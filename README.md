@@ -43,7 +43,7 @@ pnpm dev   # http://localhost:4321
 | ----------------------- | ----------------------------------------------------------------------- |
 | `pnpm dev`              | Dev server at `localhost:4321` with HMR                                 |
 | `pnpm build`            | Static output to `dist/`                                                |
-| `pnpm preview`          | Serve the built site locally                                            |
+| `pnpm preview`          | Serve the built site at `localhost:4322` (separate from dev's 4321)     |
 | `pnpm typecheck`        | `astro check` across all `.astro` / `.ts` files                         |
 | `pnpm test`             | Vitest unit tests (`src/lib/*.test.ts`)                                 |
 | `pnpm test:coverage`    | Vitest unit tests + V8 coverage report (gate; thresholds in config)     |

@@ -335,7 +335,7 @@ Never save screenshots to the repo root or any other directory.
 ```bash
 pnpm dev           # dev server at localhost:4321
 pnpm build         # static output → dist/
-pnpm preview       # preview built site locally
+pnpm preview       # preview built site at localhost:4322 (separate port so a stray preview never squats dev/e2e on 4321)
 pnpm typecheck     # astro check — full TS diagnostics across all .astro/.ts files
 pnpm test          # vitest run — unit tests (schemas, nav logic)
 pnpm test:coverage # vitest run --coverage — unit tests + V8 coverage gate (text/html/lcov)
@@ -421,6 +421,8 @@ Playwright projects (see `playwright.config.ts`) route specs by `testMatch` so e
 | `responsive-tablet-safari` | iPad Pro 11     | `responsive`                                 |
 
 Content rendering is identical across engines, so it runs once. Keyboard/focus behaviour varies, so a11y specs run on all three engines. Viewport-dependent layout runs on mobile + tablet only. Locally `pnpm test:e2e` reuses an existing dev server or starts one; in CI `PLAYWRIGHT_BASE_URL` is injected and the auto-start `webServer` block is skipped.
+
+> **Server hygiene (read before debugging "wrong" e2e results).** The local `webServer` block uses `reuseExistingServer: true`, so Playwright silently reuses **whatever** is already on `localhost:4321` — including a stale `astro dev` left over from a previous run or a manual background launch. A squatter started before your latest edits serves pre-change HTML, which shows up as bogus e2e failures (e.g. an attribute that "should" be there reading `null`). If results look wrong, kill stray servers first: `pkill -f astro.mjs` (or `pkill -f "astro dev"`), then re-run. `pnpm preview` runs on **4322** specifically so a forgotten preview can never squat the dev/e2e port. When you start a dev server yourself for screenshots etc., kill it when done.
 
 Node version is pinned via `.nvmrc` (currently `v24.13.0`); pnpm version is pinned via `packageManager` in `package.json` (`10.33.0`).
 
