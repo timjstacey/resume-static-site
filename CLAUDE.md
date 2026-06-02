@@ -6,17 +6,18 @@ Personal resume + job-application tracker. Static site hosted on Cloudflare Page
 
 ### Dependencies
 
-| Package                              | Version | Purpose                                      |
-| ------------------------------------ | ------- | -------------------------------------------- |
-| astro                                | 6.3.5   | Static site framework                        |
-| @astrojs/rss                         | 4.0.18  | RSS 2.0 feed generation (`/rss.xml`)         |
-| tailwindcss                          | 4.3.0   | Utility-first styling                        |
-| @tailwindcss/vite                    | 4.3.0   | Tailwind 4 Vite plugin (Astro integration)   |
-| @catppuccin/tailwindcss              | 1.0.0   | Catppuccin themes (all 4 flavours)           |
-| astro-expressive-code                | 0.42.0  | Code-block rendering (Shiki frames, themes)  |
-| @expressive-code/plugin-line-numbers | 0.42.0  | Optional gutter line numbers for code blocks |
-| zod                                  | 4.4.3   | Data schema validation                       |
-| yaml                                 | 2.9.0   | YAML parser for data file loading            |
+| Package                              | Version | Purpose                                                          |
+| ------------------------------------ | ------- | ---------------------------------------------------------------- |
+| astro                                | 6.3.5   | Static site framework                                            |
+| @astrojs/rss                         | 4.0.18  | RSS 2.0 feed generation (`/rss.xml`)                             |
+| tailwindcss                          | 4.3.0   | Utility-first styling                                            |
+| @tailwindcss/vite                    | 4.3.0   | Tailwind 4 Vite plugin (Astro integration)                       |
+| @catppuccin/tailwindcss              | 1.0.0   | Catppuccin themes (all 4 flavours)                               |
+| astro-expressive-code                | 0.42.0  | Code-block rendering (Shiki frames, themes)                      |
+| @expressive-code/plugin-line-numbers | 0.42.0  | Optional gutter line numbers for code blocks                     |
+| rehype-external-links                | 3.0.0   | New-tab + safe `rel` + ↗ marker on external links in post bodies |
+| zod                                  | 4.4.3   | Data schema validation                                           |
+| yaml                                 | 2.9.0   | YAML parser for data file loading                                |
 
 ### Dev Dependencies
 
@@ -184,6 +185,14 @@ blocks are owned by **Expressive Code** (do not restyle `<pre>`). Write the post
 code fence as its visual hero — there is no hero imagery. The on-this-page TOC is built
 from the collection entry's `getHeadings()` (`<h2>`s).
 
+External links in a post body are rewritten at build time by **`rehype-external-links`**
+(configured in `astro.config.mjs` under `markdown.rehypePlugins`): every absolute
+`http(s)` anchor gets `target="_blank" rel="noopener noreferrer"` plus a trailing `↗`
+marker (`span.external-arrow`, styled in `blog/[slug].astro`). So posts — including
+routine-generated ones — just author normal markdown links; the new-tab rule and icon
+are enforced by the build, not by the author. Component links use the same convention
+via `Button.astro` (auto-detects external `href` through `isExternalUrl()` in `lib/links.ts`).
+
 Expressive Code is configured in **`ec.config.mjs`** (repo root, not `astro.config.mjs` —
 the `<Code>` component rejects non-serializable options like `themeCssSelector`). It
 registers all four Catppuccin Shiki themes and emits a per-flavour CSS selector
@@ -252,6 +261,7 @@ src/
     data.ts             # getResume/getProjects/getJobs/getTesting/getCiSnapshot/getProjectStats loaders + mergeProjectStats
     posts.ts            # getPosts() — blog content-collection loader (date-desc)
     nav.ts              # NAV_ITEMS + isActivePath() + trapFocusTarget() — mobile-drawer focus-trap math (unit-tested)
+    links.ts            # isExternalUrl() — external-link detection for new-tab handling in Button (unit-tested)
     format.ts           # fmtYM() YYYY-MM → "Jan 2023"; daysAgo()/fmtRelative() ISO date → recency + "2d ago"
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
     jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys + jobCardMatches/anyJobFilterActive — board logic + filter predicate (unit-tested)

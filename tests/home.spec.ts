@@ -66,4 +66,17 @@ test.describe('Home page', () => {
     await expect(page.getByTestId('teaser-unit')).toHaveText(String(TEST_STATS.unit));
     await expect(page.getByTestId('teaser-e2e')).toHaveText(String(TEST_STATS.e2e));
   });
+
+  // Issue #124: external links (rendered via Button) open in a new tab with a
+  // safe rel; internal links stay in-tab.
+  test('external links open in a new tab, internal links do not', async ({ page }) => {
+    const external = page.locator('a[href^="https://"]').first();
+    await expect(external).toHaveAttribute('target', '_blank');
+    await expect(external).toHaveAttribute('rel', /noopener/);
+    await expect(external).toHaveAttribute('rel', /noreferrer/);
+
+    const internal = page.getByRole('link', { name: /cat resume\.tex/ });
+    await expect(internal).toHaveAttribute('href', '/resume');
+    await expect(internal).not.toHaveAttribute('target', '_blank');
+  });
 });

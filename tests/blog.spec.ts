@@ -156,6 +156,24 @@ if (postCount > 0) {
       await expect(page.locator('[data-toc]')).toBeVisible();
     });
 
+    // Issue #124: external links open in a new tab with a safe rel. The chrome
+    // "view raw .md" link is always external; body links are rewritten by
+    // rehype-external-links (asserted when the post body has any).
+    test('external links open in a new tab with a safe rel', async ({ page }) => {
+      const raw = page.getByRole('link', { name: /view raw \.md/ });
+      await expect(raw).toHaveAttribute('target', '_blank');
+      await expect(raw).toHaveAttribute('rel', /noopener/);
+      await expect(raw).toHaveAttribute('rel', /noreferrer/);
+
+      const bodyExternal = page.getByTestId('post-body').locator('a[href^="http"]');
+      if (await bodyExternal.count()) {
+        const first = bodyExternal.first();
+        await expect(first).toHaveAttribute('target', '_blank');
+        await expect(first).toHaveAttribute('rel', /noopener/);
+        await expect(first).toHaveAttribute('rel', /noreferrer/);
+      }
+    });
+
     if (newestHashtags.length > 0) {
       test('"Filed under" lists the post hashtags', async ({ page }) => {
         await expect(page.getByTestId('filed-under')).toBeVisible();

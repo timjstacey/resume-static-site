@@ -113,11 +113,15 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
           <div class="col-span-2 flex gap-2 sm:col-span-1 sm:flex-col">
             <a
               href="https://github.com/timjstacey"
+              target="_blank"
+              rel="noopener noreferrer"
               class="flex-1 rounded-lg border border-ctp-surface2 px-3 py-2 text-center font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0 sm:flex-none sm:text-left"
               >github ↗</a
             >
             <a
               href="https://www.linkedin.com/in/timjstacey"
+              target="_blank"
+              rel="noopener noreferrer"
               class="flex-1 rounded-lg border border-ctp-surface2 px-3 py-2 text-center font-mono text-[12px] text-ctp-text transition-colors hover:border-ctp-overlay0 sm:flex-none sm:text-left"
               >linkedin ↗</a
             >
@@ -217,12 +221,16 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
             </button>
             <a
               href={`https://x.com/intent/tweet?text=${encodeURIComponent(post.data.title)}`}
+              target="_blank"
+              rel="noopener noreferrer"
               class="flex items-center gap-3 rounded-lg border border-ctp-surface0 px-3 py-2 font-mono text-[12.5px] text-ctp-subtext1 transition-colors hover:border-ctp-surface1"
             >
               <span class="w-[18px] text-ctp-peach">✕</span> post on x
             </a>
             <a
               href={rawUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               class="flex items-center gap-3 rounded-lg border border-ctp-surface0 px-3 py-2 font-mono text-[12.5px] text-ctp-subtext1 transition-colors hover:border-ctp-surface1"
             >
               <span class="flex w-[18px] shrink-0 justify-center text-ctp-peach" aria-hidden="true">
@@ -385,6 +393,19 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
     color: var(--catppuccin-color-peach);
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+
+  /* ↗ marker appended to external links by rehype-external-links (issue #124):
+     small, raised, no underline, so it reads as an icon not part of the text.
+     inline-block stops the link's underline from propagating across the raised
+     glyph (which otherwise leaves a detached underline segment under it). */
+  .prose :global(a .external-arrow) {
+    display: inline-block;
+    margin-left: 0.15em;
+    font-size: 0.78em;
+    vertical-align: super;
+    text-decoration: none;
+    color: var(--catppuccin-color-overlay1);
   }
 
   .prose :global(ul) {
