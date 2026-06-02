@@ -227,10 +227,10 @@ const avatars: { label: string; accent: string }[] = [
     }
   }
 
-  /* Drag affordance — desktop, fine pointer only (mobile is the accordion).
-     The drag ghost itself is styled inline in JS (it's appended to <body>,
-     outside this component's style scope). */
-  @media (min-width: 1024px) and (pointer: fine) {
+  /* Drag affordance — wherever the board is multi-column (>=768px) on a fine
+     pointer; below that it's the single-column accordion. The drag ghost itself
+     is styled inline in JS (it's appended to <body>, outside this style scope). */
+  @media (min-width: 768px) and (pointer: fine) {
     .column-body article {
       cursor: grab;
       touch-action: none;
@@ -341,9 +341,10 @@ const avatars: { label: string; accent: string }[] = [
   // Read-only board drag (#90): cards lift on desktop, but any attempt to move
   // one to another column snaps it back and flashes a single JIRA-style
   // permission toast. No data changes — the board re-renders from jobs.yml.
-  // Desktop grid only (mobile/tablet is the accordion). Touch is excluded via
-  // the pointerType check below, so width alone is the right gate here.
-  const deskDrag = window.matchMedia('(min-width: 1024px)');
+  // Enabled wherever the board is multi-column (>=768px). Below that it
+  // collapses to a single-column accordion (max-width: 767px) and drag is off.
+  // Touch is excluded via the pointerType check below, so width is the gate.
+  const deskDrag = window.matchMedia('(min-width: 768px)');
   const toast = document.querySelector<HTMLElement>('[data-board-toast]');
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
   function flashToast() {
