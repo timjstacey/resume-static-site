@@ -29,6 +29,7 @@
     "@tailwindcss/vite": "4.3.0",
     "astro": "6.3.5",
     "astro-expressive-code": "^0.42.0",
+    "rehype-external-links": "^3.0.0",
     "tailwindcss": "4.3.0",
     "yaml": "^2.9.0",
     "zod": "4.4.3"

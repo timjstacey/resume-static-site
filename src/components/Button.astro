@@ -1,6 +1,8 @@
 ---
 // Primary (peach/crust) or ghost (outlined) button. Renders an <a> when href
 // is set, otherwise a <button>.
+import { isExternalUrl } from '../lib/links';
+
 interface Props {
   variant?: 'primary' | 'ghost';
   href?: string;
@@ -18,8 +20,12 @@ const styles = {
 };
 const cls = `${base} ${styles[variant]} ${extra}`;
 const Tag = href ? 'a' : 'button';
+
+// External links open in a new tab with a safe rel (issue #124). `...rest` is
+// spread last so an explicit target/rel on the call site still wins.
+const linkAttrs = isExternalUrl(href) ? { target: '_blank', rel: 'noopener noreferrer', ...rest } : rest;
 ---
 
-<Tag class={cls} href={href} type={href ? undefined : type} {...rest}>
+<Tag class={cls} href={href} type={href ? undefined : type} {...linkAttrs}>
   <slot />
 </Tag>
