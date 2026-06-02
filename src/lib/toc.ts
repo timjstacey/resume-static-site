@@ -40,3 +40,11 @@ export function activeHeadingId(headings: HeadingPos[], opts: ActiveOpts): strin
   }
   return current;
 }
+
+/**
+ * Whether a TOC pin (set by a heading click) has outlived its smooth-scroll
+ * settle window and should be dropped so the live scrollspy resumes.
+ */
+export function pinExpired(now: number, pinnedAt: number, pinWindow: number): boolean {
+  return now - pinnedAt > pinWindow;
+}

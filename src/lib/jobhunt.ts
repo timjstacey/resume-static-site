@@ -93,6 +93,39 @@ export const SOURCE_ACCENT: Record<string, CtpAccent> = {
   Other: 'overlay2',
 };
 
+// Board card's filterable fields (mirrors the card's data-* attributes).
+export interface JobCardData {
+  /** Lowercased haystack — role + company — for the search box. */
+  search: string;
+  company: string;
+  priority: string;
+  source: string;
+}
+
+// Active filter criteria from the board controls (empty string = unset).
+export interface JobFilterCriteria {
+  /** Lowercased search query. */
+  q: string;
+  epic: string;
+  prio: string;
+  source: string;
+}
+
+// A card is shown when it satisfies every active (non-empty) criterion.
+export function jobCardMatches(d: JobCardData, c: JobFilterCriteria): boolean {
+  return (
+    (!c.q || d.search.includes(c.q)) &&
+    (!c.epic || d.company === c.epic) &&
+    (!c.prio || d.priority === c.prio) &&
+    (!c.source || d.source === c.source)
+  );
+}
+
+// Whether any filter criterion is set (drives the "✕ clear" button visibility).
+export function anyJobFilterActive(c: JobFilterCriteria): boolean {
+  return Boolean(c.q || c.epic || c.prio || c.source);
+}
+
 // JIRA-style issue key. `n` is the application's chronological order (earliest = 1).
 export function jobKey(n: number): string {
   return `JOB-${n}`;

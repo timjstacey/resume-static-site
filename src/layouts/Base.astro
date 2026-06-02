@@ -21,6 +21,11 @@ const cfBeaconToken = import.meta.env.CF_BEACON_TOKEN;
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Anti-FOUC theme bootstrap. This MUST be a render-blocking inline script
+         (runs before first paint, in <head>), which cannot import a bundled
+         module — so the resolution rule is duplicated here from its unit-tested
+         source of truth, lib/themes.ts → resolveFlavor(stored, prefersLight).
+         Keep the two in sync. -->
     <script is:inline>
       (function () {
         const valid = ['latte', 'frappe', 'macchiato', 'mocha'];

@@ -251,18 +251,19 @@ src/
     schemas.ts          # Zod schemas + inferred types for all data files
     data.ts             # getResume/getProjects/getJobs/getTesting/getCiSnapshot/getProjectStats loaders + mergeProjectStats
     posts.ts            # getPosts() — blog content-collection loader (date-desc)
-    nav.ts              # NAV_ITEMS list + isActivePath() helper
+    nav.ts              # NAV_ITEMS + isActivePath() + trapFocusTarget() — mobile-drawer focus-trap math (unit-tested)
     format.ts           # fmtYM() YYYY-MM → "Jan 2023"; daysAgo()/fmtRelative() ISO date → recency + "2d ago"
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
-    jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys — JIRA board logic
+    jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys + jobCardMatches/anyJobFilterActive — board logic + filter predicate (unit-tested)
     blog.ts             # hashtagCounts() + archive() — blog sidebar aggregation
     blogPagination.ts   # pageView()/pageCount()/inWindow() — /blog published-list paging math (unit-tested)
-    toc.ts              # activeHeadingId() — post TOC scrollspy selection (unit-tested)
+    toc.ts              # activeHeadingId() + pinExpired() — post TOC scrollspy selection + pin-window timing (unit-tested)
     feeds.ts            # pure RSS/Atom/JSON feed builders (unit-tested)
     feedSource.ts       # FEED_META + CollectionEntry→FeedPost mapper for the feed endpoints
     langColors.ts       # LANG_COLORS — language brand dots for the projects grid
-    projectFilters.ts   # PROJECT_FILTERS — all + langs (derived from data) + pinned; shared by projects page + e2e spec
-    themes.ts           # FLAVORS list + THEME_TRIGGER_LABEL — shared by ThemePicker + tests
+    projectFilters.ts   # PROJECT_FILTERS — all + langs (derived from data) + pinned; shared by projects page + e2e spec (re-exports projectMatch)
+    projectMatch.ts     # projectMatchesFilter()/tagParam()/compareByUpdated() — pure projects grid filter/sort, data-free for the client bundle (unit-tested)
+    themes.ts           # FLAVORS/FLAVOR_IDS + THEME_TRIGGER_LABEL + resolveFlavor()/flavorFromClasses()/rovingIndex() — theme bootstrap + picker keyboard nav (unit-tested)
     projectStatus.ts    # PROJECT_STATUS_LABEL / _COLOUR maps — shared by ProjectCard + tests
     copy.ts             # Page heading strings shared between pages + tests
     testStats.ts        # Generated test counts surfaced on /testing — `pnpm stats:refresh` (auto-run on spec changes by refresh-test-stats.yml)

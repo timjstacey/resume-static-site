@@ -255,7 +255,7 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
 </Base>
 
 <script>
-  import { activeHeadingId } from '../../lib/toc';
+  import { activeHeadingId, pinExpired } from '../../lib/toc';
 
   // Active TOC item driven by which section heading is in view.
   const links = new Map<string, HTMLElement>();
@@ -289,7 +289,7 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
     const onScroll = () => {
       // A scroll once the click's settle window has passed is the reader moving
       // on — drop the pin so the live scrollspy resumes.
-      if (pinned !== null && performance.now() - pinnedAt > PIN_WINDOW) pinned = null;
+      if (pinned !== null && pinExpired(performance.now(), pinnedAt, PIN_WINDOW)) pinned = null;
       if (ticking) return;
       ticking = true;
       requestAnimationFrame(() => {

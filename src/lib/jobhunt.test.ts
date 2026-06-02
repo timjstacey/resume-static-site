@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { columnOf, epicColorFor, jobKey, priorityFor, SOURCE_ACCENT, withKeys } from './jobhunt';
+import {
+  columnOf,
+  epicColorFor,
+  jobKey,
+  priorityFor,
+  SOURCE_ACCENT,
+  withKeys,
+  jobCardMatches,
+  anyJobFilterActive,
+  type JobCardData,
+  type JobFilterCriteria,
+} from './jobhunt';
 import type { Job } from './schemas';
+
+const card: JobCardData = { search: 'senior engineer acme', company: 'Acme', priority: 'high', source: 'Seek' };
+const noFilter: JobFilterCriteria = { q: '', epic: '', prio: '', source: '' };
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return { company: 'Acme', role: 'Engineer', applied: '2026-01-01', status: 'Applied', ...overrides };
@@ -92,5 +106,46 @@ describe('SOURCE_ACCENT', () => {
     expect(SOURCE_ACCENT.Seek).toBe('peach');
     expect(SOURCE_ACCENT.LinkedIn).toBe('blue');
     expect(SOURCE_ACCENT.Jobgether).toBe('green');
+  });
+});
+
+describe('jobCardMatches', () => {
+  it('shows every card when no filter is set', () => {
+    expect(jobCardMatches(card, noFilter)).toBe(true);
+  });
+
+  it('matches the search query against the haystack (substring)', () => {
+    expect(jobCardMatches(card, { ...noFilter, q: 'senior' })).toBe(true);
+    expect(jobCardMatches(card, { ...noFilter, q: 'acme' })).toBe(true);
+    expect(jobCardMatches(card, { ...noFilter, q: 'manager' })).toBe(false);
+  });
+
+  it('matches epic/priority/source by exact equality', () => {
+    expect(jobCardMatches(card, { ...noFilter, epic: 'Acme' })).toBe(true);
+    expect(jobCardMatches(card, { ...noFilter, epic: 'Globex' })).toBe(false);
+    expect(jobCardMatches(card, { ...noFilter, prio: 'high' })).toBe(true);
+    expect(jobCardMatches(card, { ...noFilter, prio: 'low' })).toBe(false);
+    expect(jobCardMatches(card, { ...noFilter, source: 'Seek' })).toBe(true);
+    expect(jobCardMatches(card, { ...noFilter, source: 'LinkedIn' })).toBe(false);
+  });
+
+  it('ANDs all active criteria — one miss hides the card', () => {
+    expect(jobCardMatches(card, { q: 'senior', epic: 'Acme', prio: 'high', source: 'Seek' })).toBe(true);
+    expect(jobCardMatches(card, { q: 'senior', epic: 'Acme', prio: 'low', source: 'Seek' })).toBe(false);
+  });
+});
+
+describe('anyJobFilterActive', () => {
+  it('is false when nothing is set', () => {
+    expect(anyJobFilterActive(noFilter)).toBe(false);
+  });
+
+  it.each([
+    ['q', { ...noFilter, q: 'x' }],
+    ['epic', { ...noFilter, epic: 'Acme' }],
+    ['prio', { ...noFilter, prio: 'high' }],
+    ['source', { ...noFilter, source: 'Seek' }],
+  ] as const)('is true when %s is set', (_field, criteria) => {
+    expect(anyJobFilterActive(criteria)).toBe(true);
   });
 });
