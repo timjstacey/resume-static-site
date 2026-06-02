@@ -29,6 +29,7 @@ test-results/
 coverage/
 
 # editors
+.vscode/
 .idea/
 *.suo
 *.ntvs*
