@@ -408,12 +408,21 @@ default.
 - **Always invoke the `playwright-expert` skill when writing or editing
   Playwright tests.** It carries the Page Object Model, anti-flake, and selector
   conventions — load it before touching anything under `tests/`, not after.
-- **Prefer stable selector attributes over brittle selectors.** Add a
-  `data-testid` (or role/label) to the component so the spec targets it
-  directly, rather than reaching through CSS classes, `nth-child`, or text that
-  shifts. Changing the markup to make it testable is the right move, not a
-  workaround — a class-based or positional selector that breaks on an unrelated
-  style change is the thing to avoid.
+- **Selector hierarchy — `getByRole` first, `getByTestId` second, anything else
+  only with a reason.**
+  1. **`getByRole`** with an accessible name is the default. Give the element a
+     real role/name (heading, button, link, `region`/`navigation` with an
+     `aria-label`) so the spec asserts what the user perceives.
+  2. **`getByTestId`** when there's no meaningful role/name. Add the `data-testid`
+     to the component — changing markup to make it targetable is the right move.
+  3. **Everything else** (`getByText`, `getByLabel`, CSS `.locator()`) only when
+     justified, with a short `// reason` if it isn't obvious. `getByText` is fine
+     when the text comes from **known data/config** (asserting that data rendered);
+     it is **not** fine to hardcode a literal UI string when a role or id is
+     trivial to add. CSS `.locator()` is for genuinely structural checks — counting
+     a set by a contract `data-*` attr, asserting a class/attribute, scoping a tag
+     under a stable parent — never as a stand-in for a role/testid on a targetable
+     element. Never use `nth-child`, positional, or shifting-text selectors.
 - **Cover every Zod schema.** Each schema in `src/lib/schemas.ts` gets a case in
   `schemas.test.ts` — at least one valid parse and one rejected-invalid parse
   (bad enum value, missing required field, malformed date). Add or update the

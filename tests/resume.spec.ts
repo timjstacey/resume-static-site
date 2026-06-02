@@ -17,11 +17,11 @@ test.describe('Resume page', () => {
   });
 
   test('renders the // resume.tex section label', async ({ page }) => {
-    await expect(page.getByText('// resume.tex')).toBeVisible();
+    await expect(page.getByTestId('resume-kicker')).toHaveText('// resume.tex');
   });
 
-  test('renders the experience section label', async ({ page }) => {
-    await expect(page.getByText('experience · 2015 — 2026')).toBeVisible();
+  test('renders the experience section as a labelled region', async ({ page }) => {
+    await expect(page.getByRole('region', { name: 'Experience' })).toBeVisible();
   });
 
   test('renders the resume.pdf download button', async ({ page }) => {

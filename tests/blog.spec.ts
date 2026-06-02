@@ -36,7 +36,7 @@ if (postCount > 0) {
 
     test('featured post shows a terminal preview with the cat command', async ({ page }) => {
       await expect(page.getByTestId('terminal-path')).toContainText('.md');
-      await expect(page.getByText('featured · latest')).toBeVisible();
+      await expect(page.getByTestId('featured-badge')).toContainText('featured · latest');
     });
 
     test('featured post number matches the total post count', async ({ page }) => {
@@ -61,11 +61,11 @@ if (postCount > 0) {
       });
 
       test('clicking a sidebar tag toggles the filter', async ({ page }) => {
-        const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
+        const btn = page.getByRole('button', { name: `#${newestHashtags[0]}` });
         await btn.click();
         await expect(btn).toHaveAttribute('aria-pressed', 'true');
         // The newest post carries this hashtag, so its row/featured stays visible.
-        await expect(page.locator('section[data-post]')).toBeVisible();
+        await expect(page.getByTestId('featured-post')).toBeVisible();
         await btn.click();
         await expect(btn).toHaveAttribute('aria-pressed', 'false');
       });
@@ -111,7 +111,7 @@ if (postCount > 0) {
       if (newestHashtags.length > 0) {
         test('activating a tag filter hides the pagination nav', async ({ page }) => {
           const nav = page.getByTestId('pagination-nav');
-          const btn = page.locator(`[data-tag-filter="${newestHashtags[0]}"]`);
+          const btn = page.getByRole('button', { name: `#${newestHashtags[0]}` });
           await btn.click();
           await expect(nav).toBeHidden();
           await btn.click();
@@ -153,7 +153,7 @@ if (postCount > 0) {
     });
 
     test('shows the on-this-page TOC', async ({ page }) => {
-      await expect(page.locator('[data-toc]')).toBeVisible();
+      await expect(page.getByRole('navigation', { name: 'On this page' })).toBeVisible();
     });
 
     // Issue #124: external links open in a new tab with a safe rel. The chrome

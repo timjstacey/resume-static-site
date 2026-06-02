@@ -73,7 +73,7 @@ test.describe('Job Hunt board', () => {
     // eslint-disable-next-line playwright/no-skipped-test -- fixture-conditional skip
     test.skip(!emptyColumn, 'no empty column in fixture');
     const region = page.getByRole('region', { name: new RegExp(`^${columnLabel(emptyColumn!.id)} — 0 issues$`) });
-    await expect(region.getByText('─ no issues ─')).toBeVisible();
+    await expect(region.getByTestId('column-empty')).toBeVisible();
   });
 
   // Visible (not display:none) cards, by stable data attribute + visibility —

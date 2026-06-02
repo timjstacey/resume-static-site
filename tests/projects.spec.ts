@@ -53,13 +53,15 @@ test.describe('Projects page', () => {
 
   test('renders a card per project', async ({ page }) => {
     for (const project of projects) {
-      await expect(page.locator(`[aria-label="${project.name}"]`)).toBeVisible();
+      await expect(page.getByRole('article', { name: project.name, exact: true })).toBeVisible();
     }
   });
 
   test('pinned projects carry a PIN badge', async ({ page }) => {
     for (const project of pinned) {
-      await expect(page.locator(`[aria-label="${project.name}"]`).getByText('★ PIN')).toBeVisible();
+      await expect(
+        page.getByRole('article', { name: project.name, exact: true }).getByTestId('pin-badge')
+      ).toBeVisible();
     }
   });
 
@@ -72,12 +74,12 @@ test.describe('Projects page', () => {
     const expected = expectedNames(filter);
     expect(expected.length, `no fixture project matches filter "${filter}"`).toBeGreaterThan(0);
 
-    await page.locator(`[data-filter="${filter}"]`).click();
+    await page.getByRole('button', { name: filter }).click();
     // poll: the grid update runs inside a View Transition (async commit).
     await expect.poll(async () => (await visibleNames(page)).sort()).toEqual(expected);
     await expect(page).toHaveURL(urlFor(filter));
 
-    await page.locator('[data-filter="all"]').click();
+    await page.getByRole('button', { name: 'all' }).click();
     await expect.poll(async () => (await visibleNames(page)).length).toBe(projects.length);
     await expect(page).toHaveURL(urlFor('all'));
   });
@@ -85,11 +87,11 @@ test.describe('Projects page', () => {
   test('sort toggles project order by recency', async ({ page }) => {
     const byRecency = [...projects].sort((a, b) => updatedDays(a) - updatedDays(b)).map((p) => p.name);
 
-    await expect(page.locator('#sort-arrow')).toHaveText('↓');
+    await expect(page.getByTestId('sort-arrow')).toHaveText('↓');
     expect(await visibleNames(page)).toEqual(byRecency);
 
-    await page.locator('#sort-btn').click();
-    await expect(page.locator('#sort-arrow')).toHaveText('↑');
+    await page.getByRole('button', { name: 'sort: updated' }).click();
+    await expect(page.getByTestId('sort-arrow')).toHaveText('↑');
     // poll: the reorder runs inside a View Transition (async commit).
     await expect.poll(async () => await visibleNames(page)).toEqual([...byRecency].reverse());
   });
