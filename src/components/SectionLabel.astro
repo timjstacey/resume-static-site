@@ -3,11 +3,16 @@
 // rhythm of the design — every section opens with one.
 interface Props {
   color?: string; // Catppuccin accent key, e.g. 'peach' | 'teal' | 'sapphire'
+  testid?: string; // optional data-testid so specs can target a specific kicker
 }
-const { color = 'peach' } = Astro.props;
+const { color = 'peach', testid } = Astro.props;
 ---
 
-<div class="inline-flex items-center gap-2.5 mono-caption" style={`color: var(--catppuccin-color-${color})`}>
+<div
+  class="inline-flex items-center gap-2.5 mono-caption"
+  style={`color: var(--catppuccin-color-${color})`}
+  data-testid={testid}
+>
   <span class="h-px w-6" style={`background: var(--catppuccin-color-${color})`}></span>
   <slot />
 </div>

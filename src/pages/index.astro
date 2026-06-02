@@ -78,12 +78,17 @@ const meta = current
       <!-- availability.json -->
       <Card class="p-7">
         <div class="flex items-center justify-between">
-          <span class="mono-caption text-ctp-overlay2">availability.json</span>
+          <span class="mono-caption text-ctp-overlay2" data-testid="availability-label">availability.json</span>
           <span class="flex items-center gap-2 font-mono text-[11px] text-ctp-green">
             <span class="h-2 w-2 rounded-full bg-ctp-green shadow-[0_0_8px_var(--catppuccin-color-green)]"></span>OPEN
           </span>
         </div>
-        <div class="mt-6 font-display text-[56px] leading-none font-bold tracking-[-0.03em] text-ctp-peach">13 Jun</div>
+        <div
+          class="mt-6 font-display text-[56px] leading-none font-bold tracking-[-0.03em] text-ctp-peach"
+          data-testid="availability-date"
+        >
+          13 Jun
+        </div>
         <div class="mt-2 font-mono text-sm text-ctp-subtext1">2026 onward</div>
         <div class="my-6 border-t border-dashed border-ctp-surface1"></div>
         <dl class="grid grid-cols-2 gap-4 font-mono text-[12.5px]">

@@ -48,7 +48,10 @@ const updatedLabel = project.updatedAt ? fmtRelative(project.updatedAt) : '';
     </div>
     {
       project.pinned && (
-        <span class="shrink-0 rounded bg-ctp-peach px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-ctp-crust uppercase">
+        <span
+          data-testid="pin-badge"
+          class="shrink-0 rounded bg-ctp-peach px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide text-ctp-crust uppercase"
+        >
           ★ PIN
         </span>
       )

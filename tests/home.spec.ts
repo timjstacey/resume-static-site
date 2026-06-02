@@ -26,8 +26,8 @@ test.describe('Home page', () => {
 
   test('hero heading + availability card render', async ({ page }) => {
     await expect(page.getByRole('heading', { name: /Lead QE/ })).toBeVisible();
-    await expect(page.getByText('availability.json')).toBeVisible();
-    await expect(page.getByText('13 Jun', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('availability-label')).toHaveText('availability.json');
+    await expect(page.getByTestId('availability-date')).toHaveText('13 Jun');
   });
 
   test('stats strip shows derived counts from data', async ({ page }) => {
@@ -70,7 +70,7 @@ test.describe('Home page', () => {
   // Issue #124: external links (rendered via Button) open in a new tab with a
   // safe rel; internal links stay in-tab.
   test('external links open in a new tab, internal links do not', async ({ page }) => {
-    const external = page.locator('a[href^="https://"]').first();
+    const external = page.getByRole('link', { name: /github/i });
     await expect(external).toHaveAttribute('target', '_blank');
     await expect(external).toHaveAttribute('rel', /noopener/);
     await expect(external).toHaveAttribute('rel', /noreferrer/);
