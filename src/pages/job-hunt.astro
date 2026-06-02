@@ -208,6 +208,10 @@ const avatars: { label: string; accent: string }[] = [
 </style>
 
 <script>
+  // Board-filter predicate + "any filter active" rule live in lib/jobhunt.ts
+  // (unit-tested); this script is the DOM glue (inputs, card toggle, counts).
+  import { jobCardMatches, anyJobFilterActive } from '../lib/jobhunt';
+
   // Mobile accordion: collapse all but the first column, toggle on header tap.
   const mq = window.matchMedia('(max-width: 767px)');
   const columns = Array.from(document.querySelectorAll<HTMLElement>('.board-column'));
@@ -271,17 +275,18 @@ const avatars: { label: string; accent: string }[] = [
   };
 
   function applyFilters() {
-    const q = (search?.value ?? '').trim().toLowerCase();
-    const epic = epicSel?.value ?? '';
-    const prio = prioSel?.value ?? '';
-    const src = srcSel?.value ?? '';
+    const criteria = {
+      q: (search?.value ?? '').trim().toLowerCase(),
+      epic: epicSel?.value ?? '',
+      prio: prioSel?.value ?? '',
+      source: srcSel?.value ?? '',
+    };
     for (const card of cards) {
       const d = card.dataset;
-      const show =
-        (!q || (d.search ?? '').includes(q)) &&
-        (!epic || d.company === epic) &&
-        (!prio || d.priority === prio) &&
-        (!src || d.source === src);
+      const show = jobCardMatches(
+        { search: d.search ?? '', company: d.company ?? '', priority: d.priority ?? '', source: d.source ?? '' },
+        criteria
+      );
       card.classList.toggle('hidden', !show);
     }
     for (const col of boardCols) {
@@ -291,7 +296,7 @@ const avatars: { label: string; accent: string }[] = [
       const empty = col.querySelector<HTMLElement>('[data-empty]');
       if (empty) empty.hidden = visible > 0;
     }
-    if (clearBtn) clearBtn.hidden = !(q || epic || prio || src);
+    if (clearBtn) clearBtn.hidden = !anyJobFilterActive(criteria);
   }
 
   search?.addEventListener('input', applyFilters);

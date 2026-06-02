@@ -62,18 +62,24 @@ test.describe('Projects page', () => {
     }
   });
 
-  // One straight-line test per filter pill (no in-test conditionals).
-  for (const filter of PROJECT_FILTERS) {
-    test(`filter "${filter}" shows only matching projects + reflects in URL`, async ({ page }) => {
-      const expected = expectedNames(filter);
-      expect(expected.length, `no fixture project matches filter "${filter}"`).toBeGreaterThan(0);
+  // Integration: a chip click wires through to the real grid + URL. The
+  // per-filter predicate truth table is unit-tested in lib/projectMatch.test.ts
+  // (projectMatchesFilter), so this is one representative end-to-end check
+  // rather than a re-run of the matrix — plus the reset back to "all".
+  test('a chip filter hides non-matching cards and reflects in the URL', async ({ page }) => {
+    const filter = PROJECT_FILTERS.find((f) => f !== 'all' && f !== 'pinned') ?? 'pinned';
+    const expected = expectedNames(filter);
+    expect(expected.length, `no fixture project matches filter "${filter}"`).toBeGreaterThan(0);
 
-      await page.locator(`[data-filter="${filter}"]`).click();
-      // poll: the grid update runs inside a View Transition (async commit).
-      await expect.poll(async () => (await visibleNames(page)).sort()).toEqual(expected);
-      await expect(page).toHaveURL(urlFor(filter));
-    });
-  }
+    await page.locator(`[data-filter="${filter}"]`).click();
+    // poll: the grid update runs inside a View Transition (async commit).
+    await expect.poll(async () => (await visibleNames(page)).sort()).toEqual(expected);
+    await expect(page).toHaveURL(urlFor(filter));
+
+    await page.locator('[data-filter="all"]').click();
+    await expect.poll(async () => (await visibleNames(page)).length).toBe(projects.length);
+    await expect(page).toHaveURL(urlFor('all'));
+  });
 
   test('sort toggles project order by recency', async ({ page }) => {
     const byRecency = [...projects].sort((a, b) => updatedDays(a) - updatedDays(b)).map((p) => p.name);

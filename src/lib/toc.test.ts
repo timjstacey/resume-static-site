@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { activeHeadingId, type HeadingPos } from './toc';
+import { activeHeadingId, pinExpired, type HeadingPos } from './toc';
 
 const headings: HeadingPos[] = [
   { id: 'a', top: -200 },
@@ -50,5 +50,21 @@ describe('activeHeadingId', () => {
 
   it('falls through to the scroll position when nothing is pinned', () => {
     expect(activeHeadingId(headings, { offset: 100, atBottom: false, pinned: null })).toBe('b');
+  });
+});
+
+describe('pinExpired', () => {
+  const PIN_WINDOW = 800;
+
+  it('is not expired within the settle window', () => {
+    expect(pinExpired(500, 0, PIN_WINDOW)).toBe(false);
+  });
+
+  it('is not expired exactly on the boundary', () => {
+    expect(pinExpired(800, 0, PIN_WINDOW)).toBe(false);
+  });
+
+  it('is expired once past the window', () => {
+    expect(pinExpired(801, 0, PIN_WINDOW)).toBe(true);
   });
 });

@@ -122,46 +122,39 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
   </div>
 </nav>
 
-<script is:inline>
-  (function () {
-    const toggle = document.getElementById('nav-toggle');
-    const drawer = document.getElementById('nav-mobile');
-    const iconOpen = document.getElementById('nav-icon-open');
-    const iconClose = document.getElementById('nav-icon-close');
+<script>
+  // DOM glue for the mobile drawer. The pure focus-trap rule (which item Tab
+  // should land on) lives in lib/nav.ts (trapFocusTarget) and is unit-tested.
+  import { trapFocusTarget } from '../lib/nav';
 
-    if (!toggle || !drawer || !iconOpen || !iconClose) return;
+  const toggle = document.getElementById('nav-toggle');
+  const drawer = document.getElementById('nav-mobile');
+  const iconOpen = document.getElementById('nav-icon-open');
+  const iconClose = document.getElementById('nav-icon-close');
 
-    function isOpen() {
-      return !drawer.classList.contains('hidden');
-    }
+  if (toggle && drawer && iconOpen && iconClose) {
+    const isOpen = () => !drawer.classList.contains('hidden');
+    const focusables = () => Array.from(drawer.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'));
 
-    function focusables() {
-      return Array.from(drawer.querySelectorAll('a[href], button:not([disabled])'));
-    }
-
-    function openDrawer() {
+    const openDrawer = () => {
       drawer.classList.remove('hidden');
       toggle.setAttribute('aria-expanded', 'true');
       iconOpen.classList.add('hidden');
       iconClose.classList.remove('hidden');
-      const first = focusables()[0];
-      if (first) first.focus();
-    }
+      focusables()[0]?.focus();
+    };
 
-    function closeDrawer(opts) {
+    const closeDrawer = (opts?: { returnFocus?: boolean }) => {
       drawer.classList.add('hidden');
       toggle.setAttribute('aria-expanded', 'false');
       iconOpen.classList.remove('hidden');
       iconClose.classList.add('hidden');
-      if (opts && opts.returnFocus) toggle.focus();
-    }
+      if (opts?.returnFocus) toggle.focus();
+    };
 
-    toggle.addEventListener('click', function () {
-      if (isOpen()) closeDrawer();
-      else openDrawer();
-    });
+    toggle.addEventListener('click', () => (isOpen() ? closeDrawer() : openDrawer()));
 
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', (e) => {
       if (!isOpen()) return;
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -170,28 +163,20 @@ const crumb = trimmed === '' ? '~/' : `~${trimmed}`;
       }
       if (e.key === 'Tab') {
         const items = focusables();
-        if (items.length === 0) return;
-        const first = items[0];
-        const last = items[items.length - 1];
-        const active = document.activeElement;
-        if (e.shiftKey && active === first) {
+        const activeIndex = items.indexOf(document.activeElement as HTMLElement);
+        const target = trapFocusTarget(items.length, activeIndex, e.shiftKey);
+        if (target !== null) {
           e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && active === last) {
-          e.preventDefault();
-          first.focus();
-        } else if (!drawer.contains(active)) {
-          e.preventDefault();
-          first.focus();
+          items[target]!.focus();
         }
       }
     });
 
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', (e) => {
       if (!isOpen()) return;
-      const target = e.target;
+      const target = e.target as Node;
       if (drawer.contains(target) || toggle.contains(target)) return;
       closeDrawer();
     });
-  })();
+  }
 </script>

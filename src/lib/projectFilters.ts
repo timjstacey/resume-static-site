@@ -19,3 +19,7 @@ const langs = [
 export const PROJECT_FILTERS: readonly string[] = ['all', ...langs, 'pinned'];
 
 export type ProjectFilter = string;
+
+// The pure filter/sort rules live in ./projectMatch (no data.ts import) so the
+// browser bundle for projects.astro can use them without pulling in node:fs.
+export { projectMatchesFilter, tagParam, compareByUpdated } from './projectMatch';
