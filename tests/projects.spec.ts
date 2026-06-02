@@ -69,7 +69,8 @@ test.describe('Projects page', () => {
       expect(expected.length, `no fixture project matches filter "${filter}"`).toBeGreaterThan(0);
 
       await page.locator(`[data-filter="${filter}"]`).click();
-      expect((await visibleNames(page)).sort()).toEqual(expected);
+      // poll: the grid update runs inside a View Transition (async commit).
+      await expect.poll(async () => (await visibleNames(page)).sort()).toEqual(expected);
       await expect(page).toHaveURL(urlFor(filter));
     });
   }
@@ -82,7 +83,8 @@ test.describe('Projects page', () => {
 
     await page.locator('#sort-btn').click();
     await expect(page.locator('#sort-arrow')).toHaveText('↑');
-    expect(await visibleNames(page)).toEqual([...byRecency].reverse());
+    // poll: the reorder runs inside a View Transition (async commit).
+    await expect.poll(async () => await visibleNames(page)).toEqual([...byRecency].reverse());
   });
 });
 
