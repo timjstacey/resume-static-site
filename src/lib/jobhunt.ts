@@ -131,6 +131,13 @@ export function jobKey(n: number): string {
   return `JOB-${n}`;
 }
 
+// Whether a drag drop is an attempted cross-column move (the board is read-only,
+// so this is what triggers the "no permission" toast). A drop with no column
+// target, or back onto the card's own column, is not a move.
+export function isIllegalMove(from: string, to: string | null | undefined): boolean {
+  return !!to && to !== from;
+}
+
 // Assign chronological keys: earliest `applied` date = 1.
 export function withKeys(jobs: Job[]): (Job & { key: number })[] {
   const ordered = [...jobs].sort((a, b) => a.applied.localeCompare(b.applied));

@@ -8,6 +8,7 @@ import {
   withKeys,
   jobCardMatches,
   anyJobFilterActive,
+  isIllegalMove,
   type JobCardData,
   type JobFilterCriteria,
 } from './jobhunt';
@@ -132,6 +133,23 @@ describe('jobCardMatches', () => {
   it('ANDs all active criteria — one miss hides the card', () => {
     expect(jobCardMatches(card, { q: 'senior', epic: 'Acme', prio: 'high', source: 'Seek' })).toBe(true);
     expect(jobCardMatches(card, { q: 'senior', epic: 'Acme', prio: 'low', source: 'Seek' })).toBe(false);
+  });
+});
+
+describe('isIllegalMove', () => {
+  it('is a move when dropped on a different column', () => {
+    expect(isIllegalMove('applied', 'screening')).toBe(true);
+    expect(isIllegalMove('closed', 'offered')).toBe(true);
+  });
+
+  it('is not a move when dropped back on its own column', () => {
+    expect(isIllegalMove('applied', 'applied')).toBe(false);
+  });
+
+  it('is not a move when there is no column target', () => {
+    expect(isIllegalMove('applied', null)).toBe(false);
+    expect(isIllegalMove('applied', undefined)).toBe(false);
+    expect(isIllegalMove('applied', '')).toBe(false);
   });
 });
 

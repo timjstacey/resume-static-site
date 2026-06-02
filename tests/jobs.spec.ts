@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page, type Locator } from '@playwright/test';
 import { getJobs } from '../src/lib/data';
 import { withKeys, columnOf, STATUS_COLUMNS, priorityFor } from '../src/lib/jobhunt';
 
@@ -112,5 +112,56 @@ test.describe('Job Hunt board', () => {
     await expect(page.locator(shown())).not.toHaveCount(jobs.length);
     await page.getByRole('button', { name: '✕ clear' }).click();
     await expect(page.locator(shown())).toHaveCount(jobs.length);
+  });
+});
+
+// Read-only board (#90): cards drag on desktop but never actually move — a
+// cross-column drop snaps back and shows a single permission toast. The drag
+// rule (isIllegalMove) is unit-tested in lib/jobhunt; this is the one
+// integration check that the pointer wiring fires it. Runs on the content
+// project (Desktop Chrome → min-width 1024 + fine pointer, where drag is armed).
+test.describe('Job Hunt board — read-only drag', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/job-hunt');
+  });
+
+  // Drag the card from cardBox centre into the centre-top of a target column.
+  async function dragCardToColumn(page: Page, card: Locator, targetColumn: Locator) {
+    const c = (await card.boundingBox())!;
+    const t = (await targetColumn.boundingBox())!;
+    await page.mouse.move(c.x + c.width / 2, c.y + c.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(t.x + t.width / 2, t.y + 40, { steps: 12 });
+    await page.mouse.up();
+  }
+
+  test('a cross-column drop is blocked with a permission toast, card stays put', async ({ page }) => {
+    const toast = page.getByTestId('board-toast');
+    await expect(toast).toHaveCount(1);
+    await expect(toast).not.toHaveAttribute('data-show', 'true');
+
+    const card = page.locator('.column-body article[data-search]').first();
+    await expect(card).toBeVisible();
+    const fromCol = (await card.getAttribute('data-column'))!;
+    const target = page.locator(`[data-board-column]:not([data-board-column="${fromCol}"])`).first();
+
+    await dragCardToColumn(page, card, target);
+
+    await expect(toast).toHaveAttribute('data-show', 'true');
+    // The card never left its origin column — the board re-renders from jobs.yml.
+    const stillIn = await card.evaluate((el) => el.closest('[data-board-column]')?.getAttribute('data-board-column'));
+    expect(stillIn).toBe(fromCol);
+  });
+
+  test('repeated illegal drops keep a single toast (no stacking)', async ({ page }) => {
+    const card = page.locator('.column-body article[data-search]').first();
+    const fromCol = (await card.getAttribute('data-column'))!;
+    const target = page.locator(`[data-board-column]:not([data-board-column="${fromCol}"])`).first();
+
+    await dragCardToColumn(page, card, target);
+    await dragCardToColumn(page, card, target);
+
+    await expect(page.getByTestId('board-toast')).toHaveCount(1);
+    await expect(page.getByTestId('board-toast')).toHaveAttribute('data-show', 'true');
   });
 });
