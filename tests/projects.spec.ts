@@ -85,3 +85,24 @@ test.describe('Projects page', () => {
     expect(await visibleNames(page)).toEqual([...byRecency].reverse());
   });
 });
+
+// Below sm the chip row collapses into a single select aligned with the sort
+// control (#119); it drives the same filter logic as the chips.
+test.describe('Projects page — mobile filter select', () => {
+  test.use({ viewport: { width: 375, height: 812 } });
+
+  test('select filters the grid and reflects in the URL', async ({ page }) => {
+    await page.goto('/projects');
+    const select = page.getByRole('combobox', { name: 'Filter projects' });
+    await expect(select).toBeVisible();
+
+    await select.selectOption('pinned');
+    // poll: the grid update runs inside a View Transition (async commit).
+    await expect.poll(async () => (await visibleNames(page)).sort()).toEqual(expectedNames('pinned'));
+    await expect(page).toHaveURL(urlFor('pinned'));
+
+    await select.selectOption('all');
+    await expect.poll(async () => (await visibleNames(page)).sort()).toEqual(expectedNames('all'));
+    await expect(page).toHaveURL(urlFor('all'));
+  });
+});
