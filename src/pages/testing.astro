@@ -8,6 +8,7 @@ import TerminalWindow from '../components/TerminalWindow.astro';
 import StatStrip from '../components/StatStrip.astro';
 import StatCard from '../components/StatCard.astro';
 import { getTesting, getCiSnapshot } from '../lib/data';
+import { stepDuration } from '../lib/ciGates';
 import { TEST_STATS } from '../lib/testStats';
 
 const repoUrl = 'https://github.com/timjstacey/resume-static-site';
@@ -329,21 +330,28 @@ for (const job of jobs) {
               <span class="text-ctp-overlay1">on: {wf.on}</span>
             </div>
             <div class="mt-4 flex flex-wrap items-stretch gap-2">
-              {wf.steps.map((step, i) => (
-                <>
-                  <div
-                    class="min-w-[140px] flex-1 rounded p-3"
-                    style={`border-top: 2px solid var(--catppuccin-color-${wf.accent}); background: var(--catppuccin-color-base)`}
-                  >
-                    <div class="mono-caption text-ctp-overlay1">step {i + 1}</div>
-                    <div class="mt-1 font-mono text-[13px] text-ctp-text">{step.name}</div>
-                    <div class="mt-1 font-mono text-[12px] text-ctp-green">✓ {step.duration}</div>
-                  </div>
-                  {i < wf.steps.length - 1 && (
-                    <span class="hidden self-center text-lg text-ctp-overlay1 md:inline">→</span>
-                  )}
-                </>
-              ))}
+              {wf.steps.map((step, i) => {
+                const dur = stepDuration(ci.gates, wf.file, step.match);
+                return (
+                  <>
+                    <div
+                      class="min-w-[140px] flex-1 rounded p-3"
+                      style={`border-top: 2px solid var(--catppuccin-color-${wf.accent}); background: var(--catppuccin-color-base)`}
+                    >
+                      <div class="mono-caption text-ctp-overlay1">step {i + 1}</div>
+                      <div class="mt-1 font-mono text-[13px] text-ctp-text">{step.name}</div>
+                      {dur ? (
+                        <div class="mt-1 font-mono text-[12px] text-ctp-green">✓ {dur}</div>
+                      ) : (
+                        <div class="mt-1 font-mono text-[12px] text-ctp-overlay1">— no data</div>
+                      )}
+                    </div>
+                    {i < wf.steps.length - 1 && (
+                      <span class="hidden self-center text-lg text-ctp-overlay1 md:inline">→</span>
+                    )}
+                  </>
+                );
+              })}
             </div>
           </Card>
         ))

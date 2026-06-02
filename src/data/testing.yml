@@ -31,18 +31,21 @@ routing:
     specs: [responsive]
 
 workflows:
+  # `match` = the GitHub Actions step name; real durations are merged in from
+  # ci-snapshot.json `gates` (refreshed nightly by `pnpm ci:refresh`). Keep
+  # `match` in sync with the step names in .github/workflows/*.yml.
   - file: ci.yml
     accent: sapphire
     on: push · pull_request
     steps:
-      - { name: check-claude-md, duration: 3s }
-      - { name: pnpm lint, duration: 11s }
-      - { name: pnpm test, duration: 9s }
-      - { name: pnpm typecheck, duration: 18s }
-      - { name: pnpm build, duration: 24s }
+      - { name: check-claude-md, match: CLAUDE.md sync check }
+      - { name: pnpm lint, match: Lint }
+      - { name: pnpm test, match: Test (with coverage gate) }
+      - { name: pnpm typecheck, match: Typecheck }
+      - { name: pnpm build, match: Build }
   - file: playwright.yml
     accent: peach
     on: after preview deploy
     steps:
-      - { name: wait-for-preview, duration: 41s }
-      - { name: run E2E vs preview URL, duration: 1m38s }
+      - { name: wait-for-preview, match: Wait for Cloudflare Pages deploy and resolve preview URL }
+      - { name: run E2E vs preview URL, match: Run pnpm exec playwright test }
