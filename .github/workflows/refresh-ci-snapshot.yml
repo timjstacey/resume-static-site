@@ -8,7 +8,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   refresh:
@@ -17,6 +16,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Admin PAT: pushing to main needs to bypass the branch ruleset, the
+          # same way version-bump.yml + refresh-test-stats.yml do.
+          token: ${{ secrets.VERSION_BUMP_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -28,15 +31,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: node scripts/refresh-ci-snapshot.mjs
 
-      - name: Open PR on change
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: 'chore(ci): refresh ci-snapshot.json'
-          title: 'chore(ci): refresh ci-snapshot.json'
-          body: |
-            Nightly regeneration of `src/data/ci-snapshot.json` from the live
-            GitHub Actions API. Keeps the footer + `/testing` CI strip honest.
-
-            🤖 Generated with [Claude Code](https://claude.com/claude-code)
-          branch: chore/refresh-ci-snapshot
-          delete-branch: true
+      - name: Commit on change
+        run: |
+          if git diff --quiet -- src/data/ci-snapshot.json; then
+            echo "ci-snapshot.json unchanged. Nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # version-bump.yml paths-ignores ci-snapshot.json (bump no-op); the
+          # crons are schedule/dispatch-only so this commit can't re-trigger them.
+          git commit -m "chore(ci): refresh ci-snapshot.json" -- src/data/ci-snapshot.json
+          git push
