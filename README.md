@@ -48,8 +48,8 @@ pnpm dev   # http://localhost:4321
 | `pnpm test`             | Vitest unit tests (`src/lib/*.test.ts`)                                 |
 | `pnpm test:coverage`    | Vitest unit tests + V8 coverage report (gate; thresholds in config)     |
 | `pnpm test:e2e`         | Playwright E2E (auto-starts dev server, or reuses if running)           |
-| `pnpm lint`             | ESLint                                                                  |
-| `pnpm lint:fix`         | ESLint with `--fix`                                                     |
+| `pnpm lint`             | ESLint — fails on any warning (`--max-warnings 0`)                      |
+| `pnpm lint:fix`         | ESLint with `--fix` (also `--max-warnings 0`)                           |
 | `pnpm stats:refresh`    | Regenerate `src/lib/testStats.ts` from current spec inventory           |
 | `pnpm ci:refresh`       | Regenerate `src/data/ci-snapshot.json` from the live Actions API        |
 | `pnpm projects:refresh` | Regenerate `src/data/project-stats.json` from the live GitHub repos API |
@@ -105,7 +105,7 @@ Personal site, but issues and PRs are open. File one at https://github.com/timjs
 
 Branch off `main` as `type/issue#-slug` (e.g. `fix/48-icon-colours`; drop the issue number when there isn't one). Commits follow [Conventional Commits](https://www.conventionalcommits.org) — the type drives the automated version bump, so `feat` → minor, `fix` → patch, `!`/`BREAKING CHANGE` → major. PRs target `main`, get rebase-merged, and should say `Closes #N`. See [`CLAUDE.md`](./CLAUDE.md#branching--commits) for the full rules.
 
-The pre-commit hook runs lint-staged (ESLint + Prettier on staged files). The pre-push hook validates the branch name (`type/issue#-slug`) and runs `pnpm typecheck`. Both block on failure.
+The pre-commit hook runs lint-staged (ESLint + Prettier on staged files); ESLint runs with `--max-warnings 0`, so a warning that auto-fix can't clear blocks the commit. The pre-push hook validates the branch name (`type/issue#-slug`) and runs `pnpm typecheck`. Both block on failure.
 
 ## For AI assistants
 
