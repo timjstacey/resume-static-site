@@ -70,7 +70,9 @@ test.describe('Home page', () => {
   // Issue #124: external links (rendered via Button) open in a new tab with a
   // safe rel; internal links stay in-tab.
   test('external links open in a new tab, internal links do not', async ({ page }) => {
-    const external = page.getByRole('link', { name: /github/i });
+    // The exact CTA name — a blog post titled "GitHub …" also matches /github/,
+    // and the "↗" suffix is unique to the contact CTA.
+    const external = page.getByRole('link', { name: 'github ↗', exact: true });
     await expect(external).toHaveAttribute('target', '_blank');
     await expect(external).toHaveAttribute('rel', /noopener/);
     await expect(external).toHaveAttribute('rel', /noreferrer/);

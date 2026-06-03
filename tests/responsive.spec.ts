@@ -17,7 +17,9 @@ const allPages = ['/', '/resume', '/projects', '/blog', '/job-hunt', '/testing']
 if (newestSlug) allPages.push(`/blog/${newestSlug}`);
 
 function hasHorizontalScroll(page: Page): Promise<boolean> {
-  return page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  // 1px tolerance: WebKit can report a sub-pixel-rounded scrollWidth (e.g. 321
+  // where the layout is exactly 320), which isn't a real horizontal scrollbar.
+  return page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth + 1);
 }
 
 test.describe('Responsive layout — mobile (375px)', () => {
