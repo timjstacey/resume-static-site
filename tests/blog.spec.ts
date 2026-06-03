@@ -102,10 +102,14 @@ if (postCount > 0) {
       });
 
       test('page number button marks the active page with aria-current', async ({ page }) => {
-        await expect(page.getByRole('button', { name: '1' })).toHaveAttribute('aria-current', 'page');
+        // Scope to the pagination nav: tag-filter buttons carry a post count in
+        // their accessible name, so an unscoped name '1' collides with every
+        // "count = 1" tag. exact:true also avoids matching '10'/'11' page buttons.
+        const nav = page.getByTestId('pagination-nav');
+        await expect(nav.getByRole('button', { name: '1', exact: true })).toHaveAttribute('aria-current', 'page');
         await page.getByRole('button', { name: 'Next page' }).click();
-        await expect(page.getByRole('button', { name: '2' })).toHaveAttribute('aria-current', 'page');
-        await expect(page.getByRole('button', { name: '1' })).not.toHaveAttribute('aria-current');
+        await expect(nav.getByRole('button', { name: '2', exact: true })).toHaveAttribute('aria-current', 'page');
+        await expect(nav.getByRole('button', { name: '1', exact: true })).not.toHaveAttribute('aria-current');
       });
 
       if (newestHashtags.length > 0) {
