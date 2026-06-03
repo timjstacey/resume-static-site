@@ -2,19 +2,19 @@
 title: My resume site ships behind 460 tests
 date: 2026-06-04
 tag: Meta
-excerpt: 'A personal resume site, gated by 247 unit tests and 213 browser tests across three engines, with six workflows that keep its own data fresh.'
+excerpt: 'I set the direction and Claude Code wrote the code and the tests; 247 unit tests and 213 browser tests are how I trust a site I never hand-wrote.'
 readMins: 6
 hashtags: [Astro, StaticSite, Playwright, ContinuousIntegration, TestAutomation]
 preview:
   - ['$', 'cat resume-site-behind-460-tests.md']
   - ['#', '# My resume site ships behind 460 tests']
   - [' ', '']
-  - [' ', 'Four lines of YAML are the whole job']
-  - [' ', 'tracker. No database, no CMS. Edit the']
-  - [' ', 'file, Astro rebuilds, Cloudflare deploys.']
+  - [' ', 'I never typed most of this code.']
+  - [' ', 'Claude Code wrote it, commit by commit.']
+  - [' ', 'I set direction and reviewed the diffs.']
   - [' ', '']
   - [' ', '247 unit tests and 213 browser tests']
-  - [' ', 'stand between a typo and production...']
+  - [' ', 'are how I trust what I did not write...']
 ---
 
 ```yaml title="src/data/jobs.yml"
@@ -26,7 +26,7 @@ preview:
 
 Those four lines are the whole job tracker. No database, no CMS. I edit the YAML, [Astro](https://astro.build/) rebuilds the static site, and Cloudflare Pages publishes it. A [Zod](https://zod.dev/) schema validates every entry at build time, so a malformed date or a status outside the allowed set fails the build instead of shipping a broken card.
 
-The site at [tim.sillysamoyed.com](https://tim.sillysamoyed.com) began as a one-page resume and grew into something I run like a small product. Each page reads from data, every behaviour carries a test, and six GitHub Actions workflows keep the whole thing honest.
+The site at [tim.sillysamoyed.com](https://tim.sillysamoyed.com) began as a one-page resume and grew into something I run like a small product. I did not hand-write it. I paired with [Claude Code](https://www.anthropic.com/claude-code), Anthropic's coding agent: I set the direction and reviewed every diff, and Claude wrote the code and the tests. Every commit in the history carries a `Co-Authored-By` line for it. Each page reads from data, every behaviour carries a test, and six GitHub Actions workflows keep the whole thing honest.
 
 ## Every page reads from data
 
@@ -99,6 +99,12 @@ Three nightly workflows commit generated data straight to `main`. One refreshes 
 
 A fourth workflow reads the merged commits and bumps the version from the Conventional Commit type: `feat` earns a minor, `fix` a patch, a breaking change a major. The footer version moves on its own as I merge.
 
-> The data refreshes itself, the version bumps itself, and the docs fail the build when they drift. The work I do by hand stays small.
+## The tests are how I trust code I didn't type
 
-That is the whole site: data in YAML, logic in tested functions, a pipeline that blocks a bad merge, and a set of robots that keep the generated parts fresh. The source is open at [github.com/timjstacey/resume-static-site](https://github.com/timjstacey/resume-static-site).
+Most of this code, I never typed. The loop runs like this: I describe a feature or a bug in plain language, Claude Code writes the code and a failing-first test, runs the suite and the typecheck, and opens the PR. I read the diff, I run it, and I merge. My name and Claude's sit on every commit.
+
+That loop puts more weight on the tests, not less. The 460 of them are how I check a change I did not write line by line. A green suite, a passing typecheck, and a coverage gate turn "the agent says it works" into something I verify before it reaches the branch. The data stays mine: my real applications, my CV, my project list. The code that renders them, and the tests that guard it, came from the pair.
+
+> I set the direction and reviewed the diffs. Claude Code wrote the code and the tests. The 460 tests are the contract that lets me trust the result and merge it.
+
+That is the whole site: data in YAML, logic in tested functions, a pipeline that blocks a bad merge, and a set of workflows that keep the generated parts fresh. A human and an agent built it, one reviewed commit at a time. The source is open at [github.com/timjstacey/resume-static-site](https://github.com/timjstacey/resume-static-site).
