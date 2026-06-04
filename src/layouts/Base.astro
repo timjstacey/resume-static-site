@@ -11,11 +11,14 @@ interface Props {
 
 const { title, description = 'Tim Stacey — software engineer' } = Astro.props;
 
-// Cloudflare Web Analytics — privacy-first, cookieless, no consent banner. The
-// beacon only renders when CF_BEACON_TOKEN is set at build time, so local dev
-// and preview builds (token unset) never report. Set the token on the
-// Production environment only in the Cloudflare Pages project settings.
-const cfBeaconToken = import.meta.env.CF_BEACON_TOKEN;
+// Umami Cloud analytics — privacy-first, cookieless, no consent banner. The
+// script only renders when UMAMI_WEBSITE_ID is set at build time, so local dev
+// and preview builds (id unset) never report. Set the id on the Production
+// environment only in the Cloudflare Pages project settings. UMAMI_SRC is
+// optional and defaults to the US cloud host (set to https://eu.umami.is/script.js
+// for the EU region).
+const umamiWebsiteId = import.meta.env.UMAMI_WEBSITE_ID;
+const umamiSrc = import.meta.env.UMAMI_SRC ?? 'https://cloud.umami.is/script.js';
 ---
 
 <!doctype html>
@@ -66,15 +69,6 @@ const cfBeaconToken = import.meta.env.CF_BEACON_TOKEN;
       <slot />
     </main>
     <Footer />
-    {
-      cfBeaconToken && (
-        <script
-          is:inline
-          defer
-          src="https://static.cloudflareinsights.com/beacon.min.js"
-          data-cf-beacon={JSON.stringify({ token: cfBeaconToken })}
-        />
-      )
-    }
+    {umamiWebsiteId && <script is:inline defer src={umamiSrc} data-website-id={umamiWebsiteId} />}
   </body>
 </html>

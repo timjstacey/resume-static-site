@@ -466,13 +466,20 @@ Node version is pinned via `.nvmrc` (currently `v24.13.0`); pnpm version is pinn
 
 ## Analytics
 
-Cloudflare Web Analytics — privacy-first, cookieless, no consent banner. `Base.astro`
-injects the beacon **only when `CF_BEACON_TOKEN` is set at build time**, so local dev
-and the per-PR preview deploys (token unset) never report. Set the token on the
-Cloudflare Pages **Production** environment only (Manual-setup token from the Web
-Analytics dashboard; it's public, it ships in the page HTML). `.env.example` documents
-the variable. We use the manual beacon rather than Cloudflare's automatic injection,
-which is per-hostname and didn't cover the `tim.` subdomain.
+Umami Cloud — privacy-first, cookieless, no consent banner, no sampling (real
+time-on-page / engagement). `Base.astro` injects the tracking script **only when
+`UMAMI_WEBSITE_ID` is set at build time**, so local dev and the per-PR preview
+deploys (id unset) never report. Set the id on the Cloudflare Pages **Production**
+environment only (from the Umami Cloud dashboard → website settings; it's public,
+it ships in the page HTML). `UMAMI_SRC` is optional and defaults to the US host
+`https://cloud.umami.is/script.js` — set it to `https://eu.umami.is/script.js` for
+the EU region. `.env.example` documents both variables.
+
+We moved off Cloudflare Web Analytics (issue #88): CF's per-hostname auto-injection
+never covered the `tim.` subdomain, and the Pages Web Analytics toggle threw
+`Error creating Web Analytics entry` with duplicate entries (CF backend bug). The
+manual CF beacon was the prototyped fallback; Umami Cloud replaces it with the same
+one-script footprint plus real engagement metrics CF couldn't give.
 
 ## Verification Checklist
 
