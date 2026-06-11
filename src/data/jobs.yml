@@ -124,6 +124,12 @@
   status: Screening
   notes: 'Applied via Seek'
 
+- company: DWS Limited
+  role: Test Automation Engineer - Playwright
+  applied: '2026-06-05'
+  status: Applied
+  notes: 'Applied via Seek'
+
 - company: Retained
   role: Technical Test Lead
   applied: '2026-06-11'
