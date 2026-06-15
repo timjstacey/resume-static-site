@@ -1,10 +1,10 @@
 {
   "branch": "main",
   "passing": true,
-  "sha": "3ff3c83",
-  "commitMessage": "chore(ci): refresh ci-snapshot.json",
-  "commitAgo": "1d ago",
-  "lastDeployAgo": "2d ago",
+  "sha": "cdf4bae",
+  "commitMessage": "chore(release): v1.21.0",
+  "commitAgo": "11h ago",
+  "lastDeployAgo": "11h ago",
   "runs": [
     "pass",
     "pass",
@@ -23,13 +23,13 @@
   "p95Delta": "+2s",
   "gates": {
     "ci.yml": {
-      "Set up job": "2s",
+      "Set up job": "0s",
       "Run actions/checkout@v4": "1s",
       "Install pnpm": "1s",
-      "Set up Node.js": "8s",
+      "Set up Node.js": "6s",
       "Install dependencies": "2s",
-      "CLAUDE.md sync check": "1s",
-      "Lint": "3s",
+      "CLAUDE.md sync check": "0s",
+      "Lint": "5s",
       "Test (with coverage gate)": "3s",
       "Typecheck": "10s",
       "Build": "6s",
@@ -39,15 +39,15 @@
       "Complete job": "0s"
     },
     "playwright.yml": {
-      "Set up job": "2s",
+      "Set up job": "1s",
       "Run actions/checkout@v4": "0s",
-      "Run pnpm/action-setup@v4": "2s",
+      "Run pnpm/action-setup@v4": "1s",
       "Run actions/setup-node@v4": "6s",
       "Run pnpm install --frozen-lockfile": "2s",
       "Run pnpm exec playwright install --with-deps chromium firefox webkit": "48s",
       "Wait for Cloudflare Pages deploy and resolve preview URL": "1s",
-      "Run pnpm exec playwright test": "1m38s",
-      "Post Run actions/setup-node@v4": "1s",
+      "Run pnpm exec playwright test": "1m23s",
+      "Post Run actions/setup-node@v4": "0s",
       "Post Run pnpm/action-setup@v4": "0s",
       "Post Run actions/checkout@v4": "0s",
       "Complete job": "0s"
