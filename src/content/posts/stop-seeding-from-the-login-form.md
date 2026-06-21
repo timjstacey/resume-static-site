@@ -92,3 +92,5 @@ Use test scope when a flow mutates state a later test reads. Either way, tear do
 ## Start with the next red suite
 
 The next time one form change reddens forty tests, count how many of them check login. One. Move that one to its own test, point the rest at an API login, and save the session once. The suite still goes red when login breaks. The difference is it goes red in one place and names the thing that broke.
+
+I first shared this [on LinkedIn](https://www.linkedin.com/feed/update/urn:li:share:7474597174132039680).
