@@ -124,6 +124,11 @@ export const PostSchema = z.object({
   readMins: z.number().int(),
   preview: z.array(z.tuple([z.string(), z.string()])),
   hashtags: z.array(z.string()).default([]),
+  // Set by the blog routine when this post was cross-posted from a LinkedIn post.
+  // `notify-linkedin.yml` reads them on merge to comment the blog link back on the
+  // original LinkedIn post. Omitted for hand-written posts.
+  linkedinUrl: z.url().optional(),
+  linkedinComment: z.string().optional(),
 });
 
 // --- Testing page config (routing matrix + CI gate pipelines) ---
