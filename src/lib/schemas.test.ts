@@ -254,6 +254,19 @@ describe('PostSchema', () => {
   it('rejects malformed preview tuples', () => {
     expect(() => PostSchema.parse({ ...validPost, preview: [['$']] })).toThrow();
   });
+
+  it('accepts optional linkedin cross-post fields', () => {
+    const crossPost = {
+      ...validPost,
+      linkedinUrl: 'https://www.linkedin.com/posts/example',
+      linkedinComment: 'Read the full write-up:',
+    };
+    expect(() => PostSchema.parse(crossPost)).not.toThrow();
+  });
+
+  it('rejects a malformed linkedinUrl', () => {
+    expect(() => PostSchema.parse({ ...validPost, linkedinUrl: 'not-a-url' })).toThrow();
+  });
 });
 
 describe('PostTagSchema', () => {
