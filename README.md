@@ -90,15 +90,16 @@ Push to `main` and Cloudflare Pages builds + publishes to https://tim.sillysamoy
 
 GitHub Actions workflows:
 
-| Workflow                    | Trigger                    | Steps                                                                                                                                                    |
-| --------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                    | PR → `main`                | `check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (coverage gate) → `pnpm typecheck` → `pnpm build`                                              |
-| `playwright.yml`            | PR → `main`                | Wait for Cloudflare preview → run Playwright against the preview URL (all projects)                                                                      |
-| `refresh-ci-snapshot.yml`   | nightly cron               | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then commit straight to `main` (no PR)                                                 |
-| `refresh-project-stats.yml` | nightly cron               | Regenerate `src/data/project-stats.json` (repo stars/forks/updated) from the live GitHub API, commit to `main`                                           |
-| `refresh-test-stats.yml`    | push → `main` (test files) | Regenerate `src/lib/testStats.ts` (the `/testing` counts) when specs change, commit back to `main`                                                       |
-| `notify-linkedin.yml`       | push → `main` (post files) | When a cross-posted post lands, dispatch a `blog-published` event to `linkedin-post-generator` to comment the live link back on the source LinkedIn post |
-| `version-bump.yml`          | push → `main`              | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major)                                                        |
+| Workflow                    | Trigger                    | Steps                                                                                                                                                                                                     |
+| --------------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                    | PR → `main`                | `check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (coverage gate) → `pnpm typecheck` → `pnpm build`                                                                                               |
+| `playwright.yml`            | PR → `main`                | Wait for Cloudflare preview → run Playwright against the preview URL (all projects)                                                                                                                       |
+| `refresh-ci-snapshot.yml`   | nightly cron               | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then commit straight to `main` (no PR)                                                                                                  |
+| `refresh-project-stats.yml` | nightly cron               | Regenerate `src/data/project-stats.json` (repo stars/forks/updated) from the live GitHub API, commit to `main`                                                                                            |
+| `refresh-test-stats.yml`    | push → `main` (test files) | Regenerate `src/lib/testStats.ts` (the `/testing` counts) when specs change, commit back to `main`                                                                                                        |
+| `publish-linkedin.yml`      | push → `main` (post files) | Blog-first: when a new post lands, read its `linkedinPost` and dispatch a `linkedin-publish` event to `linkedin-post-generator` to post the copy (blog link already in it). Skips posts without the field |
+| `notify-linkedin.yml`       | push → `main` (post files) | Legacy LinkedIn-first comment-back loop; superseded by `publish-linkedin.yml`, removed in #159                                                                                                            |
+| `version-bump.yml`          | push → `main`              | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major)                                                                                                         |
 
 ## Contributing
 
