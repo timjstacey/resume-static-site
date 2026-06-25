@@ -343,6 +343,28 @@ Always invoke the `stop-slop` skill before writing or finalising any user-facing
 /stop-slop <draft text>
 ```
 
+### Blog content pipeline (blog-first)
+
+Blog posts are authored **blog-first**: the long-form post in `src/content/posts/`
+is the canonical artifact, written first; the LinkedIn copy is a faithful summary of
+it stored in the post's `linkedinPost` frontmatter field. The link runs one way —
+the LinkedIn post links to the blog, nothing writes back.
+
+The `content` skill (`.claude/skills/content/content.md`, invoked `/content`) runs
+the whole routine in one session: research → write the canonical blog → distill
+`linkedinPost` → `pnpm typecheck` → open a `claude/...` PR. It reuses this repo's
+`stop-slop` skill and rotates post structure through
+`.claude/skills/content/references/archetypes.md`.
+
+`research/` is the dedup ledger + per-post research notes. `research/INDEX.md` holds
+one row per post (`Date | Title | Topic angle | Archetype | Hashtags`); the skill
+reads it to avoid repeating a recent angle and to exclude the last three archetypes
+from this run's rotation. It is hand-tended by the skill — append, don't rewrite.
+
+On merge, `publish-linkedin.yml` reads `linkedinPost` and dispatches it to
+`linkedin-post-generator`, which posts it to LinkedIn (the blog link is already in
+the copy).
+
 ## Playwright Screenshots
 
 When using the `mcp__playwright__browser_take_screenshot` tool, always save to `.playwright-mcp/` — it is gitignored. Use a relative filename with that prefix:
