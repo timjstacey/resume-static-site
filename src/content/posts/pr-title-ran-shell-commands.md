@@ -17,6 +17,10 @@ preview:
   - [' ', '']
   - [' ', 'Bind untrusted input to an env var.']
   - [' ', 'Quote it. Treat every outside value as data.']
+linkedinUrl: https://www.linkedin.com/feed/update/urn:li:share:7476047073994375168
+linkedinComment: >
+  I expanded this into a full write-up, with the vulnerable-then-fixed workflow YAML
+  and the sources behind it: https://tim.sillysamoyed.com/blog/pr-title-ran-shell-commands
 ---
 
 ```yaml title="lint-title.yml"
@@ -78,3 +82,5 @@ The backport to the supported older majors lands July 16, so a workflow pinned t
 ## Audit your run steps this week
 
 Grep your workflows for `${{ github.event` inside a `run:` block. Every hit that reads a title, a branch, a body, or a commit message is the same eight-line shape that cost Nx its publishing key. Bind each one to an `env:` variable and quote it. Then drop your default token permissions and check which jobs still run on `pull_request_target`. The attacker who reads your run steps next is looking for exactly the line you can fix today.
+
+I first shared this [on LinkedIn](https://www.linkedin.com/feed/update/urn:li:share:7476047073994375168).
