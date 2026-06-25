@@ -255,17 +255,16 @@ describe('PostSchema', () => {
     expect(() => PostSchema.parse({ ...validPost, preview: [['$']] })).toThrow();
   });
 
-  it('accepts optional linkedin cross-post fields', () => {
-    const crossPost = {
+  it('accepts an optional linkedinPost summary', () => {
+    const withSummary = {
       ...validPost,
-      linkedinUrl: 'https://www.linkedin.com/posts/example',
-      linkedinComment: 'Read the full write-up:',
+      linkedinPost: 'New write-up on seeding Playwright suites. Full post: https://tim.sillysamoyed.com/blog/x',
     };
-    expect(() => PostSchema.parse(crossPost)).not.toThrow();
+    expect(() => PostSchema.parse(withSummary)).not.toThrow();
   });
 
-  it('rejects a malformed linkedinUrl', () => {
-    expect(() => PostSchema.parse({ ...validPost, linkedinUrl: 'not-a-url' })).toThrow();
+  it('rejects a non-string linkedinPost', () => {
+    expect(() => PostSchema.parse({ ...validPost, linkedinPost: 42 })).toThrow();
   });
 });
 

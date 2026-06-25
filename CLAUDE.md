@@ -170,8 +170,12 @@ Posts use an Astro **content collection** (`src/content.config.ts`). Each post's
 frontmatter: `title`, `date`, `tag` (`Strategy | Practice | Meta | Team | Tools`),
 `excerpt`, `readMins`, `preview` — a list of `[prefix, text]` tuples where
 the prefix is `"$"` (shell), `"#"` (markdown heading), or `" "` (body line) — and
-`hashtags` (string list, defaults to `[]`). The `<TerminalWindow>` renderer turns
-`preview` into the post's auto-illustrated cover.
+`hashtags` (string list, defaults to `[]`), and `linkedinPost` (optional string).
+The `<TerminalWindow>` renderer turns `preview` into the post's auto-illustrated cover.
+
+`linkedinPost` is the distilled LinkedIn summary authored alongside the blog in the
+blog-first flow; `publish-linkedin.yml` reads it on merge to hand the copy to LPG for
+posting. Omitted for hand-written posts.
 
 `tag` is the primary category and drives the accent colour. `hashtags` carry over
 from the source LinkedIn post (the LPG `blog` skill copies the post's footer tags,
