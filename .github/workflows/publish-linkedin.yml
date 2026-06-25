@@ -1,0 +1,76 @@
+name: Publish blog post to LinkedIn
+
+# When a new blog post lands on main, hand its pre-written LinkedIn copy to
+# linkedin-post-generator to post. The blog is authored first (blog-first); the
+# `linkedinPost` frontmatter holds the distilled LinkedIn summary, which already
+# carries the blog link. Posts without `linkedinPost` (hand-written) are skipped.
+# The link runs one way (LinkedIn -> blog); nothing is written back.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/content/posts/**'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Need history back to the previous push to find the added post.
+          fetch-depth: 0
+
+      - name: Detect newly added post
+        id: detect
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: |
+          if [[ "$BEFORE" =~ ^0+$ ]]; then
+            range="$AFTER~1..$AFTER"
+          else
+            range="$BEFORE..$AFTER"
+          fi
+          POST=$(git log --diff-filter=A --name-only --pretty=format: "$range" \
+            | grep -E '^src/content/posts/.+\.md$' | head -1 || true)
+          echo "post=$POST" >> "$GITHUB_OUTPUT"
+          if [ -z "$POST" ]; then
+            echo "No newly added post in this push. Skipping."
+          else
+            echo "Found post: $POST"
+          fi
+
+      - name: Read linkedinPost and dispatch
+        if: steps.detect.outputs.post != ''
+        env:
+          POST: ${{ steps.detect.outputs.post }}
+          LPG_DISPATCH_TOKEN: ${{ secrets.LPG_DISPATCH_TOKEN }}
+        run: |
+          # yq (mikefarah) is preinstalled on ubuntu-latest runners.
+          LINKEDIN_TEXT=$(yq --front-matter=extract '.linkedinPost // ""' "$POST")
+
+          if [ -z "$LINKEDIN_TEXT" ]; then
+            echo "Post has no linkedinPost — hand-written, not for LinkedIn. Skipping."
+            exit 0
+          fi
+
+          SLUG=$(basename "$POST" .md)
+          BLOG_URL="https://tim.sillysamoyed.com/blog/$SLUG"
+
+          PAYLOAD=$(jq -n \
+            --arg text "$LINKEDIN_TEXT" \
+            --arg blog "$BLOG_URL" \
+            --arg slug "$SLUG" \
+            '{event_type: "linkedin-publish", client_payload: {linkedin_text: $text, blog_url: $blog, slug: $slug}}')
+
+          curl -sf --show-error -X POST \
+            https://api.github.com/repos/timjstacey/linkedin-post-generator/dispatches \
+            -H "Authorization: Bearer $LPG_DISPATCH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d "$PAYLOAD"
+          echo "Dispatched linkedin-publish for $SLUG."
