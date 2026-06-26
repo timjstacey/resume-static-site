@@ -61,6 +61,23 @@ jobs:
           SLUG=$(basename "$POST" .md)
           BLOG_URL="https://tim.sillysamoyed.com/blog/$SLUG"
 
+          # Wait for Cloudflare Pages to finish deploying the post before dispatching,
+          # so the LinkedIn copy never links to a URL that 404s. Fail (no dispatch) if
+          # it never goes live — better than posting a dead link.
+          for i in $(seq 1 10); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
+            if [ "$code" = "200" ]; then
+              echo "Blog URL is live ($code)."
+              break
+            fi
+            if [ "$i" -eq 10 ]; then
+              echo "Blog URL never returned 200 after ~5 minutes — not dispatching." >&2
+              exit 1
+            fi
+            echo "Attempt $i: $BLOG_URL returned $code. Waiting 30s..."
+            sleep 30
+          done
+
           PAYLOAD=$(jq -n \
             --arg text "$LINKEDIN_TEXT" \
             --arg blog "$BLOG_URL" \
