@@ -387,6 +387,10 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
     border: 1px solid var(--catppuccin-color-surface1);
     border-radius: 4px;
     padding: 1.5px 6px;
+    /* Break long unbreakable tokens (e.g. `allow-unsafe-pr-checkout`,
+       `refs/pull/<number>/head`) instead of overflowing the narrow content
+       column and forcing horizontal page scroll on small phones (320px). */
+    overflow-wrap: break-word;
   }
 
   .prose :global(a) {
