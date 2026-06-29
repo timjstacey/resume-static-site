@@ -17,10 +17,6 @@ preview:
   - [' ', '']
   - [' ', 'Bind untrusted input to an env var.']
   - [' ', 'Quote it. Treat every outside value as data.']
-linkedinUrl: https://www.linkedin.com/feed/update/urn:li:share:7476047073994375168
-linkedinComment: >
-  I expanded this into a full write-up, with the vulnerable-then-fixed workflow YAML
-  and the sources behind it: https://tim.sillysamoyed.com/blog/pr-title-ran-shell-commands
 ---
 
 ```yaml title="lint-title.yml"
