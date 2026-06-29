@@ -98,7 +98,6 @@ GitHub Actions workflows:
 | `refresh-project-stats.yml` | nightly cron               | Regenerate `src/data/project-stats.json` (repo stars/forks/updated) from the live GitHub API, commit to `main`                                                                                            |
 | `refresh-test-stats.yml`    | push → `main` (test files) | Regenerate `src/lib/testStats.ts` (the `/testing` counts) when specs change, commit back to `main`                                                                                                        |
 | `publish-linkedin.yml`      | push → `main` (post files) | Blog-first: when a new post lands, read its `linkedinPost` and dispatch a `linkedin-publish` event to `linkedin-post-generator` to post the copy (blog link already in it). Skips posts without the field |
-| `notify-linkedin.yml`       | push → `main` (post files) | Legacy LinkedIn-first comment-back loop; superseded by `publish-linkedin.yml`, removed in #159                                                                                                            |
 | `version-bump.yml`          | push → `main`              | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major)                                                                                                         |
 
 ## Contributing

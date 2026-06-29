@@ -16,10 +16,6 @@ preview:
   - [' ', '']
   - [' ', 'Send the quick check to cURL or a .http']
   - [' ', 'file. Send the endpoint tests to Playwright.']
-linkedinUrl: https://www.linkedin.com/feed/update/urn:li:share:7475433282453659648
-linkedinComment: >
-  I expanded this into a full write-up, with the .http examples and the
-  sources behind it: https://tim.sillysamoyed.com/blog/drop-postman-http-files
 ---
 
 ```http title="orders.http"
