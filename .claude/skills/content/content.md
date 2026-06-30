@@ -62,13 +62,50 @@ are off-limits this run. From the remaining archetypes, pick the one that best f
 the research you are about to do. The archetype controls **structure only** (opener
 / body movement / closer); every stop-slop rule still applies.
 
+**Release override.** When step 5 lands on a **Tier 1 or Tier 2 release**, skip the
+rotation: use `News / launch` and ignore the last-three exclusion — release freshness
+beats format variety. The rotation and exclusion still govern Tiers 3 and 4. Either
+way, record the archetype you used in the ledger (step 11) as normal.
+
 ## 5. Research
 
-Find 5–8 recent articles (last 4 weeks). Run several searches with different
-queries. Target a fresh, specific angle not already in the ledger.
+Pick the topic by walking this **priority ladder** top-down. Stop at the first tier
+that yields an angle the ledger has not already covered — research that tier, skip
+the rest. The ladder weights live release cycles over generic news so the post is
+about something that is actually current, not an old release dredged up months late.
 
-Use **WebSearch**. If it is unavailable (a local run outside the US, where
-WebSearch is region-restricted), use the **Tavily** MCP tool instead.
+**Tier 1 — Playwright release.** Read the latest Playwright release from the GitHub
+Releases API:
+
+```bash
+gh api repos/microsoft/playwright/releases/latest --jq '{tag: .tag_name, published: .published_at}'
+# fallback if gh is unavailable: WebFetch https://api.github.com/repos/microsoft/playwright/releases/latest
+```
+
+If the tag version (e.g. `1.61.1`) does **not** already appear in `research/INDEX.md`
+(Title or Topic angle) **and** `published_at` is within 4 weeks of `TODAY`, this is
+the topic. Research the release notes + changelog for the headline changes. Archetype
+is forced to `News / launch` (see step 4).
+
+**Tier 2 — k6 release.** Same against `repos/grafana/k6/releases/latest` (k6 ships its
+own GitHub versioning, not npm). Same dedup-by-version + 4-week recency guard. If it
+qualifies and Tier 1 did not, this is the topic — also forced `News / launch`.
+
+**Tier 3 — last-week web search.** No fresh, unposted release → search for any
+interesting testing/CI/DevEx angle from the **last 7 days**. Run several **WebSearch**
+queries with different wording. If WebSearch is unavailable (a local run outside the
+US, where it is region-restricted), use the **Tavily** MCP tool instead. Target a
+fresh, specific angle not already in the ledger. Normal archetype rotation (step 4).
+
+**Tier 4 — docs deep-dive.** No fresh release and no fresh news → write a how-to or
+teardown from the Playwright (`playwright.dev/docs`) or k6 (`grafana.com/docs/k6`)
+**docs**. Pick a guide or feature the ledger has not covered. Normal rotation (this
+tier lands naturally on `Playbook` or `Teardown`).
+
+**Recency gate (hard rule).** A Tier 1/2 release only qualifies if published within
+4 weeks of `TODAY`; a Tier 3 source must be dated within 7 days. If a tier's candidate
+fails the gate or is already in the ledger, drop to the next tier — never resurrect an
+old release to fill the slot.
 
 Derive a `SLUG` from the post title: lowercase, hyphens only, no special
 characters, no year suffix (the `date` field already records when it was written).
@@ -194,6 +231,10 @@ Rules for `linkedinPost`:
   introduce a claim, statistic, or framing the blog does not make. Every fact traces
   to the blog (and through it to the research). Never fabricate a personal story,
   team, incident, or result.
+- **No insider-tease opener.** Do not open with the "X changed the answer / changed
+  the game" + "most teams haven't noticed / nobody realises" shape (see
+  `stop-slop/references/structures.md`). State what shipped and why it matters; trust
+  the reader. Lead with the concrete change, not a claim of secret knowledge.
 - 150–300 words.
 - End with the **blog link as a bare URL** (`BLOG_URL` from step 7) on its own line —
   this is the one-way link readers follow to the canonical post.

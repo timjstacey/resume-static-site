@@ -56,6 +56,25 @@ These announce insight rather than deliver it.
 
 **Instead:** Make the point. Let readers draw conclusions.
 
+## Insider-Tease Openers
+
+The "I know a secret the field missed" hook. Pairs false agency on a release with a
+claim that the reader is behind. Every LLM-written launch post opens this way.
+
+| Pattern                                                        | Problem                                          |
+| -------------------------------------------------------------- | ------------------------------------------------ |
+| "...and most teams haven't noticed."                           | Fake-insider tease; flatters writer, nags reader |
+| "...and nobody realises / you probably missed it."             | Same manufactured-secret hook                    |
+| "X changed the answer / changed the game / rewrote the rules." | False agency — a release does a thing, name it   |
+| "X quietly changed how Y works."                               | "quietly" smuggles in the same secret-knowledge  |
+
+Example of the whole shape to never write: _"Vitest 4.0 changed the default answer for
+testing a component in a real browser, and most teams have not noticed."_
+
+**Instead:** State what shipped and what it does. "Vitest 4 ships Browser Mode stable;
+it runs your component test inside a real Chromium." Name the change and who does the
+work. Trust the reader to judge whether they knew.
+
 ## Formulaic Constructions
 
 | Pattern                   | Problem                     |
