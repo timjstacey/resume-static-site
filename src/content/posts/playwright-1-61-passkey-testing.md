@@ -90,7 +90,7 @@ is one API across all three.
 
 ## Seed in setup, read back in tests
 
-The other shape the docs document: let the application register a passkey for real in a
+The second shape the docs describe: let the application register a passkey for real in a
 setup test, then read it back with `credentials.get()` and hold it. Later tests call
 `create()` and `install()` with that credential and start already enrolled. A registration
 flow runs once where it belongs, and every login test that follows skips it.
@@ -113,7 +113,7 @@ is a patch. It clears a Node 22.15 sync-loader regression and an ESM resolution 
 extensionless `.ts` subpath imports across pnpm workspace symlinks. If either bites your
 setup, take the patch over 1.61.0.
 
-> The passkey button is now a test you write, not a gap you flag in the PR.
+> The passkey button is now a test you write and run in CI like any other login.
 
 If your login screen offers a passkey, 1.61 is the upgrade that brings it under coverage.
 Register the test credential, install it, and click the button the way a user does.
