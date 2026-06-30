@@ -59,7 +59,7 @@ These announce insight rather than deliver it.
 ## Insider-Tease Openers
 
 The "I know a secret the field missed" hook. Pairs false agency on a release with a
-claim that the reader is behind. Every LLM-written launch post opens this way.
+claim that the reader is behind. LLM-written launch posts default to this shape.
 
 | Pattern                                                        | Problem                                          |
 | -------------------------------------------------------------- | ------------------------------------------------ |
