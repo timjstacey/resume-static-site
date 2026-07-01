@@ -1,10 +1,10 @@
 {
   "branch": "main",
   "passing": true,
-  "sha": "aebc464",
-  "commitMessage": "chore(ci): refresh ci-snapshot.json",
-  "commitAgo": "22h ago",
-  "lastDeployAgo": "1d ago",
+  "sha": "70d6e27",
+  "commitMessage": "chore(release): v1.32.0",
+  "commitAgo": "10h ago",
+  "lastDeployAgo": "10h ago",
   "runs": [
     "pass",
     "pass",
@@ -18,39 +18,39 @@
     "pass"
   ],
   "p50": "41s",
-  "p95": "49s",
-  "p50Delta": "+0s",
-  "p95Delta": "-1s",
+  "p95": "47s",
+  "p50Delta": "+2s",
+  "p95Delta": "-2s",
   "gates": {
     "ci.yml": {
       "Set up job": "1s",
       "Run actions/checkout@v4": "0s",
-      "Install pnpm": "2s",
+      "Install pnpm": "1s",
       "Set up Node.js": "6s",
-      "Install dependencies": "1s",
-      "CLAUDE.md sync check": "1s",
-      "Lint": "3s",
+      "Install dependencies": "2s",
+      "CLAUDE.md sync check": "0s",
+      "Lint": "4s",
       "Test (with coverage gate)": "3s",
-      "Typecheck": "10s",
-      "Build": "6s",
+      "Typecheck": "9s",
+      "Build": "7s",
       "Post Set up Node.js": "0s",
-      "Post Install pnpm": "1s",
+      "Post Install pnpm": "0s",
       "Post Run actions/checkout@v4": "0s",
       "Complete job": "0s"
     },
     "playwright.yml": {
-      "Set up job": "1s",
+      "Set up job": "2s",
       "Run actions/checkout@v4": "1s",
       "Run pnpm/action-setup@v4": "1s",
-      "Run actions/setup-node@v4": "9s",
+      "Run actions/setup-node@v4": "8s",
       "Run pnpm install --frozen-lockfile": "2s",
-      "Run pnpm exec playwright install --with-deps chromium firefox webkit": "1m00s",
+      "Run pnpm exec playwright install --with-deps chromium firefox webkit": "57s",
       "Wait for Cloudflare Pages deploy and resolve preview URL": "1s",
-      "Run pnpm exec playwright test": "1m24s",
-      "Post Run actions/setup-node@v4": "1s",
+      "Run pnpm exec playwright test": "2m25s",
+      "Post Run actions/setup-node@v4": "2s",
       "Post Run pnpm/action-setup@v4": "0s",
       "Post Run actions/checkout@v4": "0s",
-      "Complete job": "0s"
+      "Complete job": "1s"
     }
   }
 }
