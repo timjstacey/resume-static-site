@@ -16,7 +16,7 @@ preview:
   - [' ', 'Your CI already knows which tests pass and']
   - [' ', 'fail. Let a flake-rate query keep the list...']
 linkedinPost: |
-  Most teams keep their flaky-test quarantine in a wiki page or a run of test.skip calls. You write it once and leave it, so within weeks you gate merges off stale data: tests someone already fixed still sit on the list, and last week's flake never made it in.
+  You keep your flaky-test quarantine in a wiki page or a run of test.skip calls. You write it once and leave it, so within weeks you gate merges off stale data: tests someone already fixed still sit on the list, and last week's flake never made it in.
 
   Red Hat published a walkthrough for a quarantine system that reads a metric instead. Your CI already records which tests passed and failed. Push those results into Prometheus, and one recording rule scores every test's flake rate: one minus its pass ratio over a 30-day window.
 
@@ -24,7 +24,7 @@ linkedinPost: |
 
   1. A reporter pushes two counters per run, total runs and passes, to a Pushgateway.
   2. A rule flags any test failing more than 1 run in 5, with a floor of 10 runs so a bad afternoon on a shared runner cannot quarantine a test.
-  3. The controller excludes regressions. A test that fails every run is broken, not flaky, so it stays on the gate to block the PR.
+  3. The controller separates regressions from flakes. A test that fails every single run is broken, so it stays on the gate and blocks the PR.
   4. A query writes the quarantine list the runner reads. When a fix lands and the pass rate climbs, the test drops off the list and rejoins the gate on its own.
 
   No one edits a file to add a flake or retire it. Grafana plots each test's 30-day trend, so you tell a slow regression from noise.
