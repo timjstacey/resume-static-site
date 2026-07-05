@@ -16,7 +16,7 @@ preview:
   - [' ', 'Your CI already knows which tests pass and']
   - [' ', 'fail. Let a flake-rate query keep the list...']
 linkedinPost: |
-  You keep your flaky-test quarantine in a wiki page or a run of test.skip calls. You write it once and leave it, so within weeks you gate merges off stale data: tests someone already fixed still sit on the list, and last week's flake never made it in.
+  When a test starts failing at random, you mark it and move on: a flaky comment and a test.skip at the top of the spec. Those skips pile up across the suite, and you revisit them once. Weeks later, half of them name races someone already fixed, still skipped and dropping coverage, while last Tuesday's flake is not skipped yet and breaks the merge. Your skip list drifted from the suite the week after you wrote it.
 
   Red Hat published a walkthrough for a quarantine system that reads a metric instead. Your CI already records which tests passed and failed. Push those results into Prometheus, and one recording rule scores every test's flake rate: one minus its pass ratio over a 30-day window.
 
@@ -45,7 +45,7 @@ linkedinPost: |
   )
 ```
 
-You keep a list of flaky tests somewhere. A wiki page, or a run of `test.skip` calls at the top of a spec. You write it the week a test starts failing at random, and you update it once. Six weeks on, half the entries name tests someone already fixed, and the flake that started last Tuesday never made it in. You gate every merge off a list that went stale the day you saved it.
+When a test starts failing at random, you mark it and move on: a `// flaky` comment and a `test.skip` at the top of the spec. Those skips pile up across the suite, and you revisit them once. Six weeks on, half of them name races someone already fixed, still skipped and quietly dropping coverage, while the flake that started last Tuesday is not skipped yet and breaks the merge. Your skip list drifted from the suite the week after you wrote it.
 
 A metric does not go stale. Your CI already records which tests passed and which failed on every run. Push those results into Prometheus, score each test's failure rate, and let a query decide which tests belong in quarantine. The list rebuilds on every run, and no one edits a file to add or drop a test. [Red Hat's June walkthrough](https://developers.redhat.com/articles/2026/06/29/build-dynamic-e2e-test-quarantine-system-prometheus-grafana) wires this up against a Prometheus-backed cluster and Grafana. Here is the shape of it.
 
