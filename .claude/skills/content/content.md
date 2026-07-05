@@ -194,6 +194,12 @@ LinkedIn post later as a summary of _this_.
 - **No LinkedIn backlink.** The blog is authored first; there is no source LinkedIn
   post to link to. Do not add an "I first shared this on LinkedIn" closer — the link
   runs one way, from the LinkedIn post (step 9) to here.
+- **No fabricated prevalence.** Do not claim what "most teams", "many teams", or
+  "developers" do unless a cited source measured it (then attribute it inline). You
+  have no data on the field's behaviour. Drop the population and address the reader as
+  "you", or state the mechanism on its own. See the Fabricated Prevalence rule in
+  `stop-slop/references/structures.md`. This applies hardest to the opener, where the
+  archetype invites a status-quo line and the easy fill is an invented "most teams…".
 - Apply every stop-slop rule: no adverbs, no passive voice, no binary contrasts, no
   em-dashes, no throat-clearing openers, active voice, no inanimate subjects doing
   human actions.
@@ -235,6 +241,10 @@ Rules for `linkedinPost`:
   the game" + "most teams haven't noticed / nobody realises" shape (see
   `stop-slop/references/structures.md`). State what shipped and why it matters; trust
   the reader. Lead with the concrete change, not a claim of secret knowledge.
+- **No fabricated prevalence.** Same as the blog: no "most teams / many teams /
+  developers do X" unless a cited source measured it. Reframe to "you" or the mechanism.
+  Watch the opener — the distilled first line is where an invented "most teams…" creeps
+  back in.
 - 150–300 words.
 - End with the **blog link as a bare URL** (`BLOG_URL` from step 7) on its own line —
   this is the one-way link readers follow to the canonical post.

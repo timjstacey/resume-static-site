@@ -75,6 +75,31 @@ testing a component in a real browser, and most teams have not noticed."_
 it runs your component test inside a real Chromium." Name the change and who does the
 work. Trust the reader to judge whether they knew.
 
+## Fabricated Prevalence
+
+Claiming what a group does without a source that measured it. Neither the writer nor the
+reader can know what "most teams" do. It reads as authority; it is invention. This is the
+soft cousin of the lazy extremes (`every`/`never`/`nobody`) — the quantifier is fuzzier
+(`most`, `many`, `a lot of`), so it slips past a scan for absolutes while making the same
+unmeasured claim.
+
+| Pattern                                              | Problem                                         |
+| ---------------------------------------------------- | ----------------------------------------------- |
+| "Most teams / many teams / a lot of teams [do X]"    | Unmeasured prevalence stated as fact            |
+| "Teams keep their X in a wiki" (unquantified plural) | Implies a norm the writer never measured        |
+| "No one edits / everyone reaches for X"              | Absolute version of the same invented claim     |
+| "The industry / the field has settled on X"          | Same guess, dressed as consensus                |
+| "Developers tend to / people usually [do X]"         | Armchair claim about a population you can't see |
+
+Example of the shape to never write: _"Most teams keep their flaky-test quarantine in a
+wiki page."_ — you have no data on what most teams do.
+
+**Instead:** Two moves. (1) If a named source measured it, cite it inline: "JetBrains'
+2026 survey puts developer AI use at 90%." (2) Otherwise drop the population and address
+the reader, or state the mechanism on its own: "If you keep your quarantine in a wiki
+page, it goes stale." or "A wiki-page quarantine goes stale the week after you write it."
+Never assert a prevalence you cannot source.
+
 ## Formulaic Constructions
 
 | Pattern                   | Problem                     |
