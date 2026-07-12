@@ -1,10 +1,10 @@
 {
   "branch": "main",
   "passing": true,
-  "sha": "79c8ead",
+  "sha": "876d3d5",
   "commitMessage": "chore(ci): refresh ci-snapshot.json",
-  "commitAgo": "22h ago",
-  "lastDeployAgo": "1d ago",
+  "commitAgo": "1d ago",
+  "lastDeployAgo": "2d ago",
   "runs": [
     "pass",
     "pass",
