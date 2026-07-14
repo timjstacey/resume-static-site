@@ -1,11 +1,13 @@
 - company: Tiny Technologies
   role: Quality Engineer
+  url: https://au.seek.com/job/92159103
   applied: '2026-05-18'
   status: Applied
   notes: 'Applied via Seek'
 
 - company: CircuIT Recruitment Group
   role: Senior Automation Test Engineer
+  url: https://au.seek.com/job/92138643
   applied: '2026-05-16'
   status: Applied
   notes: 'Applied via Seek'
@@ -30,18 +32,21 @@
 
 - company: AutoGuru Australia Pty Ltd
   role: Automation Test Engineer
+  url: https://au.seek.com/job/91830151
   applied: '2026-05-05'
   status: Rejected
   notes: 'Applied via Seek'
 
 - company: FlowLogic
   role: Quality Assurance Engineer
+  url: https://au.seek.com/job/91779429
   applied: '2026-05-05'
   status: Applied
   notes: 'Applied via Seek'
 
 - company: nib health funds limited
   role: QA Engineer
+  url: https://au.seek.com/job/91853320
   applied: '2026-05-05'
   status: Rejected
   notes: 'Applied via Seek'
@@ -54,18 +59,21 @@
 
 - company: Micromine Australia Pty Ltd
   role: Automation Tester
+  url: https://au.seek.com/job/91876785
   applied: '2026-05-05'
   status: Applied
   notes: 'Applied via Seek'
 
 - company: Talenza
   role: Senior Quality Engineer
+  url: https://au.seek.com/job/91575461
   applied: '2026-05-05'
   status: Applied
   notes: 'Applied via Seek'
 
 - company: ABC
   role: Quality Assurance Engineer
+  url: https://au.seek.com/job/91757909
   applied: '2026-04-30'
   status: Rejected
   notes: 'Applied via LinkedIn'
@@ -120,12 +128,14 @@
 
 - company: Talent
   role: Technical Test Lead
+  url: https://au.seek.com/job/92473729
   applied: '2026-06-03'
   status: Screening
   notes: 'Applied via Seek'
 
 - company: DWS Limited
   role: Test Automation Engineer - Playwright
+  url: https://au.seek.com/job/92474620
   applied: '2026-06-05'
   status: Applied
   notes: 'Applied via Seek'
@@ -141,3 +151,45 @@
   applied: '2026-06-11'
   status: Applied
   notes: 'Applied via Linkedin'
+
+- company: Correlate Resources
+  role: QA Automation Lead
+  url: https://au.seek.com/job/93016013
+  applied: '2026-07-01'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: Keypath Education
+  role: Quality Assurance Engineer
+  applied: '2026-07-10'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
+- company: WorkCover Queensland
+  role: Senior Quality Engineer - Integration
+  url: https://au.seek.com/job/93283151
+  applied: '2026-07-14'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: Endpoint IQ
+  role: QA & Release Lead
+  url: https://au.seek.com/job/93296158
+  applied: '2026-07-14'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: Accenture
+  role: Test Stream Manager
+  applied: '2026-07-13'
+  status: Applied
+
+- company: Macquarie
+  role: Quality Engineer
+  applied: '2026-07-06'
+  status: Applied
+
+- company: Business Fitness
+  role: SDET Lead
+  applied: '2026-06-26'
+  status: Applied
