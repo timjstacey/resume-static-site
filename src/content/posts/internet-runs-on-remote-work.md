@@ -37,6 +37,22 @@ linkedinPost: |
   #RemoteWork #RegionalAustralia #OpenSource #TestAutomation #FutureOfWork
 ---
 
+```bash title="~/rto-research" frame="terminal"
+$ grep -i '^Received:' rto-mandate.eml
+Received: from mail.google.com
+  by imap.fastmail.com; Fri, 17 Jul 2026 09:04:11 +1000
+Received: from mx1.corp.example
+  by mail.google.com with ESMTPS id d9-20020a17
+Received: from ceo-laptop.corp.example (Postfix)
+  by mx1.corp.example with ESMTPS
+
+# read bottom-up: ceo-laptop -> corp MTA -> Google -> your inbox
+# every relay in that chain runs Linux: 2,134 devs, 1,780 orgs, one release
+# Google routes the mail on the container model Kubernetes standardised
+#   (88,000 contributors, 44 countries, no shared office)
+# payload: "distributed collaboration does not work"
+```
+
 Your CEO's return-to-office memo reached you through software built by people who have never shared an office.
 
 The email travelled over Linux servers. Kubernetes orchestrated the containers behind the video call where leadership explained that collaboration happens in person. The badge system tracking your attendance depends on open source libraries maintained by someone on the other side of the planet.
