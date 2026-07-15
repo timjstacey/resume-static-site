@@ -143,7 +143,9 @@ Do not hardcode the schema — read it live:
 - One or two existing posts under `src/content/posts/*.md` — match their frontmatter
   shape, `preview` block style, and prose voice.
 - `astro.config.mjs` — read the `site` value (e.g. `https://tim.sillysamoyed.com`).
-  The blog URL is `BLOG_URL = <site>/blog/SLUG`; you need it for `linkedinPost`.
+  The blog URL is `BLOG_URL = <site>/blog/SLUG`. Do **not** put it in `linkedinPost`
+  (the link goes in a comment on the LinkedIn post — see step 9); the publish
+  workflow derives it from the slug.
 
 Required frontmatter (confirm against `PostSchema`):
 
@@ -246,8 +248,10 @@ Rules for `linkedinPost`:
   Watch the opener — the distilled first line is where an invented "most teams…" creeps
   back in.
 - 150–300 words.
-- End with the **blog link as a bare URL** (`BLOG_URL` from step 7) on its own line —
-  this is the one-way link readers follow to the canonical post.
+- **No URLs in the copy.** LinkedIn demotes posts with external links in the body, so
+  the blog link is posted as the first comment by linkedin-post-generator, not baked
+  into the copy. End the body with `Link in the first comment.` on its own line to
+  point readers at it.
 - Then 3–5 hashtags on the final line, `#`-prefixed. Use the same set as the post's
   `hashtags` frontmatter.
 - Apply every stop-slop rule, same as the blog.
@@ -300,7 +304,7 @@ ONE_PARAGRAPH_SUMMARY
 ---
 
 On merge, `publish-linkedin.yml` reads `linkedinPost` and dispatches it to
-linkedin-post-generator to post, with the blog link already in the copy.
+linkedin-post-generator, which posts it and comments the blog link on the post.
 EOF
 )"
 ```

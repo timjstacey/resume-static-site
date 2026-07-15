@@ -2,9 +2,11 @@ name: Publish blog post to LinkedIn
 
 # When a new blog post lands on main, hand its pre-written LinkedIn copy to
 # linkedin-post-generator to post. The blog is authored first (blog-first); the
-# `linkedinPost` frontmatter holds the distilled LinkedIn summary, which already
-# carries the blog link. Posts without `linkedinPost` (hand-written) are skipped.
-# The link runs one way (LinkedIn -> blog); nothing is written back.
+# `linkedinPost` frontmatter holds the distilled LinkedIn summary. The copy carries
+# no URLs — LinkedIn demotes posts with external links in the body, so LPG comments
+# the dispatched blog_url on the post instead. Posts without `linkedinPost`
+# (hand-written) are skipped. The link runs one way (LinkedIn -> blog); nothing is
+# written back.
 
 on:
   push:
@@ -62,8 +64,8 @@ jobs:
           BLOG_URL="https://tim.sillysamoyed.com/blog/$SLUG"
 
           # Wait for Cloudflare Pages to finish deploying the post before dispatching,
-          # so the LinkedIn copy never links to a URL that 404s. Fail (no dispatch) if
-          # it never goes live — better than posting a dead link.
+          # so the blog-link comment LPG posts never points at a 404. Fail (no
+          # dispatch) if it never goes live — better than posting a dead link.
           for i in $(seq 1 10); do
             code=$(curl -s -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
             if [ "$code" = "200" ]; then
