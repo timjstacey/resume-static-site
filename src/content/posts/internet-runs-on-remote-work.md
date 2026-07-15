@@ -1,5 +1,5 @@
 ---
-title: The Internet Runs on Remote Work. Your CEO Says It Doesn't Work.
+title: The Internet Runs on Remote Work. Your CEO Says It Doesn't Work
 date: 2026-07-17
 tag: Team
 excerpt: 'The largest engineering projects in history are distributed by design, yet executives keep insisting distributed work fails. What the RTO research, the real estate money trail, and one Australian policy contradiction actually show.'
