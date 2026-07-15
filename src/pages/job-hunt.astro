@@ -113,7 +113,7 @@ const avatars: { label: string; accent: string }[] = [
         <select
           id="filter-epic"
           aria-label="Filter by company"
-          class="cursor-pointer appearance-none rounded border border-ctp-surface1 bg-ctp-mantle py-[7px] pr-8 pl-3 font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
+          class="max-w-[150px] cursor-pointer appearance-none truncate rounded border border-ctp-surface1 bg-ctp-mantle py-[7px] pr-8 pl-3 font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
         >
           <option value="">EPIC</option>
           {companies.map((c) => <option value={c}>{c}</option>)}
