@@ -48,11 +48,11 @@ test.describe('Resume page', () => {
     }
   });
 
-  test('current role shows the current-role caption', async ({ page }) => {
-    const current = resume.experience.find((e) => e.end === 'present')!;
-    const card = page.getByRole('article', { name: current.company });
+  test('most-recent role shows the most-recent caption', async ({ page }) => {
+    const recent = resume.experience[0]!;
+    const card = page.getByRole('article', { name: recent.company });
     await expect(card).toBeVisible();
-    await expect(card).toContainText('current role');
+    await expect(card).toContainText('most recent');
   });
 
   test('past roles show zero-padded index', async ({ page }) => {

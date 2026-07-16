@@ -25,12 +25,13 @@ const current = resume.experience[0];
 const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 const postAccents = ['peach', 'teal', 'mauve'];
 
+const currentEnd = current ? (current.end === 'present' ? 'now' : fmtYM(current.end)) : '';
 const meta = current
   ? [
-      ['tenure', `${fmtYM(current.start)} – now`],
-      ['team', 'lead of 3 QEs'],
+      ['tenure', `${fmtYM(current.start)} – ${currentEnd}`],
+      ['team', 'led 3 QEs'],
       ['stack', 'Playwright · WDIO'],
-      ['cadence', 'ships in hours'],
+      ['cadence', 'shipped in hours'],
     ]
   : [];
 ---
@@ -47,7 +48,7 @@ const meta = current
         <h1
           class="mt-7 font-display text-6xl leading-[0.92] font-bold tracking-[-0.04em] text-ctp-text md:text-[124px]"
         >
-          Lead QE.<br />
+          Lead SDET.<br />
           <span class="text-ctp-peach">Ship</span>
           <span class="text-ctp-overlay1">in</span>
           <span class="text-ctp-teal">hours.</span>
@@ -87,9 +88,9 @@ const meta = current
           class="mt-6 font-display text-[56px] leading-none font-bold tracking-[-0.03em] text-ctp-peach"
           data-testid="availability-date"
         >
-          13 Jun
+          Now
         </div>
-        <div class="mt-2 font-mono text-sm text-ctp-subtext1">2026 onward</div>
+        <div class="mt-2 font-mono text-sm text-ctp-subtext1">open to offers</div>
         <div class="my-6 border-t border-dashed border-ctp-surface1"></div>
         <dl class="grid grid-cols-2 gap-4 font-mono text-[12.5px]">
           <div><dt class="text-ctp-overlay2">type</dt><dd class="mt-1 text-ctp-text">perm · contract</dd></div>
@@ -120,7 +121,7 @@ const meta = current
       {resume.bio && <p class="mt-6 text-lg leading-relaxed text-ctp-subtext1">{resume.bio}</p>}
     </div>
     <TerminalWindow path="$ yq '.experience[0]' resume.yml">
-      <span slot="status" class="text-ctp-green">● live</span>
+      <span slot="status" class="text-ctp-peach">● most recent</span>
       <div class="font-display text-3xl font-bold tracking-[-0.02em] text-ctp-text">{current?.role}</div>
       <div class="mt-1 text-ctp-teal">@ {current?.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}</div>
       <dl class="mt-5 grid grid-cols-2 gap-4 text-[13px]">
