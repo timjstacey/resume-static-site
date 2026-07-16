@@ -1,11 +1,11 @@
 name: Tim Stacey
-tagline: 'Lead Quality Engineer: Test Automation & Engineering Standards'
+tagline: 'Software Developer in Test: automation frameworks and engineering standards'
 bio: >-
-  I'm wrapping up at Sony Interactive Entertainment on 12 June 2026, and from 13 June I'm available for
-  remote work worldwide, perm or contract. My day-to-day is test automation across web, API, and
-  mobile; I'd rather push validation into the API and contract layer than fight flaky UI flows. As Lead QE at
-  Sony I run a team of three and set the engineering bar that keeps our release cycles down to hours: strict
-  typing, linting, hooks, tight PR practice.
+  I spent over three years at Sony Interactive Entertainment building E2E automation across web, API,
+  and mobile, and wrapped up there in June 2026. I'm looking for my next role: remote worldwide, perm
+  or contract. I push validation into the API and contract layer rather than fight flaky UI flows, and
+  I set the engineering bar (strict typing, linting, hooks, tight PR practice) that takes a release
+  cycle from days to hours.
 contact:
   github: https://github.com/timjstacey
   linkedin: https://www.linkedin.com/in/timjstacey/
@@ -13,7 +13,7 @@ experience:
   - company: Sony Interactive Entertainment
     role: Lead Quality Engineer
     start: '2022-10'
-    end: present
+    end: '2026-06'
     bullets:
       - Built company E2E automation capability from scratch, a TypeScript framework covering web, API, and mobile across 11 repositories
       - Shifted complex validation out of brittle UI tests into API and service layers using database and messaging integrations

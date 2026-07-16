@@ -25,9 +25,9 @@ test.describe('Home page', () => {
   });
 
   test('hero heading + availability card render', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: /Lead QE/ })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Lead SDET/ })).toBeVisible();
     await expect(page.getByTestId('availability-label')).toHaveText('availability.json');
-    await expect(page.getByTestId('availability-date')).toHaveText('13 Jun');
+    await expect(page.getByTestId('availability-date')).toHaveText('Now');
   });
 
   test('stats strip shows derived counts from data', async ({ page }) => {
