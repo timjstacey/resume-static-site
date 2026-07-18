@@ -1,10 +1,10 @@
 {
   "branch": "main",
   "passing": true,
-  "sha": "cd796b9",
-  "commitMessage": "chore(content): clarify Atlassian RTO exec-productivity stat wording (#187)",
-  "commitAgo": "9h ago",
-  "lastDeployAgo": "9h ago",
+  "sha": "1492b49",
+  "commitMessage": "chore(ci): refresh ci-snapshot.json",
+  "commitAgo": "23h ago",
+  "lastDeployAgo": "1d ago",
   "runs": [
     "pass",
     "pass",
