@@ -66,8 +66,11 @@ jobs:
           # Wait for Cloudflare Pages to finish deploying the post before dispatching,
           # so the blog-link comment LPG posts never points at a 404. Fail (no
           # dispatch) if it never goes live — better than posting a dead link.
+          # -L follows the trailing-slash 308 (Astro directory output) so a live
+          # post reads as 200, not the redirect code — otherwise the loop never
+          # matches and exits 1 without dispatching.
           for i in $(seq 1 10); do
-            code=$(curl -s -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
+            code=$(curl -sL -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
             if [ "$code" = "200" ]; then
               echo "Blog URL is live ($code)."
               break
