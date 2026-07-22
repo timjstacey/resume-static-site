@@ -1,13 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync } from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 // Pick any one post slug by reading the markdown sources directly — posts.ts
 // imports `astro:content`, which only resolves inside the Astro runtime. The OG
 // route exists for every post, so which slug we sample does not matter; take the
-// first. Absolute path so the read never silently returns [] if the CWD shifts.
-const POSTS_DIR = path.resolve(fileURLToPath(import.meta.url), '../../src/content/posts');
+// first. Path is relative to the repo root — Playwright's CWD. (No import.meta:
+// specs load as CJS here since package.json has no "type": "module".)
+const POSTS_DIR = 'src/content/posts';
 const postSlug = readdirSync(POSTS_DIR)
   .filter((f) => f.endsWith('.md'))
   .map((f) => f.replace(/\.md$/, ''))[0];
