@@ -91,16 +91,16 @@ is forced to `News / launch` (see step 4).
 own GitHub versioning, not npm). Same dedup-by-version + 4-week recency guard. If it
 qualifies and Tier 1 did not, this is the topic — also forced `News / launch`.
 
-**Tier 3 — last-week web search.** No fresh, unposted release → search for any
+**Tier 3 — docs deep-dive.** No fresh release and no fresh news → write a how-to or
+teardown from the Playwright (`playwright.dev/docs`) or k6 (`grafana.com/docs/k6`)
+**docs**. Pick a guide or feature the ledger has not covered. Normal rotation (this
+tier lands naturally on `Playbook` or `Teardown`).
+
+**Tier 4 — last-week web search.** No fresh, unposted release → search for any
 interesting testing/CI/DevEx angle from the **last 7 days**. Run several **WebSearch**
 queries with different wording. If WebSearch is unavailable (a local run outside the
 US, where it is region-restricted), use the **Tavily** MCP tool instead. Target a
 fresh, specific angle not already in the ledger. Normal archetype rotation (step 4).
-
-**Tier 4 — docs deep-dive.** No fresh release and no fresh news → write a how-to or
-teardown from the Playwright (`playwright.dev/docs`) or k6 (`grafana.com/docs/k6`)
-**docs**. Pick a guide or feature the ledger has not covered. Normal rotation (this
-tier lands naturally on `Playbook` or `Teardown`).
 
 **Recency gate (hard rule).** A Tier 1/2 release only qualifies if published within
 4 weeks of `TODAY`; a Tier 3 source must be dated within 7 days. If a tier's candidate
