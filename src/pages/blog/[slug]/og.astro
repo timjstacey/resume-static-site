@@ -1,0 +1,163 @@
+---
+// OG snippet image route — renders a fixed 1200×630 card with a code snippet
+// for each blog post. Playwright screenshots this to produce public/og/SLUG.png.
+// Always forced to Catppuccin Mocha (social image is always dark, independent of
+// the visitor's theme preference). `class="mocha"` on <html> is set inline here,
+// not via the localStorage bootstrap in Base.astro.
+import { Code } from 'astro-expressive-code/components';
+import { getPosts } from '../../../lib/posts';
+import { pickHeroFence, ogTitle } from '../../../lib/ogSnippet';
+import '../../../styles/global.css';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+
+  // Glob-import all hand-authored OG snippets as raw strings, keyed by slug.
+  // The key format Vite produces for a glob is the full import path relative
+  // to this file (e.g. '../../../og-snippets/playwright-clock-control.ts').
+  const snippetModules = import.meta.glob('../../../og-snippets/*.ts', {
+    query: '?raw',
+    import: 'default',
+    eager: true,
+  }) as Record<string, string>;
+
+  // Remap the full path keys to slug keys for easy lookup.
+  const snippetBySlug: Record<string, string> = {};
+  for (const [p, code] of Object.entries(snippetModules)) {
+    // p ends with '/og-snippets/playwright-clock-control.ts'
+    const slug = p.replace(/^.*\/([^/]+)\.ts$/, '$1');
+    snippetBySlug[slug] = code;
+  }
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post, snippetBySlug },
+  }));
+}
+
+const TAG_ACCENT: Record<string, string> = {
+  Strategy: 'peach',
+  Practice: 'teal',
+  Meta: 'mauve',
+  Team: 'sapphire',
+  Tools: 'yellow',
+};
+
+const { post, snippetBySlug } = Astro.props;
+const slug = post.id;
+
+// Resolve the snippet: hand-authored file wins, then first body fence.
+let snippetCode: string;
+let snippetTitle: string;
+
+const handAuthored = snippetBySlug[slug];
+if (handAuthored) {
+  snippetCode = handAuthored;
+  // Hand-authored files use slug.ts as the window chrome label.
+  snippetTitle = ogTitle(slug, null);
+} else {
+  const fence = pickHeroFence(post.body ?? '');
+  if (fence) {
+    snippetCode = fence.code;
+    snippetTitle = ogTitle(slug, fence);
+  } else {
+    snippetCode = `// ${slug}`;
+    snippetTitle = ogTitle(slug, null);
+  }
+}
+
+// Strip trailing dot from the post title for the footer headline.
+const headline = post.data.title.replace(/\.$/, '');
+
+const accent = TAG_ACCENT[post.data.tag] ?? 'lavender';
+---
+
+<!doctype html>
+<html lang="en" class="mocha">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1200" />
+    <title>{headline} — OG</title>
+  </head>
+  <body>
+    <div id="og-card" data-testid="og-card" style={`border-top-color: var(--catppuccin-color-${accent})`}>
+      <Code code={snippetCode} lang="ts" title={snippetTitle} frame="code" />
+      <div class="foot">
+        <span class="dot" style={`background: var(--catppuccin-color-${accent})`}></span>
+        <span class="headline">{headline}</span>
+        <span class="brand">tim.sillysamoyed.com/blog</span>
+      </div>
+    </div>
+  </body>
+</html>
+
+<style>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--catppuccin-color-base);
+  }
+
+  #og-card {
+    width: 1200px;
+    height: 630px;
+    box-sizing: border-box;
+    padding: 44px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: radial-gradient(
+      1200px 630px at 80% 12%,
+      var(--catppuccin-color-surface0) 0%,
+      var(--catppuccin-color-base) 60%
+    );
+    border-top: 6px solid;
+    overflow: hidden;
+  }
+
+  #og-card :global(.expressive-code) {
+    margin: 0;
+    flex: 1 1 auto;
+  }
+
+  #og-card :global(.expressive-code pre) {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  #og-card :global(.expressive-code .title) {
+    font-size: 15px;
+  }
+
+  #og-card .foot {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 21px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--catppuccin-color-text);
+  }
+
+  #og-card .foot .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex: 0 0 auto;
+  }
+
+  #og-card .foot .brand {
+    margin-left: auto;
+    font-family: ui-monospace, monospace;
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--catppuccin-color-overlay1);
+  }
+</style>

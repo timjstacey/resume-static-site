@@ -144,21 +144,21 @@ Do not hardcode the schema — read it live:
   shape, `preview` block style, and prose voice.
 - `astro.config.mjs` — read the `site` value (e.g. `https://tim.sillysamoyed.com`).
   The blog URL is `BLOG_URL = <site>/blog/SLUG`. Do **not** put it in `linkedinPost`
-  (the link goes in a comment on the LinkedIn post — see step 9); the publish
+  (the link goes in a comment on the LinkedIn post — see step 10); the publish
   workflow derives it from the slug.
 
 Required frontmatter (confirm against `PostSchema`):
 
-| Field          | Type                                            | Notes                                           |
-| -------------- | ----------------------------------------------- | ----------------------------------------------- |
-| `title`        | string                                          | The post title.                                 |
-| `date`         | bare `YYYY-MM-DD` (parses to a JS Date)         | Unquoted, = `TODAY`.                            |
-| `tag`          | `Strategy \| Practice \| Meta \| Team \| Tools` | Bare enum. See mapping below.                   |
-| `excerpt`      | string                                          | One sentence. Quote it if it contains a colon.  |
-| `readMins`     | integer                                         | `ceil(word_count / 220)`.                       |
-| `preview`      | list of `[prefix, text]` tuples                 | 8–12 lines; the terminal-style cover.           |
-| `hashtags`     | list of strings                                 | 3–5, `#` stripped. See below.                   |
-| `linkedinPost` | string                                          | The distilled LinkedIn copy. Written in step 9. |
+| Field          | Type                                            | Notes                                            |
+| -------------- | ----------------------------------------------- | ------------------------------------------------ |
+| `title`        | string                                          | The post title.                                  |
+| `date`         | bare `YYYY-MM-DD` (parses to a JS Date)         | Unquoted, = `TODAY`.                             |
+| `tag`          | `Strategy \| Practice \| Meta \| Team \| Tools` | Bare enum. See mapping below.                    |
+| `excerpt`      | string                                          | One sentence. Quote it if it contains a colon.   |
+| `readMins`     | integer                                         | `ceil(word_count / 220)`.                        |
+| `preview`      | list of `[prefix, text]` tuples                 | 8–12 lines; the terminal-style cover.            |
+| `hashtags`     | list of strings                                 | 3–5, `#` stripped. See below.                    |
+| `linkedinPost` | string                                          | The distilled LinkedIn copy. Written in step 10. |
 
 **`hashtags`** — blog-first, so you author these (no source LinkedIn post to copy
 from). Start from `HASHTAGS` if set, then add topic-relevant tags until you have
@@ -181,7 +181,7 @@ LinkedIn post later as a summary of _this_.
 
 - **Frontmatter** — mirror an existing post exactly. `preview` is a `cat SLUG.md`
   terminal cover: a `'$'` shell line, a `'#'` title line, a blank `' '` line, then
-  `' '` body lines paraphrasing the opening. Leave `linkedinPost` for step 9.
+  `' '` body lines paraphrasing the opening. Leave `linkedinPost` for step 10.
 - **`##` section headings** structure the piece (3–6 real sections). They drive the
   on-this-page TOC rail and the numbered section index.
 - **Code examples** in fenced blocks with a language and a `title="file.ext"` so
@@ -195,7 +195,7 @@ LinkedIn post later as a summary of _this_.
 - A `>` blockquote renders as a callout — use one for the key takeaway if it earns it.
 - **No LinkedIn backlink.** The blog is authored first; there is no source LinkedIn
   post to link to. Do not add an "I first shared this on LinkedIn" closer — the link
-  runs one way, from the LinkedIn post (step 9) to here.
+  runs one way, from the LinkedIn post (step 10) to here.
 - **No fabricated prevalence.** Do not claim what "most teams", "many teams", or
   "developers" do unless a cited source measured it (then attribute it inline). You
   have no data on the field's behaviour. Drop the population and address the reader as
@@ -208,7 +208,36 @@ LinkedIn post later as a summary of _this_.
 
 Aim for 700–1,400 words.
 
-## 9. Distill the LinkedIn post into `linkedinPost`
+## 9. Author the OG snippet
+
+Write `src/og-snippets/SLUG.ts` — the code snippet that will become the LinkedIn
+image for this post. This is the single idea a reader would screenshot: the solution,
+distilled to ~15 lines of real or pseudo-code. The file never runs; it exists only
+to be rendered by the OG image route (`/blog/SLUG/og`) and screenshotted by
+`scripts/og/render.mjs` on merge.
+
+Guidelines:
+
+- **One idea.** The lead concept from step 8, not a survey of the whole post.
+- **~15 lines.** Enough to show the pattern; short enough to fit in 1200×630 at
+  16px. Over-long snippets get clipped by the card.
+- **Pseudo-code is fine.** The file is never executed — write for readability, not
+  correctness. Real Playwright/k6/TS syntax reads better than made-up syntax.
+- **Comments are the voice.** A single `//` line at the top stating what the snippet
+  does (see the `playwright-clock-control.ts` example). Keep comments short.
+- Match the existing example: `src/og-snippets/playwright-clock-control.ts`.
+
+After writing the file, `git add` it alongside the post:
+
+```bash
+git add "src/og-snippets/SLUG.ts"
+```
+
+The image itself is rendered in CI on merge (`publish-linkedin.yml` builds the site,
+runs `pnpm og:render --slug SLUG`, and commits `public/og/SLUG.png` to main).
+Do not run `pnpm og:render` in this routine — the preview server is not running.
+
+## 10. Distill the LinkedIn post into `linkedinPost`
 
 Now read the blog you just wrote and distill it into the `linkedinPost` frontmatter
 field — a standalone LinkedIn post that summarizes the blog and links to it. This is
@@ -223,7 +252,7 @@ linkedinPost: |
 
   Two or three short paragraphs carrying the core claims from the blog.
 
-  Read the full write-up: https://tim.sillysamoyed.com/blog/SLUG
+  Link in the first comment.
 
   #Hashtag1 #Hashtag2 #Hashtag3
 ```
@@ -256,7 +285,7 @@ Rules for `linkedinPost`:
   `hashtags` frontmatter.
 - Apply every stop-slop rule, same as the blog.
 
-## 10. Validate before pushing
+## 11. Validate before pushing
 
 ```bash
 pnpm typecheck   # astro check — fails on bad frontmatter
@@ -265,7 +294,7 @@ pnpm typecheck   # astro check — fails on bad frontmatter
 A bad `tag` enum, missing field, malformed `preview` tuple, or non-string
 `linkedinPost` surfaces here. Re-run until clean.
 
-## 11. Update the ledger
+## 12. Update the ledger
 
 Append one row to `research/INDEX.md` (preserve existing rows). Put the archetype
 Label from step 4 verbatim in the `Archetype` column:
@@ -274,7 +303,7 @@ Label from step 4 verbatim in the `Archetype` column:
 | TODAY | POST_TITLE | ONE_SENTENCE_TOPIC_ANGLE | ARCHETYPE_LABEL | #Hashtag1 #Hashtag2 |
 ```
 
-## 12. Branch, commit, open the PR
+## 13. Branch, commit, open the PR
 
 The branch must be `claude/`-prefixed — the routine only pushes `claude/` branches,
 and the site's branch-name hook accepts the `claude` type. The repo rebase-merges.
@@ -283,14 +312,14 @@ and the site's branch-name hook accepts the `claude` type. The repo rebase-merge
 BRANCH="claude/blog-SLUG"
 git checkout main && git pull --ff-only
 git checkout -b "$BRANCH"
-git add "src/content/posts/SLUG.md" research/
+git add "src/content/posts/SLUG.md" "src/og-snippets/SLUG.ts" research/
 git commit -m "feat(blog): POST_TITLE"
 git push -u origin "$BRANCH"      # pre-push hook re-runs typecheck
 gh pr create \
   --base main --head "$BRANCH" \
   --title "feat(blog): POST_TITLE" \
   --body "$(cat <<'EOF'
-Blog-first content post (research → canonical blog → distilled linkedinPost).
+Blog-first content post (research → canonical blog → OG snippet → distilled linkedinPost).
 
 ## Summary
 
@@ -303,8 +332,9 @@ ONE_PARAGRAPH_SUMMARY
 
 ---
 
-On merge, `publish-linkedin.yml` reads `linkedinPost` and dispatches it to
-linkedin-post-generator, which posts it and comments the blog link on the post.
+On merge, `publish-linkedin.yml` reads `linkedinPost`, renders `public/og/SLUG.png`,
+commits it, and dispatches it to linkedin-post-generator, which posts the copy and
+comments the blog link on the post.
 EOF
 )"
 ```
