@@ -27,13 +27,16 @@ export function ogSnippetPath(slug: string): string {
  */
 export function pickHeroFence(markdownBody: string): SnippetBlock | null {
   // Match opening fence: backticks, optional lang, optional attrs, then code until closing fence.
-  const fenceRe = /^```([^\s`]*)?([^\n]*)?\n([\s\S]*?)^```/m;
+  // Each group is a `*` (min zero) with no optional `?`, so a successful match
+  // always populates all three — no nullish fallback branch to cover. The `!`
+  // is compile-time only (noUncheckedIndexedAccess widens the index type).
+  const fenceRe = /^```([^\s`]*)([^\n]*)\n([\s\S]*?)^```/m;
   const match = fenceRe.exec(markdownBody);
   if (!match) return null;
 
-  const lang = (match[1] ?? '').trim();
-  const attrLine = (match[2] ?? '').trim();
-  const code = match[3] ?? '';
+  const lang = match[1]!.trim();
+  const attrLine = match[2]!.trim();
+  const code = match[3]!;
 
   // Extract title="..." from the attribute line, if present.
   const titleMatch = /title="([^"]*)"/.exec(attrLine);
