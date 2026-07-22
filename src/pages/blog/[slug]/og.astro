@@ -49,6 +49,9 @@ const slug = post.id;
 // Resolve the snippet: hand-authored file wins, then first body fence.
 let snippetCode: string;
 let snippetTitle: string;
+// Hand-authored snippets are .ts; a body-fence fallback keeps its own language
+// so a bash/json/yaml hero fence is highlighted correctly, not forced to ts.
+let snippetLang = 'ts';
 
 const handAuthored = snippetBySlug[slug];
 if (handAuthored) {
@@ -60,6 +63,7 @@ if (handAuthored) {
   if (fence) {
     snippetCode = fence.code;
     snippetTitle = ogTitle(slug, fence);
+    snippetLang = fence.lang || 'ts';
   } else {
     snippetCode = `// ${slug}`;
     snippetTitle = ogTitle(slug, null);
@@ -81,7 +85,7 @@ const accent = TAG_ACCENT[post.data.tag] ?? 'lavender';
   </head>
   <body>
     <div id="og-card" data-testid="og-card" style={`border-top-color: var(--catppuccin-color-${accent})`}>
-      <Code code={snippetCode} lang="ts" title={snippetTitle} frame="code" />
+      <Code code={snippetCode} lang={snippetLang} title={snippetTitle} frame="code" />
       <div class="foot">
         <span class="dot" style={`background: var(--catppuccin-color-${accent})`}></span>
         <span class="headline">{headline}</span>
