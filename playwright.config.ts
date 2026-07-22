@@ -6,7 +6,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:4321';
 // - content: data-driven rendering. Same DOM across browsers, so one project is enough.
 // - a11y: keyboard / focus behaviour that varies between engines.
 // - responsive: viewport-dependent layout checks; runs only on mobile + tablet devices.
-const contentSpecs = /(home|jobs|projects|resume|blog|feeds|testing|a11y)\.spec\.ts/;
+const contentSpecs = /(home|jobs|projects|resume|blog|feeds|testing|a11y|og)\.spec\.ts/;
 const a11ySpecs = /(nav|theme-picker)\.spec\.ts/;
 const responsiveSpecs = /responsive\.spec\.ts/;
 

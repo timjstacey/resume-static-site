@@ -20,6 +20,7 @@
     "stats:refresh": "node scripts/refresh-test-stats.mjs",
     "ci:refresh": "node scripts/refresh-ci-snapshot.mjs",
     "projects:refresh": "node scripts/refresh-project-stats.mjs",
+    "og:render": "node scripts/og/render.mjs",
     "prepare": "husky"
   },
   "dependencies": {

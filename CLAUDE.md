@@ -58,18 +58,19 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 
 ## Pages
 
-| Route          | File                          | Purpose                                                         |
-| -------------- | ----------------------------- | --------------------------------------------------------------- |
-| `/`            | `src/pages/index.astro`       | Hero, bio, quick stats, CTA links                               |
-| `/resume`      | `src/pages/resume.astro`      | Full resume from data                                           |
-| `/projects`    | `src/pages/projects.astro`    | Project portfolio from data                                     |
-| `/blog`        | `src/pages/blog.astro`        | Blog index — featured post, published rows                      |
-| `/blog/[slug]` | `src/pages/blog/[slug].astro` | Single post — hero, rendered markdown body, TOC rail, prev/next |
-| `/job-hunt`    | `src/pages/job-hunt.astro`    | Job hunt dashboard                                              |
-| `/testing`     | `src/pages/testing.astro`     | Test strategy narrative + build-time stats (portfolio)          |
-| `/rss.xml`     | `src/pages/rss.xml.ts`        | RSS 2.0 feed of posts (excerpt-only)                            |
-| `/atom.xml`    | `src/pages/atom.xml.ts`       | Atom 1.0 feed of posts (excerpt-only)                           |
-| `/feed.json`   | `src/pages/feed.json.ts`      | JSON Feed 1.1 of posts (excerpt-only)                           |
+| Route             | File                                | Purpose                                                         |
+| ----------------- | ----------------------------------- | --------------------------------------------------------------- |
+| `/`               | `src/pages/index.astro`             | Hero, bio, quick stats, CTA links                               |
+| `/resume`         | `src/pages/resume.astro`            | Full resume from data                                           |
+| `/projects`       | `src/pages/projects.astro`          | Project portfolio from data                                     |
+| `/blog`           | `src/pages/blog.astro`              | Blog index — featured post, published rows                      |
+| `/blog/[slug]`    | `src/pages/blog/[slug]/index.astro` | Single post — hero, rendered markdown body, TOC rail, prev/next |
+| `/blog/[slug]/og` | `src/pages/blog/[slug]/og.astro`    | OG snippet image — 1200×630 code card, always Mocha, tag accent |
+| `/job-hunt`       | `src/pages/job-hunt.astro`          | Job hunt dashboard                                              |
+| `/testing`        | `src/pages/testing.astro`           | Test strategy narrative + build-time stats (portfolio)          |
+| `/rss.xml`        | `src/pages/rss.xml.ts`              | RSS 2.0 feed of posts (excerpt-only)                            |
+| `/atom.xml`       | `src/pages/atom.xml.ts`             | Atom 1.0 feed of posts (excerpt-only)                           |
+| `/feed.json`      | `src/pages/feed.json.ts`            | JSON Feed 1.1 of posts (excerpt-only)                           |
 
 ## Job Application Statuses
 
@@ -182,7 +183,7 @@ from the source LinkedIn post (the LPG `blog` skill copies the post's footer tag
 `#` stripped) and drive the `/blog` Tags sidebar via `hashtagCounts()` in
 `src/lib/blog.ts`; each hashtag gets a stable accent from a palette hash.
 
-The post **body** is plain markdown beneath the frontmatter. `src/pages/blog/[slug].astro`
+The post **body** is plain markdown beneath the frontmatter. `src/pages/blog/[slug]/index.astro`
 renders it with `render()` from `astro:content` (`<Content />`) — no hand-written HTML.
 Body prose is styled via scoped `.prose :global(...)` rules in that page; fenced code
 blocks are owned by **Expressive Code** (do not restyle `<pre>`). Write the post's lead
@@ -192,7 +193,7 @@ from the collection entry's `getHeadings()` (`<h2>`s).
 External links in a post body are rewritten at build time by **`rehype-external-links`**
 (configured in `astro.config.mjs` under `markdown.rehypePlugins`): every absolute
 `http(s)` anchor gets `target="_blank" rel="noopener noreferrer"` plus a trailing `↗`
-marker (`span.external-arrow`, styled in `blog/[slug].astro`). So posts — including
+marker (`span.external-arrow`, styled in `blog/[slug]/index.astro`). So posts — including
 routine-generated ones — just author normal markdown links; the new-tab rule and icon
 are enforced by the build, not by the author. Component links use the same convention
 via `Button.astro` (auto-detects external `href` through `isExternalUrl()` in `lib/links.ts`).
@@ -224,6 +225,19 @@ step has no measured timing. Regenerated from the live GitHub Actions API by
 (via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) — do not hand-edit or
 fake these.
 
+### OG snippet images (`src/og-snippets/*.ts`)
+
+One optional `.ts` file per post, `SLUG` matches `src/content/posts/SLUG.md`. ~15
+lines of real or pseudo-code — the single idea a reader would screenshot. Authored
+in step 9 of the content routine alongside the post and committed with it. The file
+never runs; it exists to be rendered by `/blog/SLUG/og` (via `?raw` glob import) and
+screenshotted by `scripts/og/render.mjs`.
+
+Missing snippet → route falls back to the post's first body fence via
+`pickHeroFence()` (`src/lib/ogSnippet.ts`), so hand-written posts still get an image.
+`publish-linkedin.yml` runs the render on merge and commits `public/og/SLUG.png`;
+`version-bump.yml` ignores `public/og/**` so those commits never bump the version.
+
 ## Component Architecture
 
 ```
@@ -253,12 +267,16 @@ src/
   content.config.ts     # Astro content collection config — blog `posts`
   content/
     posts/*.md          # blog posts — frontmatter (title/date/tag/readMins/preview) + body
+  og-snippets/
+    *.ts                # hand-authored OG code snippets (one per post, SLUG.ts); imported ?raw by og.astro
   pages/
     index.astro
     resume.astro
     projects.astro
-    blog.astro          # blog index (new)
-    blog/[slug].astro   # single post — renders markdown body via render()/<Content />
+    blog.astro          # blog index
+    blog/[slug]/
+      index.astro       # single post — renders markdown body via render()/<Content />
+      og.astro          # OG snippet image route — 1200×630 Expressive Code card, always Mocha
     job-hunt.astro
     testing.astro
   data/
@@ -284,6 +302,7 @@ src/
     feeds.ts            # pure RSS/Atom/JSON feed builders (unit-tested)
     feedSource.ts       # FEED_META + CollectionEntry→FeedPost mapper for the feed endpoints
     langColors.ts       # LANG_COLORS — language brand dots for the projects grid
+    ogSnippet.ts        # ogSnippetPath()/pickHeroFence()/ogTitle() — OG image snippet helpers (unit-tested)
     projectFilters.ts   # PROJECT_FILTERS — all + langs (derived from data) + pinned; shared by projects page + e2e spec (re-exports projectMatch)
     projectMatch.ts     # projectMatchesFilter()/tagParam()/compareByUpdated() — pure projects grid filter/sort, data-free for the client bundle (unit-tested)
     themes.ts           # FLAVORS/FLAVOR_IDS + THEME_TRIGGER_LABEL + resolveFlavor()/flavorFromClasses()/rovingIndex() — theme bootstrap + picker keyboard nav (unit-tested)
@@ -292,6 +311,9 @@ src/
     testStats.ts        # Generated test counts surfaced on /testing — `pnpm stats:refresh` (auto-run on spec changes by refresh-test-stats.yml)
     *.test.ts           # vitest unit tests colocated with each lib module
 tests/                  # Playwright E2E specs (one per page + responsive + nav)
+scripts/
+  og/
+    render.mjs          # Playwright screenshotter: loads /blog/SLUG/og → public/og/SLUG.png
 ```
 
 ## Issue Tracking
@@ -351,9 +373,9 @@ it stored in the post's `linkedinPost` frontmatter field. The link runs one way 
 the LinkedIn post links to the blog, nothing writes back.
 
 The `content` skill (`.claude/skills/content/content.md`, invoked `/content`) runs
-the whole routine in one session: research → write the canonical blog → distill
-`linkedinPost` → `pnpm typecheck` → open a `claude/...` PR. It reuses this repo's
-`stop-slop` skill and rotates post structure through
+the whole routine in one session: research → write the canonical blog → author the OG
+snippet → distill `linkedinPost` → `pnpm typecheck` → open a `claude/...` PR. It
+reuses this repo's `stop-slop` skill and rotates post structure through
 `.claude/skills/content/references/archetypes.md`.
 
 `research/` is the dedup ledger + per-post research notes. `research/INDEX.md` holds
@@ -361,10 +383,12 @@ one row per post (`Date | Title | Topic angle | Archetype | Hashtags`); the skil
 reads it to avoid repeating a recent angle and to exclude the last three archetypes
 from this run's rotation. It is hand-tended by the skill — append, don't rewrite.
 
-On merge, `publish-linkedin.yml` reads `linkedinPost` and dispatches it to
-`linkedin-post-generator`, which posts it to LinkedIn and then comments the blog
-link on the post (LinkedIn demotes posts with external links in the body, so the
-copy carries no URLs — it ends with "Link in the first comment.").
+On merge, `publish-linkedin.yml` reads `linkedinPost`, renders `public/og/SLUG.png`
+(building the site, running `pnpm og:render --slug SLUG`, and committing the PNG to
+`main`), then dispatches to `linkedin-post-generator`, which posts the copy to
+LinkedIn and comments the blog link on the post (LinkedIn demotes posts with external
+links in the body, so the copy carries no URLs — it ends with "Link in the first
+comment.").
 
 ## Playwright Screenshots
 
@@ -379,18 +403,19 @@ Never save screenshots to the repo root or any other directory.
 ## Commands
 
 ```bash
-pnpm dev           # dev server at localhost:4321
-pnpm build         # static output → dist/
-pnpm preview       # preview built site at localhost:4322 (separate port so a stray preview never squats dev/e2e on 4321)
-pnpm typecheck     # astro check — full TS diagnostics across all .astro/.ts files
-pnpm test          # vitest run — unit tests (schemas, nav logic)
-pnpm test:coverage # vitest run --coverage — unit tests + V8 coverage gate (text/html/lcov)
-pnpm test:e2e      # playwright — E2E tests (requires dev server or auto-starts it)
-pnpm lint          # run ESLint — fails on any warning (--max-warnings 0)
-pnpm lint:fix      # run ESLint with auto-fix (also --max-warnings 0)
-pnpm stats:refresh # regenerate src/lib/testStats.ts from current spec inventory
-pnpm ci:refresh    # regenerate src/data/ci-snapshot.json (CI strip + per-step gate durations) from the live Actions API
+pnpm dev              # dev server at localhost:4321
+pnpm build            # static output → dist/
+pnpm preview          # preview built site at localhost:4322 (separate port so a stray preview never squats dev/e2e on 4321)
+pnpm typecheck        # astro check — full TS diagnostics across all .astro/.ts files
+pnpm test             # vitest run — unit tests (schemas, nav logic)
+pnpm test:coverage    # vitest run --coverage — unit tests + V8 coverage gate (text/html/lcov)
+pnpm test:e2e         # playwright — E2E tests (requires dev server or auto-starts it)
+pnpm lint             # run ESLint — fails on any warning (--max-warnings 0)
+pnpm lint:fix         # run ESLint with auto-fix (also --max-warnings 0)
+pnpm stats:refresh    # regenerate src/lib/testStats.ts from current spec inventory
+pnpm ci:refresh       # regenerate src/data/ci-snapshot.json (CI strip + per-step gate durations) from the live Actions API
 pnpm projects:refresh # regenerate src/data/project-stats.json from the live GitHub repos API
+pnpm og:render        # render OG snippet images → public/og/SLUG.png (requires pnpm preview running on 4322)
 ```
 
 ## Git Hooks
@@ -464,27 +489,27 @@ default.
 
 GitHub Actions workflows live in `.github/workflows/`.
 
-| Workflow                    | Trigger                                                                                  | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| --------------------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ci.yml`                    | `pull_request` → `main`                                                                  | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (V8 coverage gate, thresholds in `vitest.config.ts`) → `pnpm typecheck` → `pnpm build`                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| `playwright.yml`            | `pull_request` → `main` / manual                                                         | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `refresh-ci-snapshot.yml`   | nightly cron (`0 6 * * *`) / manual                                                      | Runs `pnpm ci:refresh` to regenerate `src/data/ci-snapshot.json` from the live Actions API (CI strip signals + real per-step `gates` durations for the `/testing` CI-gate cards), then commits it straight to `main` (via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) if it changed — no PR. `version-bump.yml` paths-ignores the file so the commit never bumps the version. Keeps the footer + `/testing` CI strip and gate timings from going stale.                                                                                                                                                                     |
-| `refresh-project-stats.yml` | nightly cron (`15 6 * * *`) / manual                                                     | Runs `pnpm projects:refresh` to regenerate `src/data/project-stats.json` (stars/forks/updatedAt per repo) from the live GitHub repos API, then commits it straight to `main` (via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) if it changed — no PR. `version-bump.yml` ignores the file so the refresh never bumps the version.                                                                                                                                                                                                                                                                                            |
-| `refresh-test-stats.yml`    | `push` → `main` (`paths: tests/**`, `**/*.test.ts`, `playwright.config.ts`) / manual     | Runs `pnpm stats:refresh` to regenerate `src/lib/testStats.ts` (the `/testing` unit/E2E counts) whenever specs change, then commits it back to `main` via `VERSION_BUMP_TOKEN` if it changed. The commit touches only `testStats.ts`, which matches neither this workflow's `paths` filter (no self-trigger) nor version-bump's `paths-ignore` (no bump no-op).                                                                                                                                                                                                                                                                      |
-| `publish-linkedin.yml`      | `push` → `main` (`paths: src/content/posts/**`)                                          | Blog-first publish. When a new blog post lands on `main`, reads its `linkedinPost` frontmatter, polls the live blog URL until it returns 200 (Cloudflare deploy lag — skips the dispatch if it never goes live, so the copy never links to a 404), then `repository_dispatch`es a `linkedin-publish` event (`client_payload: { linkedin_text, blog_url, slug }`) to the `linkedin-post-generator` repo, which posts the copy to LinkedIn and comments the blog link on the post (the copy carries no URLs). Posts without `linkedinPost` (hand-written) are skipped. One-way link, no write-back. Uses `secrets.LPG_DISPATCH_TOKEN`. |
-| `version-bump.yml`          | `push` → `main` (`paths-ignore: ci-snapshot.json`, `project-stats.json`, `testStats.ts`) | Reads the merged commits via Conventional Commits — `feat`→minor, `fix`/`perf`→patch, `feat!`/`BREAKING CHANGE`→major, anything else→no bump — then `npm version <level> --no-git-tag-version` and commits the bump back to `main`. The bump commit deliberately omits `[skip ci]` (Cloudflare Pages honors it, which would stop the footer version from ever deploying); its `chore(release)` subject re-runs this workflow once as a no-op rather than looping. The `paths-ignore` keeps the generated-file refreshes (ci-snapshot, project-stats, test stats) from triggering a bump.                                             |
+| Workflow                    | Trigger                                                                                                  | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                    | `pull_request` → `main`                                                                                  | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (V8 coverage gate, thresholds in `vitest.config.ts`) → `pnpm typecheck` → `pnpm build`                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `playwright.yml`            | `pull_request` → `main` / manual                                                                         | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead.                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `refresh-ci-snapshot.yml`   | nightly cron (`0 6 * * *`) / manual                                                                      | Runs `pnpm ci:refresh` to regenerate `src/data/ci-snapshot.json` from the live Actions API (CI strip signals + real per-step `gates` durations for the `/testing` CI-gate cards), then commits it straight to `main` (via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) if it changed — no PR. `version-bump.yml` paths-ignores the file so the commit never bumps the version. Keeps the footer + `/testing` CI strip and gate timings from going stale.                                                                                                                                        |
+| `refresh-project-stats.yml` | nightly cron (`15 6 * * *`) / manual                                                                     | Runs `pnpm projects:refresh` to regenerate `src/data/project-stats.json` (stars/forks/updatedAt per repo) from the live GitHub repos API, then commits it straight to `main` (via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) if it changed — no PR. `version-bump.yml` ignores the file so the refresh never bumps the version.                                                                                                                                                                                                                                                               |
+| `refresh-test-stats.yml`    | `push` → `main` (`paths: tests/**`, `**/*.test.ts`, `playwright.config.ts`) / manual                     | Runs `pnpm stats:refresh` to regenerate `src/lib/testStats.ts` (the `/testing` unit/E2E counts) whenever specs change, then commits it back to `main` via `VERSION_BUMP_TOKEN` if it changed. The commit touches only `testStats.ts`, which matches neither this workflow's `paths` filter (no self-trigger) nor version-bump's `paths-ignore` (no bump no-op).                                                                                                                                                                                                                                         |
+| `publish-linkedin.yml`      | `push` → `main` (`paths: src/content/posts/**`)                                                          | Blog-first publish. When a new blog post lands on `main`: builds the site, runs `pnpm og:render --slug SLUG` (Playwright screenshots `/blog/SLUG/og`), commits `public/og/SLUG.png` to `main` via `VERSION_BUMP_TOKEN`, polls both the blog URL and the image URL until both return 200, then `repository_dispatch`es a `linkedin-publish` event (`client_payload: { linkedin_text, blog_url, slug, image_url }`) to `linkedin-post-generator`. Posts without `linkedinPost` (hand-written) are skipped. One-way link, no write-back. Uses `secrets.LPG_DISPATCH_TOKEN` + `secrets.VERSION_BUMP_TOKEN`. |
+| `version-bump.yml`          | `push` → `main` (`paths-ignore: ci-snapshot.json`, `project-stats.json`, `testStats.ts`, `public/og/**`) | Reads the merged commits via Conventional Commits — `feat`→minor, `fix`/`perf`→patch, `feat!`/`BREAKING CHANGE`→major, anything else→no bump — then `npm version <level> --no-git-tag-version` and commits the bump back to `main`. The bump commit deliberately omits `[skip ci]` (Cloudflare Pages honors it, which would stop the footer version from ever deploying); its `chore(release)` subject re-runs this workflow once as a no-op rather than looping. The `paths-ignore` keeps the generated-file refreshes (ci-snapshot, project-stats, test stats, OG images) from triggering a bump.     |
 
 Playwright projects (see `playwright.config.ts`) route specs by `testMatch` so each spec runs only where it's meaningful:
 
-| Project                    | Device          | Specs                                        |
-| -------------------------- | --------------- | -------------------------------------------- |
-| `content`                  | Desktop Chrome  | `home`, `jobs`, `projects`, `resume`, `a11y` |
-| `a11y-chromium`            | Desktop Chrome  | `nav`, `theme-picker`                        |
-| `a11y-firefox`             | Desktop Firefox | `nav`, `theme-picker`                        |
-| `a11y-webkit`              | Desktop Safari  | `nav`, `theme-picker`                        |
-| `responsive-mobile-chrome` | Pixel 5         | `responsive`                                 |
-| `responsive-mobile-safari` | iPhone 13       | `responsive`                                 |
-| `responsive-tablet-safari` | iPad Pro 11     | `responsive`                                 |
+| Project                    | Device          | Specs                                              |
+| -------------------------- | --------------- | -------------------------------------------------- |
+| `content`                  | Desktop Chrome  | `home`, `jobs`, `projects`, `resume`, `a11y`, `og` |
+| `a11y-chromium`            | Desktop Chrome  | `nav`, `theme-picker`                              |
+| `a11y-firefox`             | Desktop Firefox | `nav`, `theme-picker`                              |
+| `a11y-webkit`              | Desktop Safari  | `nav`, `theme-picker`                              |
+| `responsive-mobile-chrome` | Pixel 5         | `responsive`                                       |
+| `responsive-mobile-safari` | iPhone 13       | `responsive`                                       |
+| `responsive-tablet-safari` | iPad Pro 11     | `responsive`                                       |
 
 Content rendering is identical across engines, so it runs once. Keyboard/focus behaviour varies, so a11y specs run on all three engines. Viewport-dependent layout runs on mobile + tablet only. Locally `pnpm test:e2e` reuses an existing dev server or starts one; in CI `PLAYWRIGHT_BASE_URL` is injected and the auto-start `webServer` block is skipped.
 

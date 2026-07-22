@@ -1,12 +1,21 @@
 name: Publish blog post to LinkedIn
 
-# When a new blog post lands on main, hand its pre-written LinkedIn copy to
-# linkedin-post-generator to post. The blog is authored first (blog-first); the
-# `linkedinPost` frontmatter holds the distilled LinkedIn summary. The copy carries
-# no URLs — LinkedIn demotes posts with external links in the body, so LPG comments
-# the dispatched blog_url on the post instead. Posts without `linkedinPost`
-# (hand-written) are skipped. The link runs one way (LinkedIn -> blog); nothing is
-# written back.
+# When a new blog post lands on main, render its OG snippet image, commit it,
+# and hand the pre-written LinkedIn copy to linkedin-post-generator to post.
+# The blog is authored first (blog-first); the `linkedinPost` frontmatter holds
+# the distilled LinkedIn summary. The copy carries no URLs — LinkedIn demotes
+# posts with external links in the body, so LPG comments the dispatched blog_url
+# on the post instead. Posts without `linkedinPost` (hand-written) are skipped.
+# The link runs one way (LinkedIn -> blog); nothing is written back.
+#
+# Job flow for a new post with linkedinPost:
+#   1. Detect the newly added post.
+#   2. Read linkedinPost; skip if absent.
+#   3. Build the site and start pnpm preview.
+#   4. Render the OG snippet image (scripts/og/render.mjs --slug SLUG).
+#   5. Commit public/og/SLUG.png to main via VERSION_BUMP_TOKEN.
+#   6. Poll both blog_url and image_url until both return 200.
+#   7. Dispatch to linkedin-post-generator with image_url included.
 
 on:
   push:
@@ -15,7 +24,7 @@ on:
       - 'src/content/posts/**'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   publish:
@@ -23,8 +32,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Need history back to the previous push to find the added post.
+          # Admin PAT: needed to push public/og/SLUG.png directly to main
+          # (branch ruleset bypass), same pattern as the refresh workflows.
+          token: ${{ secrets.VERSION_BUMP_TOKEN }}
           fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
 
       - name: Detect newly added post
         id: detect
@@ -46,40 +71,89 @@ jobs:
             echo "Found post: $POST"
           fi
 
-      - name: Read linkedinPost and dispatch
+      - name: Read linkedinPost
+        id: read
         if: steps.detect.outputs.post != ''
         env:
           POST: ${{ steps.detect.outputs.post }}
-          LPG_DISPATCH_TOKEN: ${{ secrets.LPG_DISPATCH_TOKEN }}
         run: |
           # yq (mikefarah) is preinstalled on ubuntu-latest runners.
           LINKEDIN_TEXT=$(yq --front-matter=extract '.linkedinPost // ""' "$POST")
+          SLUG=$(basename "$POST" .md)
+          echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
 
           if [ -z "$LINKEDIN_TEXT" ]; then
             echo "Post has no linkedinPost — hand-written, not for LinkedIn. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          SLUG=$(basename "$POST" .md)
-          BLOG_URL="https://tim.sillysamoyed.com/blog/$SLUG"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          # Multi-line output via heredoc delimiter.
+          echo "linkedin_text<<_EOF_LI" >> "$GITHUB_OUTPUT"
+          echo "$LINKEDIN_TEXT" >> "$GITHUB_OUTPUT"
+          echo "_EOF_LI" >> "$GITHUB_OUTPUT"
 
-          # Wait for Cloudflare Pages to finish deploying the post before dispatching,
-          # so the blog-link comment LPG posts never points at a 404. Fail (no
-          # dispatch) if it never goes live — better than posting a dead link.
-          # -L follows the trailing-slash 308 (Astro directory output) so a live
-          # post reads as 200, not the redirect code — otherwise the loop never
-          # matches and exits 1 without dispatching.
-          for i in $(seq 1 10); do
-            code=$(curl -sL -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
-            if [ "$code" = "200" ]; then
-              echo "Blog URL is live ($code)."
+      - name: Build site and render OG image
+        if: steps.detect.outputs.post != '' && steps.read.outputs.skip == 'false'
+        env:
+          SLUG: ${{ steps.read.outputs.slug }}
+        run: |
+          pnpm build
+          pnpm preview &
+          # Allow the preview server a moment to bind before Playwright connects.
+          sleep 3
+          node scripts/og/render.mjs --slug "$SLUG"
+
+      - name: Commit OG image to main
+        if: steps.detect.outputs.post != '' && steps.read.outputs.skip == 'false'
+        env:
+          SLUG: ${{ steps.read.outputs.slug }}
+        run: |
+          PNG="public/og/${SLUG}.png"
+          if [ ! -f "$PNG" ]; then
+            echo "OG image not found at $PNG — render step may have failed." >&2
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$PNG"
+          if git diff --cached --quiet; then
+            echo "OG image unchanged. Nothing to commit."
+          else
+            # version-bump.yml paths-ignores public/og/** so this commit never
+            # triggers a version bump.
+            git commit -m "chore(og): render OG image for ${SLUG}"
+            git push
+          fi
+
+      - name: Poll blog URL and image URL then dispatch
+        if: steps.detect.outputs.post != '' && steps.read.outputs.skip == 'false'
+        env:
+          SLUG: ${{ steps.read.outputs.slug }}
+          LINKEDIN_TEXT: ${{ steps.read.outputs.linkedin_text }}
+          LPG_DISPATCH_TOKEN: ${{ secrets.LPG_DISPATCH_TOKEN }}
+        run: |
+          BLOG_URL="https://tim.sillysamoyed.com/blog/${SLUG}"
+          IMAGE_URL="https://tim.sillysamoyed.com/og/${SLUG}.png"
+
+          # Wait for Cloudflare Pages to finish deploying both the post and the OG
+          # image (the PNG commit triggers a separate CF deploy). Poll both URLs —
+          # dispatch only when both return 200. Raised to 20 retries (~10 min) to
+          # cover build + PNG commit + CF re-deploy lag.
+          # -L follows the trailing-slash 308 (Astro directory output).
+          for i in $(seq 1 20); do
+            blog_code=$(curl -sL -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
+            img_code=$(curl -sL -o /dev/null -w '%{http_code}' "$IMAGE_URL" || true)
+            if [ "$blog_code" = "200" ] && [ "$img_code" = "200" ]; then
+              echo "Both URLs live (blog=$blog_code, image=$img_code)."
               break
             fi
-            if [ "$i" -eq 10 ]; then
-              echo "Blog URL never returned 200 after ~5 minutes — not dispatching." >&2
+            if [ "$i" -eq 20 ]; then
+              echo "URLs not live after ~10 minutes (blog=$blog_code, image=$img_code) — not dispatching." >&2
               exit 1
             fi
-            echo "Attempt $i: $BLOG_URL returned $code. Waiting 30s..."
+            echo "Attempt $i: blog=$blog_code image=$img_code. Waiting 30s..."
             sleep 30
           done
 
@@ -87,7 +161,8 @@ jobs:
             --arg text "$LINKEDIN_TEXT" \
             --arg blog "$BLOG_URL" \
             --arg slug "$SLUG" \
-            '{event_type: "linkedin-publish", client_payload: {linkedin_text: $text, blog_url: $blog, slug: $slug}}')
+            --arg image "$IMAGE_URL" \
+            '{event_type: "linkedin-publish", client_payload: {linkedin_text: $text, blog_url: $blog, slug: $slug, image_url: $image}}')
 
           curl -sf --show-error -X POST \
             https://api.github.com/repos/timjstacey/linkedin-post-generator/dispatches \
@@ -95,4 +170,4 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             -d "$PAYLOAD"
-          echo "Dispatched linkedin-publish for $SLUG."
+          echo "Dispatched linkedin-publish for ${SLUG} with image_url."
