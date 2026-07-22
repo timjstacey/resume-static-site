@@ -228,3 +228,16 @@
   applied: '2026-07-22'
   status: Applied
   notes: 'Applied via LinkedIn'
+
+- company: iSelect Ltd
+  role: Senior Test Engineer
+  url: https://au.seek.com/job/91518557
+  applied: '2026-07-22'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: Vault Cloud
+  role: Test Automation Engineer
+  applied: '2026-07-22'
+  status: Applied
+  notes: 'Applied via LinkedIn'
