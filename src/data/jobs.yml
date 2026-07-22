@@ -241,27 +241,3 @@
   applied: '2026-07-22'
   status: Applied
   notes: 'Applied via LinkedIn'
-
-- company: Infosys
-  role: Enterprise Test Automation Architect
-  applied: '2026-07-22'
-  status: Applied
-  notes: 'Applied via LinkedIn'
-
-- company: Emanate Technology Pty Ltd
-  role: QA Automation Engineer - Playwright and Salesforce
-  url: https://au.seek.com/job/93365052
-  applied: '2026-07-22'
-  status: Applied
-  notes: 'Applied via Seek'
-
-- company: Resly Pty Ltd
-  role: Quality Assurance Engineer
-  applied: '2026-07-22'
-  status: Applied
-
-- company: Rocket Software
-  role: Senior Software Engineer in Test (SDET)
-  applied: '2026-07-22'
-  status: Applied
-  notes: 'Applied via LinkedIn'

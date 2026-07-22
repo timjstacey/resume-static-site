@@ -5,11 +5,12 @@ on:
     branches: [main]
     # Generated-file refreshes must never bump the version. When a push touches
     # only these files, the workflow is skipped entirely: the nightly
-    # ci-snapshot, project-stats, and test-stats refreshes.
+    # ci-snapshot, project-stats, and test-stats refreshes; and OG image renders.
     paths-ignore:
       - 'src/data/ci-snapshot.json'
       - 'src/data/project-stats.json'
       - 'src/lib/testStats.ts'
+      - 'public/og/**'
 
 permissions:
   contents: write

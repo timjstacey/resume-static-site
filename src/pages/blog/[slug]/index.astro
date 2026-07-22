@@ -1,10 +1,10 @@
 ---
 import { render } from 'astro:content';
 import { Image } from 'astro:assets';
-import Base from '../../layouts/Base.astro';
-import Chip from '../../components/Chip.astro';
-import { getPosts } from '../../lib/posts';
-import profile from '../../assets/profile.jpg';
+import Base from '../../../layouts/Base.astro';
+import Chip from '../../../components/Chip.astro';
+import { getPosts } from '../../../lib/posts';
+import profile from '../../../assets/profile.jpg';
 
 export async function getStaticPaths() {
   const posts = await getPosts(); // newest-first
@@ -265,7 +265,7 @@ const rawUrl = `https://github.com/timjstacey/resume-static-site/blob/main/src/c
 </Base>
 
 <script>
-  import { activeHeadingId, pinExpired } from '../../lib/toc';
+  import { activeHeadingId, pinExpired } from '../../../lib/toc';
 
   // Active TOC item driven by which section heading is in view.
   const links = new Map<string, HTMLElement>();
