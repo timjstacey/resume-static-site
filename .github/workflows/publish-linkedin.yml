@@ -154,8 +154,11 @@ jobs:
           # dispatch only when both return 200. Raised to 20 retries (~10 min) to
           # cover build + PNG commit + CF re-deploy lag.
           # -L follows the trailing-slash 308 (Astro directory output).
+          # -L follows the trailing-slash 308 (Astro directory output) so a live
+          # post reads as 200, not the redirect code — otherwise the loop never
+          # matches and exits 1 without dispatching.
           for i in $(seq 1 20); do
-            blog_code=$(curl -sL -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
+            blog_code=$(curl -sLL -o /dev/null -w '%{http_code}' "$BLOG_URL" || true)
             img_code=$(curl -sL -o /dev/null -w '%{http_code}' "$IMAGE_URL" || true)
             if [ "$blog_code" = "200" ] && [ "$img_code" = "200" ]; then
               echo "Both URLs live (blog=$blog_code, image=$img_code)."
