@@ -51,7 +51,9 @@ for (const slug of slugs) {
   const outFile = path.join(OUT_DIR, `${slug}.png`);
   try {
     const page = await context.newPage();
-    await page.goto(url, { waitUntil: 'networkidle' });
+    // 'load', not 'networkidle': the font CDN keeps the network busy and can
+    // flake on CI runners. The card visibility wait below is the real gate.
+    await page.goto(url, { waitUntil: 'load' });
     const card = page.locator('#og-card');
     await card.waitFor({ state: 'visible' });
     await card.screenshot({ path: outFile });

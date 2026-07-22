@@ -101,8 +101,20 @@ jobs:
         run: |
           pnpm build
           pnpm preview &
-          # Allow the preview server a moment to bind before Playwright connects.
-          sleep 3
+          # Wait for the preview server to actually bind before Playwright
+          # connects — a blind sleep races a slow bind and fails the render
+          # (and so the whole publish) with a confusing connection error.
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://localhost:4322/; then
+              echo "Preview server up."
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "Preview server never bound on :4322 after 30s." >&2
+              exit 1
+            fi
+            sleep 1
+          done
           node scripts/og/render.mjs --slug "$SLUG"
 
       - name: Commit OG image to main
