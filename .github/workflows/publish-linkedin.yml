@@ -1,7 +1,11 @@
 name: Publish blog post to LinkedIn
 
-# When a new blog post lands on main, render its OG snippet image, commit it,
-# and hand the pre-written LinkedIn copy to linkedin-post-generator to post.
+# When a new blog post lands on main, hand the pre-written LinkedIn copy to
+# linkedin-post-generator to post. The OG snippet image is rendered and committed
+# at PR time by render-og.yml, so by the time this runs the PNG is already on main
+# and deploying — this job writes nothing to main, it only waits and dispatches
+# (issue #199 removed the post-merge render+push that raced version-bump).
+#
 # The blog is authored first (blog-first); the `linkedinPost` frontmatter holds
 # the distilled LinkedIn summary. The copy carries no URLs — LinkedIn demotes
 # posts with external links in the body, so LPG comments the dispatched blog_url
@@ -11,16 +15,12 @@ name: Publish blog post to LinkedIn
 # Job flow for a new post with linkedinPost:
 #   1. Detect the newly added post (or take a manual `slug` on workflow_dispatch).
 #   2. Read linkedinPost; skip if absent.
-#   3. Build the site and start pnpm preview.
-#   4. Render the OG snippet image (scripts/og/render.mjs --slug SLUG).
-#   5. Commit public/og/SLUG.png to main via VERSION_BUMP_TOKEN (rebase-retry on
-#      a concurrent push to main; hooks skipped on the bot commit/push).
-#   6. Poll blog_url (200) and image_url (200 + image content-type) until live.
-#   7. Dispatch to linkedin-post-generator with image_url included.
+#   3. Poll blog_url (200) and image_url (200 + image content-type) until live.
+#   4. Dispatch to linkedin-post-generator with image_url included.
 #
-# workflow_dispatch with a `slug` input is the manual recovery lever: if the push
-# run failed (e.g. lost a push race and never committed the PNG), re-run it by
-# hand with the slug to drive the same render -> commit -> poll -> dispatch path.
+# workflow_dispatch with a `slug` input is the manual recovery lever: re-run it by
+# hand with the slug to re-drive poll -> dispatch for one post (assumes the PNG is
+# already on main — the lost-push-race failure it used to recover from is gone).
 
 on:
   push:
@@ -35,32 +35,17 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
-          # Admin PAT: needed to push public/og/SLUG.png directly to main
-          # (branch ruleset bypass), same pattern as the refresh workflows.
-          token: ${{ secrets.VERSION_BUMP_TOKEN }}
+          # Read-only default token: this job commits nothing to main. Full
+          # history is needed to diff the push range for the added-post detection.
           fetch-depth: 0
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install Playwright Chromium
-        run: pnpm exec playwright install chromium --with-deps
 
       - name: Detect newly added post
         id: detect
@@ -118,71 +103,6 @@ jobs:
           echo "$LINKEDIN_TEXT" >> "$GITHUB_OUTPUT"
           echo "_EOF_LI" >> "$GITHUB_OUTPUT"
 
-      - name: Build site and render OG image
-        if: steps.detect.outputs.post != '' && steps.read.outputs.skip == 'false'
-        env:
-          SLUG: ${{ steps.read.outputs.slug }}
-        run: |
-          pnpm build
-          pnpm preview &
-          # Wait for the preview server to actually bind before Playwright
-          # connects — a blind sleep races a slow bind and fails the render
-          # (and so the whole publish) with a confusing connection error.
-          for i in $(seq 1 30); do
-            if curl -sf -o /dev/null http://localhost:4322/; then
-              echo "Preview server up."
-              break
-            fi
-            if [ "$i" -eq 30 ]; then
-              echo "Preview server never bound on :4322 after 30s." >&2
-              exit 1
-            fi
-            sleep 1
-          done
-          node scripts/og/render.mjs --slug "$SLUG"
-
-      - name: Commit OG image to main
-        if: steps.detect.outputs.post != '' && steps.read.outputs.skip == 'false'
-        env:
-          SLUG: ${{ steps.read.outputs.slug }}
-        run: |
-          PNG="public/og/${SLUG}.png"
-          if [ ! -f "$PNG" ]; then
-            echo "OG image not found at $PNG — render step may have failed." >&2
-            exit 1
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$PNG"
-          if git diff --cached --quiet; then
-            echo "OG image unchanged. Nothing to commit."
-            exit 0
-          fi
-          # --no-verify on both commit and push: skip the husky hooks (pre-commit
-          # lint-staged, pre-push typecheck). They add nothing on a bot PNG commit,
-          # and the pre-push typecheck ran *inside* this step — its ~8s widened the
-          # window for a concurrent push (version-bump, nightly refreshes) to land
-          # on main and reject ours as non-fast-forward.
-          # version-bump.yml paths-ignores public/og/** so this commit never
-          # triggers a version bump.
-          git commit --no-verify -m "chore(og): render OG image for ${SLUG}"
-          # Concurrent pushes to main race this one. On a non-fast-forward reject,
-          # rebase our single PNG commit onto the latest main and retry rather than
-          # failing the whole publish (which strands the post with no image and no
-          # LinkedIn dispatch — recoverable only via workflow_dispatch).
-          for attempt in $(seq 1 5); do
-            if git push --no-verify; then
-              echo "Pushed OG image."
-              break
-            fi
-            if [ "$attempt" -eq 5 ]; then
-              echo "Push still rejected after 5 rebase attempts." >&2
-              exit 1
-            fi
-            echo "Push rejected (attempt $attempt). Rebasing on origin/main..."
-            git pull --rebase origin main
-          done
-
       - name: Poll blog URL and image URL then dispatch
         if: steps.detect.outputs.post != '' && steps.read.outputs.skip == 'false'
         env:
@@ -194,9 +114,10 @@ jobs:
           IMAGE_URL="https://tim.sillysamoyed.com/og/${SLUG}.png"
 
           # Wait for Cloudflare Pages to finish deploying both the post and the OG
-          # image (the PNG commit triggers a separate CF deploy). Poll both URLs —
-          # dispatch only when both are live. Raised to 20 retries (~10 min) to
-          # cover build + PNG commit + CF re-deploy lag.
+          # image. The PNG rode this post's merge commit (render-og.yml committed
+          # it to the PR branch), so both deploy from the same push — poll both
+          # URLs and dispatch only when both are live. 20 retries (~10 min) covers
+          # CF build + deploy lag.
           # -L follows the trailing-slash 308 (Astro directory output) so a live
           # post reads as 200, not the redirect code — otherwise the loop never
           # matches and exits 1 without dispatching.
