@@ -141,4 +141,26 @@ describe('buildCiSnapshot', () => {
     const snap = buildCiSnapshot({ runs: [run({ conclusion: 'failure' })], head: HEAD, gates: {}, now: NOW });
     expect(snap.passing).toBe(false);
   });
+
+  it('computes deltas against the previous window when >window runs exist', () => {
+    // 20 runs: current window (first 10) each 60s, previous window (next 10)
+    // each 120s — so p50/p95 improve and the deltas are negative.
+    const mk = (secs: number) =>
+      run({
+        run_started_at: '2026-06-01T00:00:00Z',
+        updated_at: new Date(Date.parse('2026-06-01T00:00:00Z') + secs * 1000).toISOString(),
+      });
+    const runs = [
+      ...Array(10)
+        .fill(0)
+        .map(() => mk(60)),
+      ...Array(10)
+        .fill(0)
+        .map(() => mk(120)),
+    ];
+    const snap = buildCiSnapshot({ runs, head: HEAD, gates: {}, window: 10, now: NOW });
+    expect(snap.p50).toBe('1m00s');
+    expect(snap.p50Delta).toBe('-60s');
+    expect(snap.runs).toHaveLength(10);
+  });
 });

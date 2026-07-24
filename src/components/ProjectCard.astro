@@ -32,6 +32,7 @@ const updatedLabel = project.updatedAt ? fmtRelative(project.updatedAt) : '';
   data-tags={filterTokens}
   data-updated={updatedDays}
   data-stars={project.stars ?? 0}
+  data-repo={project.repo}
   class="flex flex-col rounded-lg border border-ctp-surface0 bg-ctp-mantle p-5 transition-colors duration-150 ease-out hover:border-ctp-surface1"
 >
   <div class="flex items-start justify-between gap-2">
@@ -83,7 +84,7 @@ const updatedLabel = project.updatedAt ? fmtRelative(project.updatedAt) : '';
         </span>
       )
     }
-    <span class="text-ctp-overlay1">
+    <span class="stat-skeleton text-ctp-overlay1" data-project-stats>
       ★{project.stars ?? 0} · ⑃{project.forks ?? 0}{updatedLabel ? ` · ${updatedLabel}` : ''}
     </span>
   </div>

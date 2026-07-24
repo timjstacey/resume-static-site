@@ -57,8 +57,9 @@ export function fmtDelta(secs: number): string {
 
 export function percentile(sorted: number[], p: number): number {
   if (sorted.length === 0) return 0;
-  const idx = Math.min(sorted.length - 1, Math.ceil((p / 100) * sorted.length) - 1);
-  return sorted[Math.max(0, idx)] ?? 0;
+  const idx = Math.min(sorted.length - 1, Math.max(0, Math.ceil((p / 100) * sorted.length) - 1));
+  // idx is clamped into [0, length-1] above, so the element is always present.
+  return sorted[idx]!;
 }
 
 export function classify(run: { conclusion: string; run_attempt: number }): RunResult {
@@ -118,7 +119,8 @@ export function buildCiSnapshot(opts: {
     branch: 'main',
     passing: latest.conclusion === 'success',
     sha: head.sha.slice(0, 7),
-    commitMessage: head.commit.message.split('\n')[0] ?? '',
+    // String.split always yields at least one element, so [0] is present.
+    commitMessage: head.commit.message.split('\n')[0]!,
     commitAgo: relTime(head.commit.author.date, now),
     lastDeployAgo: relTime(latest.updated_at, now),
     runs: runMarks,

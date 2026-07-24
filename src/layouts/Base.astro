@@ -42,6 +42,9 @@ const umamiSrc = import.meta.env.UMAMI_SRC ?? 'https://cloud.umami.is/script.js'
             ? 'latte'
             : 'mocha';
         document.documentElement.classList.add(flavor);
+        // Progressive-enhancement flag: gates the live-stats loading skeletons so
+        // no-JS visitors keep the server-rendered baseline values.
+        document.documentElement.classList.add('js');
       })();
     </script>
     <meta charset="UTF-8" />
