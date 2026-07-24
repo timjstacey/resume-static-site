@@ -32,6 +32,10 @@ const layers = [
     accent: 'green',
     count: TEST_STATS.unit,
     caption: 'cheap checks',
+    // wf/step feed both the build-time stepDuration() and the client re-resolve
+    // against fresh ci.gates after hydration.
+    wf: 'ci.yml',
+    step: 'Test (with coverage gate)',
     dur: stepDuration(ci.gates, 'ci.yml', 'Test (with coverage gate)'),
     scope: ['schema validation', 'pure helpers', 'data loaders', 'nav + format logic'],
   },
@@ -40,6 +44,8 @@ const layers = [
     accent: 'sapphire',
     count: TEST_STATS.e2e,
     caption: 'rendered surface',
+    wf: 'playwright.yml',
+    step: 'Run pnpm exec playwright test',
     dur: stepDuration(ci.gates, 'playwright.yml', 'Run pnpm exec playwright test'),
     scope: ['page content per route', 'keyboard + focus a11y', 'responsive layout', 'theme switching'],
   },
@@ -107,42 +113,55 @@ for (const job of jobs) {
         <div>
           <div class="mono-caption text-ctp-overlay2">branch</div>
           <div class="mt-2 flex items-center gap-2 font-mono text-sm text-ctp-text">
-            <span class="h-2 w-2 rounded-full bg-ctp-green"></span>{ci.branch}
-            <span class="rounded bg-ctp-peach px-1.5 py-0.5 text-[10px] font-semibold text-ctp-crust uppercase">
+            <span class="h-2 w-2 rounded-full bg-ctp-green"></span><span data-ci-branch>{ci.branch}</span>
+            <span
+              data-ci-passing
+              class="stat-skeleton rounded bg-ctp-peach px-1.5 py-0.5 text-[10px] font-semibold text-ctp-crust uppercase"
+            >
               {ci.passing ? 'passing' : 'failing'}
             </span>
           </div>
         </div>
         <div class="min-w-0">
-          <div class="mono-caption text-ctp-overlay2">latest commit · {ci.commitAgo}</div>
+          <div class="mono-caption text-ctp-overlay2">
+            latest commit · <span data-ci-commitago>{ci.commitAgo}</span>
+          </div>
           <div class="mt-2 flex min-w-0 items-center gap-2 font-mono text-[13px]">
             <span
-              class="shrink-0 rounded px-1.5 py-0.5 text-ctp-sapphire"
+              data-ci-sha
+              class="stat-skeleton shrink-0 rounded px-1.5 py-0.5 text-ctp-sapphire"
               style="background: color-mix(in srgb, var(--catppuccin-color-sapphire) 18%, transparent)">#{ci.sha}</span
             >
-            <span class="min-w-0 truncate text-ctp-subtext1">{ci.commitMessage}</span>
+            <span data-ci-message class="stat-skeleton min-w-0 truncate text-ctp-subtext1">{ci.commitMessage}</span>
           </div>
         </div>
         <div>
           <div class="mono-caption text-ctp-overlay2">last 10 runs</div>
           <div class="mt-2 flex items-center gap-1.5">
-            {
-              ci.runs.map((r) => (
-                <span class="h-3.5 w-3.5 rounded-[3px]" style={`background: var(--catppuccin-color-${runColor(r)})`} />
-              ))
-            }
-            <span class="ml-2 font-mono text-[12px] text-ctp-subtext0">{cleanRuns}/10 clean</span>
+            <span data-ci-runs class="stat-skeleton flex items-center gap-1.5">
+              {
+                ci.runs.map((r) => (
+                  <span
+                    class="h-3.5 w-3.5 rounded-[3px]"
+                    style={`background: var(--catppuccin-color-${runColor(r)})`}
+                  />
+                ))
+              }
+            </span>
+            <span class="ml-2 font-mono text-[12px] text-ctp-subtext0"
+              ><span data-ci-clean>{cleanRuns}</span>/10 clean</span
+            >
           </div>
         </div>
         <div>
           <div class="mono-caption text-ctp-overlay2">p50 · p95</div>
           <div class="mt-2 font-mono text-[13px] text-ctp-text">
-            {ci.p50}
-            <span class="text-ctp-green">▾ {ci.p50Delta}</span>
+            <span data-ci-p50 class="stat-skeleton">{ci.p50}</span>
+            <span class="text-ctp-green">▾ <span data-ci-p50delta>{ci.p50Delta}</span></span>
           </div>
           <div class="font-mono text-[13px] text-ctp-text">
-            {ci.p95}
-            <span class="text-ctp-yellow">▴ {ci.p95Delta}</span>
+            <span data-ci-p95 class="stat-skeleton">{ci.p95}</span>
+            <span class="text-ctp-yellow">▴ <span data-ci-p95delta>{ci.p95Delta}</span></span>
           </div>
         </div>
       </div>
@@ -186,7 +205,9 @@ for (const job of jobs) {
                 </span>
                 <span class="font-mono text-[12px] text-ctp-subtext0">
                   {l.count} specs
-                  {l.dur && ` · ${l.dur}`}
+                  <span data-layer-dur data-gate-wf={l.wf} data-gate-step={l.step}>
+                    {l.dur ? ` · ${l.dur}` : ''}
+                  </span>
                 </span>
               </div>
               <div class="mt-1.5 h-[18px] w-full rounded bg-ctp-surface0">
@@ -345,11 +366,14 @@ for (const job of jobs) {
                     >
                       <div class="mono-caption text-ctp-overlay1">step {i + 1}</div>
                       <div class="mt-1 font-mono text-[13px] text-ctp-text">{step.name}</div>
-                      {dur ? (
-                        <div class="mt-1 font-mono text-[12px] text-ctp-green">✓ {dur}</div>
-                      ) : (
-                        <div class="mt-1 font-mono text-[12px] text-ctp-overlay1">— no data</div>
-                      )}
+                      <div
+                        data-gate-dur
+                        data-gate-wf={wf.file}
+                        data-gate-step={step.match}
+                        class:list={['mt-1 font-mono text-[12px]', dur ? 'text-ctp-green' : 'text-ctp-overlay1']}
+                      >
+                        {dur ? `✓ ${dur}` : '— no data'}
+                      </div>
                     </div>
                     {i < wf.steps.length - 1 && (
                       <span class="hidden self-center text-lg text-ctp-overlay1 md:inline">→</span>
@@ -432,3 +456,69 @@ for (const job of jobs) {
     overflow-x: auto;
   }
 </style>
+
+<script>
+  // Hydrate the CI strip + gate/layer durations with live values from the edge
+  // over the committed baseline. On timeout/failure the skeletons are removed,
+  // revealing the server-rendered baseline. stepDuration + the fetch/timeout are
+  // unit-tested; this is thin DOM glue.
+  import { fetchJsonWithTimeout, STATS_TIMEOUT_MS } from '../lib/statsClient';
+  import { stepDuration } from '../lib/ciGates';
+  import type { CiSnapshot } from '../lib/schemas';
+
+  const runColor = (r: string) => (r === 'pass' ? 'green' : r === 'flake' ? 'yellow' : 'red');
+  const set = (sel: string, text: string) => {
+    const el = document.querySelector<HTMLElement>(sel);
+    if (el) el.textContent = text;
+  };
+
+  const skeletons = [
+    '[data-ci-passing]',
+    '[data-ci-sha]',
+    '[data-ci-message]',
+    '[data-ci-runs]',
+    '[data-ci-p50]',
+    '[data-ci-p95]',
+  ];
+
+  (async () => {
+    const ci = await fetchJsonWithTimeout<CiSnapshot>('/api/ci-snapshot', STATS_TIMEOUT_MS);
+    if (ci) {
+      set('[data-ci-branch]', ci.branch);
+      set('[data-ci-passing]', ci.passing ? 'passing' : 'failing');
+      set('[data-ci-commitago]', ci.commitAgo);
+      set('[data-ci-sha]', `#${ci.sha}`);
+      set('[data-ci-message]', ci.commitMessage);
+      set('[data-ci-p50]', ci.p50);
+      set('[data-ci-p50delta]', ci.p50Delta);
+      set('[data-ci-p95]', ci.p95);
+      set('[data-ci-p95delta]', ci.p95Delta);
+      set('[data-ci-clean]', String(ci.runs.filter((r) => r === 'pass').length));
+
+      const runsEl = document.querySelector<HTMLElement>('[data-ci-runs]');
+      if (runsEl) {
+        runsEl.replaceChildren(
+          ...ci.runs.map((r) => {
+            const sq = document.createElement('span');
+            sq.className = 'h-3.5 w-3.5 rounded-[3px]';
+            sq.style.background = `var(--catppuccin-color-${runColor(r)})`;
+            return sq;
+          })
+        );
+      }
+
+      // Gate + layer durations re-resolve against the fresh ci.gates map.
+      for (const el of document.querySelectorAll<HTMLElement>('[data-gate-dur]')) {
+        const dur = stepDuration(ci.gates, el.dataset.gateWf ?? '', el.dataset.gateStep ?? '');
+        el.textContent = dur ? `✓ ${dur}` : '— no data';
+        el.classList.toggle('text-ctp-green', dur !== null);
+        el.classList.toggle('text-ctp-overlay1', dur === null);
+      }
+      for (const el of document.querySelectorAll<HTMLElement>('[data-layer-dur]')) {
+        const dur = stepDuration(ci.gates, el.dataset.gateWf ?? '', el.dataset.gateStep ?? '');
+        el.textContent = dur ? ` · ${dur}` : '';
+      }
+    }
+    for (const sel of skeletons) document.querySelector<HTMLElement>(sel)?.classList.remove('stat-skeleton');
+  })();
+</script>
