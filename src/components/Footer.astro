@@ -21,10 +21,10 @@ const ctpV = v('@catppuccin/tailwindcss');
     </div>
     <div>
       <div class="mb-2 mono-caption text-ctp-overlay2">[ ci ]</div>
-      <div class={ci.passing ? 'text-ctp-green' : 'text-ctp-red'}>
-        ● {ci.passing ? 'green' : 'failing'} · {ci.branch}
+      <div data-ci-status class:list={['stat-skeleton', ci.passing ? 'text-ctp-green' : 'text-ctp-red']}>
+        ● <span data-ci-word>{ci.passing ? 'green' : 'failing'}</span> · <span data-ci-branch>{ci.branch}</span>
       </div>
-      <div>last deploy {ci.lastDeployAgo}</div>
+      <div>last deploy <span data-ci-deploy class="stat-skeleton">{ci.lastDeployAgo}</span></div>
     </div>
     <div>
       <div class="mb-2 mono-caption text-ctp-overlay2">[ tests ]</div>
@@ -38,3 +38,7 @@ const ctpV = v('@catppuccin/tailwindcss');
     </div>
   </div>
 </footer>
+
+<script>
+  import '../scripts/footer-ci';
+</script>

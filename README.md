@@ -40,25 +40,27 @@ pnpm dev   # http://localhost:4321
 
 ### Commands
 
-| Command                 | What                                                                         |
-| ----------------------- | ---------------------------------------------------------------------------- |
-| `pnpm dev`              | Dev server at `localhost:4321` with HMR                                      |
-| `pnpm build`            | Static output to `dist/`                                                     |
-| `pnpm preview`          | Serve the built site at `localhost:4322` (separate from dev's 4321)          |
-| `pnpm typecheck`        | `astro check` across all `.astro` / `.ts` files                              |
-| `pnpm test`             | Vitest unit tests (`src/lib/*.test.ts`)                                      |
-| `pnpm test:coverage`    | Vitest unit tests + V8 coverage report (gate; thresholds in config)          |
-| `pnpm test:e2e`         | Playwright E2E (auto-starts dev server, or reuses if running)                |
-| `pnpm lint`             | ESLint — fails on any warning (`--max-warnings 0`)                           |
-| `pnpm lint:fix`         | ESLint with `--fix` (also `--max-warnings 0`)                                |
-| `pnpm stats:refresh`    | Regenerate `src/lib/testStats.ts` from current spec inventory                |
-| `pnpm ci:refresh`       | Regenerate `src/data/ci-snapshot.json` from the live Actions API             |
-| `pnpm projects:refresh` | Regenerate `src/data/project-stats.json` from the live GitHub repos API      |
-| `pnpm og:render`        | Render OG snippet images → `public/og/SLUG.png` (requires preview on `4322`) |
+| Command                    | What                                                                         |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `pnpm dev`                 | Dev server at `localhost:4321` with HMR                                      |
+| `pnpm build`               | Static output to `dist/`                                                     |
+| `pnpm preview`             | Serve the built site at `localhost:4322` (separate from dev's 4321)          |
+| `pnpm typecheck`           | `astro check` + `pnpm typecheck:functions` — full TS diagnostics             |
+| `pnpm typecheck:functions` | `tsc --noEmit -p functions/tsconfig.json` — type-check edge functions        |
+| `pnpm test`                | Vitest unit tests (`src/lib/*.test.ts`)                                      |
+| `pnpm test:coverage`       | Vitest unit tests + V8 coverage report (gate; thresholds in config)          |
+| `pnpm test:e2e`            | Playwright E2E (auto-starts dev server, or reuses if running)                |
+| `pnpm lint`                | ESLint — fails on any warning (`--max-warnings 0`)                           |
+| `pnpm lint:fix`            | ESLint with `--fix` (also `--max-warnings 0`)                                |
+| `pnpm stats:refresh`       | Regenerate `src/lib/testStats.ts` from current spec inventory                |
+| `pnpm ci:refresh`          | Regenerate `src/data/ci-snapshot.json` from the live Actions API             |
+| `pnpm projects:refresh`    | Regenerate `src/data/project-stats.json` from the live GitHub repos API      |
+| `pnpm og:render`           | Render OG snippet images → `public/og/SLUG.png` (requires preview on `4322`) |
 
 ## Project structure
 
 ```
+functions/api/   Cloudflare Pages Functions — ci-snapshot and project-stats edge endpoints (24h cache)
 src/
   assets/        profile image
   styles/        global.css — Tailwind + Catppuccin import
@@ -94,16 +96,14 @@ Push to `main` and Cloudflare Pages builds + publishes to https://tim.sillysamoy
 
 GitHub Actions workflows:
 
-| Workflow                    | Trigger                          | Steps                                                                                                                                                                                                                                                           |
-| --------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                    | PR → `main`                      | `check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (coverage gate) → `pnpm typecheck` → `pnpm build`                                                                                                                                                     |
-| `playwright.yml`            | PR → `main`                      | Wait for Cloudflare preview → run Playwright against the preview URL (all projects)                                                                                                                                                                             |
-| `refresh-ci-snapshot.yml`   | nightly cron                     | Regenerate `src/data/ci-snapshot.json` from the live Actions API, then commit straight to `main` (no PR)                                                                                                                                                        |
-| `refresh-project-stats.yml` | nightly cron                     | Regenerate `src/data/project-stats.json` (repo stars/forks/updated) from the live GitHub API, commit to `main`                                                                                                                                                  |
-| `refresh-test-stats.yml`    | push → `main` (test files)       | Regenerate `src/lib/testStats.ts` (the `/testing` counts) when specs change, commit back to `main`                                                                                                                                                              |
-| `render-og.yml`             | PR → `main` (post/snippet files) | Build site, render all OG images via `pnpm og:render`, commit changed `public/og/SLUG.png` files to the PR branch. Skips fork PRs. The PNG rides the rebase-merge atomically with the post.                                                                     |
-| `publish-linkedin.yml`      | push → `main` (post files)       | Poll-and-dispatch only: when a new post lands, detect it, read `linkedinPost` (skip if absent), poll blog + image URLs until live on Cloudflare, then dispatch to `linkedin-post-generator`. Commits nothing — OG render happens at PR time by `render-og.yml`. |
-| `version-bump.yml`          | push → `main`                    | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major). Ignores `public/og/**` and other generated files.                                                                                                            |
+| Workflow                 | Trigger                          | Steps                                                                                                                                                                                                                                                           |
+| ------------------------ | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                 | PR → `main`                      | `check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (coverage gate) → `pnpm typecheck` → `pnpm build`                                                                                                                                                     |
+| `playwright.yml`         | PR → `main`                      | Wait for Cloudflare preview → run Playwright against the preview URL (all projects)                                                                                                                                                                             |
+| `refresh-test-stats.yml` | push → `main` (test files)       | Regenerate `src/lib/testStats.ts` (the `/testing` counts) when specs change, commit back to `main`                                                                                                                                                              |
+| `render-og.yml`          | PR → `main` (post/snippet files) | Build site, render all OG images via `pnpm og:render`, commit changed `public/og/SLUG.png` files to the PR branch. Skips fork PRs. The PNG rides the rebase-merge atomically with the post.                                                                     |
+| `publish-linkedin.yml`   | push → `main` (post files)       | Poll-and-dispatch only: when a new post lands, detect it, read `linkedinPost` (skip if absent), poll blog + image URLs until live on Cloudflare, then dispatch to `linkedin-post-generator`. Commits nothing — OG render happens at PR time by `render-og.yml`. |
+| `version-bump.yml`       | push → `main`                    | Bump `package.json` version from Conventional Commits (feat→minor, fix→patch, `!`/BREAKING→major). Ignores `public/og/**` and other generated files.                                                                                                            |
 
 ## Contributing
 

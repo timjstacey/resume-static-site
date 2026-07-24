@@ -21,25 +21,26 @@ Personal resume + job-application tracker. Static site hosted on Cloudflare Page
 
 ### Dev Dependencies
 
-| Package                     | Version | Purpose                                              |
-| --------------------------- | ------- | ---------------------------------------------------- |
-| pnpm                        | 10.33.0 | Package manager                                      |
-| typescript                  | 6.0.3   | Type safety                                          |
-| prettier                    | 3.8.3   | Code formatter                                       |
-| prettier-plugin-astro       | 0.14.1  | Prettier support for .astro files                    |
-| prettier-plugin-tailwindcss | 0.8.0   | Tailwind class sorting (TW4, official Tailwind Labs) |
-| eslint                      | 10.4.0  | Linter                                               |
-| typescript-eslint           | 8.59.4  | TypeScript ESLint rules                              |
-| eslint-plugin-astro         | 1.7.0   | ESLint rules for .astro files                        |
-| @astrojs/check              | 0.9.9   | Astro + TS type checking (`astro check`)             |
-| husky                       | 9.1.7   | Git hooks                                            |
-| lint-staged                 | 17.0.5  | Run linters on staged files only                     |
-| vitest                      | 4.1.7   | Unit test runner                                     |
-| @vitest/coverage-v8         | 4.1.7   | V8 coverage provider for `pnpm test:coverage`        |
-| @playwright/test            | 1.60.x  | E2E test runner                                      |
-| eslint-plugin-playwright    | 2.10.x  | Lint rules for Playwright tests                      |
-| sharp                       | 0.34.5  | Image processing (Astro asset pipeline)              |
-| @types/node                 | 25.9.0  | Node.js type definitions                             |
+| Package                     | Version      | Purpose                                                           |
+| --------------------------- | ------------ | ----------------------------------------------------------------- |
+| pnpm                        | 10.33.0      | Package manager                                                   |
+| typescript                  | 6.0.3        | Type safety                                                       |
+| prettier                    | 3.8.3        | Code formatter                                                    |
+| prettier-plugin-astro       | 0.14.1       | Prettier support for .astro files                                 |
+| prettier-plugin-tailwindcss | 0.8.0        | Tailwind class sorting (TW4, official Tailwind Labs)              |
+| eslint                      | 10.4.0       | Linter                                                            |
+| typescript-eslint           | 8.59.4       | TypeScript ESLint rules                                           |
+| eslint-plugin-astro         | 1.7.0        | ESLint rules for .astro files                                     |
+| @astrojs/check              | 0.9.9        | Astro + TS type checking (`astro check`)                          |
+| husky                       | 9.1.7        | Git hooks                                                         |
+| lint-staged                 | 17.0.5       | Run linters on staged files only                                  |
+| vitest                      | 4.1.7        | Unit test runner                                                  |
+| @vitest/coverage-v8         | 4.1.7        | V8 coverage provider for `pnpm test:coverage`                     |
+| @playwright/test            | 1.60.x       | E2E test runner                                                   |
+| eslint-plugin-playwright    | 2.10.x       | Lint rules for Playwright tests                                   |
+| sharp                       | 0.34.5       | Image processing (Astro asset pipeline)                           |
+| @types/node                 | 25.9.0       | Node.js type definitions                                          |
+| @cloudflare/workers-types   | 5.20260724.1 | Cloudflare Pages Functions runtime types (typecheck `functions/`) |
 
 ### Tailwind setup
 
@@ -152,11 +153,16 @@ skills:
 ```
 
 `stars`, `forks`, and `updatedAt` are **not** in `projects.yml` — they live in
-the generated `src/data/project-stats.json` (keyed by `repo` URL), refreshed
-nightly from the live GitHub API and merged onto each project by `getProjects()`
-via `mergeProjectStats()`. The card derives the "2d ago" label + recency sort
-from the merged `updatedAt`. Regenerate with `pnpm projects:refresh`; do not
-hand-edit. `⑃` in the card footer is the **forks** count.
+`src/data/project-stats.json` (keyed by `repo` URL), which is a committed SSG
+baseline merged onto each project by `getProjects()` via `mergeProjectStats()`.
+The card derives the "2d ago" label + recency sort from the merged `updatedAt`.
+At runtime the `/api/project-stats` Cloudflare Pages Function (24h edge cache,
+public GitHub API, no token) hydrates live data over the baseline; pages
+server-render with a `.stat-skeleton` class (gated by `html.js` set in
+`Base.astro`) and remove it when the fetch resolves or after a 5s timeout
+(baseline shows through). Refresh the baseline manually with
+`pnpm projects:refresh`; do not hand-edit. `⑃` in the card footer is the
+**forks** count.
 
 ```json
 // src/data/project-stats.json — generated, do not hand-edit
@@ -219,11 +225,12 @@ plus `gates` — real per-step durations from the latest successful run of each
 gate workflow, keyed `workflow file → GHA step name → duration`. The
 `/testing` gate cards resolve each `testing.yml` step's `match` against `gates`
 via `stepDuration()` (`src/lib/ciGates.ts`), falling back to "— no data" when a
-step has no measured timing. Regenerated from the live GitHub Actions API by
-`pnpm ci:refresh` (`scripts/refresh-ci-snapshot.mjs`), run nightly by the
-`refresh-ci-snapshot.yml` workflow which commits the refresh straight to `main`
-(via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) — do not hand-edit or
-fake these.
+step has no measured timing. `src/data/ci-snapshot.json` is a committed SSG
+baseline; at runtime the `/api/ci-snapshot` Cloudflare Pages Function (24h edge
+cache, public GitHub Actions API, no token) hydrates live data over the baseline
+(same skeleton/timeout pattern as project-stats). Refresh the baseline manually
+with `pnpm ci:refresh` (`scripts/refresh-ci-snapshot.mjs`) — do not hand-edit
+or fake these.
 
 ### OG snippet images (`src/og-snippets/*.ts`)
 
@@ -242,6 +249,11 @@ PR branch, so the PNG is reviewable in the diff and merges atomically with the p
 ## Component Architecture
 
 ```
+functions/
+  api/
+    ci-snapshot.ts      # Cloudflare Pages Function: fetch CI signals from GitHub Actions API, edge-cache 24h, return ci-snapshot shape
+    project-stats.ts    # Cloudflare Pages Function: fetch repo stats from GitHub repos API, edge-cache 24h, return project-stats shape
+  tsconfig.json         # TS config for functions/ (references @cloudflare/workers-types)
 src/
   assets/
     profile.jpg         # hero portrait (Astro asset pipeline / sharp)
@@ -270,6 +282,11 @@ src/
     posts/*.md          # blog posts — frontmatter (title/date/tag/readMins/preview) + body
   og-snippets/
     *.ts                # hand-authored OG code snippets (one per post, SLUG.ts); imported ?raw by og.astro
+  scripts/              # client entrypoints imported by .astro <script> blocks (page-specific DOM glue, kept out of src/lib so the 100% coverage gate stays on pure logic)
+    hydrate.ts          # shared live-stats hydration: fetch once (deduped) + apply + clear skeletons
+    footer-ci.ts        # Footer CI block hydration (scoped to <footer>)
+    testing-ci.ts       # /testing CI strip + gate/layer duration hydration (scoped to <main>)
+    projects.ts         # /projects filter + recency sort + project-stats hydration
   pages/
     index.astro
     resume.astro
@@ -285,8 +302,8 @@ src/
     projects.yml
     jobs.yml
     testing.yml         # /testing routing matrix + CI gate pipelines
-    ci-snapshot.json    # generated CI signals (branch/sha/last-10-runs/p50/p95 + per-step gate durations) — refresh nightly (pnpm ci:refresh)
-    project-stats.json  # generated GitHub stars/forks/updatedAt per repo — refresh nightly (pnpm projects:refresh)
+    ci-snapshot.json    # SSG baseline: CI signals (branch/sha/last-10-runs/p50/p95 + per-step gate durations) — hydrated live by /api/ci-snapshot; refresh baseline with pnpm ci:refresh
+    project-stats.json  # SSG baseline: GitHub stars/forks/updatedAt per repo — hydrated live by /api/project-stats; refresh baseline with pnpm projects:refresh
   lib/
     schemas.ts          # Zod schemas + inferred types for all data files
     data.ts             # getResume/getProjects/getJobs/getTesting/getCiSnapshot/getProjectStats loaders + mergeProjectStats
@@ -308,6 +325,10 @@ src/
     projectMatch.ts     # projectMatchesFilter()/tagParam()/compareByUpdated() — pure projects grid filter/sort, data-free for the client bundle (unit-tested)
     themes.ts           # FLAVORS/FLAVOR_IDS + THEME_TRIGGER_LABEL + resolveFlavor()/flavorFromClasses()/rovingIndex() — theme bootstrap + picker keyboard nav (unit-tested)
     projectStatus.ts    # PROJECT_STATUS_LABEL / _COLOUR maps — shared by ProjectCard + tests
+    ciSnapshot.ts       # pure transforms to build a CiSnapshot from raw GitHub Actions API data; used by the ci-snapshot edge function (unit-tested)
+    projectStats.ts     # pure transforms to build ProjectStats from raw GitHub repos API data; used by the project-stats edge function (unit-tested)
+    repoList.ts         # REPO_URLS list feeding the project-stats function, drift-guarded against projects.yml by its test (unit-tested)
+    statsClient.ts      # fetchJsonWithTimeout() + fetchStatsOnce() (per-URL in-flight dedupe) — client helpers for hydrating live stats over the SSG baseline (unit-tested)
     copy.ts             # Page heading strings shared between pages + tests
     testStats.ts        # Generated test counts surfaced on /testing — `pnpm stats:refresh` (auto-run on spec changes by refresh-test-stats.yml)
     *.test.ts           # vitest unit tests colocated with each lib module
@@ -408,7 +429,8 @@ Never save screenshots to the repo root or any other directory.
 pnpm dev              # dev server at localhost:4321
 pnpm build            # static output → dist/
 pnpm preview          # preview built site at localhost:4322 (separate port so a stray preview never squats dev/e2e on 4321)
-pnpm typecheck        # astro check — full TS diagnostics across all .astro/.ts files
+pnpm typecheck        # astro check + pnpm typecheck:functions — full TS diagnostics across all .astro/.ts files and edge functions
+pnpm typecheck:functions # tsc --noEmit -p functions/tsconfig.json — type-check the Cloudflare Pages Functions
 pnpm test             # vitest run — unit tests (schemas, nav logic)
 pnpm test:coverage    # vitest run --coverage — unit tests + V8 coverage gate (text/html/lcov)
 pnpm test:e2e         # playwright — E2E tests (requires dev server or auto-starts it)
@@ -491,16 +513,14 @@ default.
 
 GitHub Actions workflows live in `.github/workflows/`.
 
-| Workflow                    | Trigger                                                                                                  | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ci.yml`                    | `pull_request` → `main`                                                                                  | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (V8 coverage gate, thresholds in `vitest.config.ts`) → `pnpm typecheck` → `pnpm build`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| `playwright.yml`            | `pull_request` → `main` / manual                                                                         | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `refresh-ci-snapshot.yml`   | nightly cron (`0 6 * * *`) / manual                                                                      | Runs `pnpm ci:refresh` to regenerate `src/data/ci-snapshot.json` from the live Actions API (CI strip signals + real per-step `gates` durations for the `/testing` CI-gate cards), then commits it straight to `main` (via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) if it changed — no PR. `version-bump.yml` paths-ignores the file so the commit never bumps the version. Keeps the footer + `/testing` CI strip and gate timings from going stale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| `refresh-project-stats.yml` | nightly cron (`15 6 * * *`) / manual                                                                     | Runs `pnpm projects:refresh` to regenerate `src/data/project-stats.json` (stars/forks/updatedAt per repo) from the live GitHub repos API, then commits it straight to `main` (via `VERSION_BUMP_TOKEN`, like `refresh-test-stats.yml`) if it changed — no PR. `version-bump.yml` ignores the file so the refresh never bumps the version.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| `refresh-test-stats.yml`    | `push` → `main` (`paths: tests/**`, `**/*.test.ts`, `playwright.config.ts`) / manual                     | Runs `pnpm stats:refresh` to regenerate `src/lib/testStats.ts` (the `/testing` unit/E2E counts) whenever specs change, then commits it back to `main` via `VERSION_BUMP_TOKEN` if it changed. The commit touches only `testStats.ts`, which matches neither this workflow's `paths` filter (no self-trigger) nor version-bump's `paths-ignore` (no bump no-op).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| `render-og.yml`             | `pull_request` → `main` (`paths: src/content/posts/**`, `src/og-snippets/**`)                            | Renders OG snippet images at PR time. Builds the site, runs `node scripts/og/render.mjs` against `pnpm preview`, and commits any changed `public/og/SLUG.png` files to the PR branch via an **ephemeral GitHub App installation token** (`actions/create-github-app-token`, `vars.CI_BOT_APP_ID` + `secrets.CI_BOT_PRIVATE_KEY`) instead of the built-in `GITHUB_TOKEN`: a `GITHUB_TOKEN` push cannot re-trigger workflows (Actions loop-guard), so the required `ci`/`playwright` checks would go stale on the PNG commit and block a non-admin merge — an App token re-triggers them. The App needs only `contents:write`, no ruleset bypass (the `claude/` PR branch is unprotected). Skips fork PRs. Rendering all posts and committing only diffs means new posts, edited posts, and og-snippet-only changes are all covered. The PNG rides the rebase-merge into `main` atomically with the post — it is reviewable in the PR diff. |
-| `publish-linkedin.yml`      | `push` → `main` (`paths: src/content/posts/**`) / manual (`workflow_dispatch` with a `slug` input)       | Poll-and-dispatch only. When a new post lands on `main`: detects the newly added post (`--diff-filter=A`), reads `linkedinPost` (skips posts without it), polls the blog URL (200) and image URL (200 **and** `image/*` content-type, so the pre-deploy HTML fallback can't false-pass) until both are live on Cloudflare, then `repository_dispatch`es a `linkedin-publish` event (`client_payload: { linkedin_text, blog_url, slug, image_url }`) to `linkedin-post-generator`. Commits nothing to `main` — the OG PNG was already committed to the branch by `render-og.yml` and rode the rebase-merge. The `workflow_dispatch` `slug` input is the manual recovery lever — re-drives poll → dispatch for one post. One-way link, no write-back. Uses `secrets.LPG_DISPATCH_TOKEN` only.                                                                                                                                               |
-| `version-bump.yml`          | `push` → `main` (`paths-ignore: ci-snapshot.json`, `project-stats.json`, `testStats.ts`, `public/og/**`) | Reads the merged commits via Conventional Commits — `feat`→minor, `fix`/`perf`→patch, `feat!`/`BREAKING CHANGE`→major, anything else→no bump — then `npm version <level> --no-git-tag-version` and commits the bump back to `main`. The bump commit deliberately omits `[skip ci]` (Cloudflare Pages honors it, which would stop the footer version from ever deploying); its `chore(release)` subject re-runs this workflow once as a no-op rather than looping. The `paths-ignore` keeps the generated-file refreshes (ci-snapshot, project-stats, test stats, OG images) from triggering a bump.                                                                                                                                                                                                                                                                                                                                       |
+| Workflow                 | Trigger                                                                                                  | What                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ci.yml`                 | `pull_request` → `main`                                                                                  | `./scripts/ci/check-claude-md.sh` → `pnpm lint` → `pnpm test:coverage` (V8 coverage gate, thresholds in `vitest.config.ts`) → `pnpm typecheck` → `pnpm build`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `playwright.yml`         | `pull_request` → `main` / manual                                                                         | Waits for the Cloudflare Pages preview deploy via `scripts/ci/wait-for-cf-preview.sh`, then runs Playwright against the preview URL. `workflow_dispatch` takes a `base_url` input instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `refresh-test-stats.yml` | `push` → `main` (`paths: tests/**`, `**/*.test.ts`, `playwright.config.ts`) / manual                     | Runs `pnpm stats:refresh` to regenerate `src/lib/testStats.ts` (the `/testing` unit/E2E counts) whenever specs change, then commits it back to `main` via `VERSION_BUMP_TOKEN` if it changed. The commit touches only `testStats.ts`, which matches neither this workflow's `paths` filter (no self-trigger) nor version-bump's `paths-ignore` (no bump no-op).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| `render-og.yml`          | `pull_request` → `main` (`paths: src/content/posts/**`, `src/og-snippets/**`)                            | Renders OG snippet images at PR time. Builds the site, runs `node scripts/og/render.mjs` against `pnpm preview`, and commits any changed `public/og/SLUG.png` files to the PR branch via an **ephemeral GitHub App installation token** (`actions/create-github-app-token`, `vars.CI_BOT_APP_ID` + `secrets.CI_BOT_PRIVATE_KEY`) instead of the built-in `GITHUB_TOKEN`: a `GITHUB_TOKEN` push cannot re-trigger workflows (Actions loop-guard), so the required `ci`/`playwright` checks would go stale on the PNG commit and block a non-admin merge — an App token re-triggers them. The App needs only `contents:write`, no ruleset bypass (the `claude/` PR branch is unprotected). Skips fork PRs. Rendering all posts and committing only diffs means new posts, edited posts, and og-snippet-only changes are all covered. The PNG rides the rebase-merge into `main` atomically with the post — it is reviewable in the PR diff. |
+| `publish-linkedin.yml`   | `push` → `main` (`paths: src/content/posts/**`) / manual (`workflow_dispatch` with a `slug` input)       | Poll-and-dispatch only. When a new post lands on `main`: detects the newly added post (`--diff-filter=A`), reads `linkedinPost` (skips posts without it), polls the blog URL (200) and image URL (200 **and** `image/*` content-type, so the pre-deploy HTML fallback can't false-pass) until both are live on Cloudflare, then `repository_dispatch`es a `linkedin-publish` event (`client_payload: { linkedin_text, blog_url, slug, image_url }`) to `linkedin-post-generator`. Commits nothing to `main` — the OG PNG was already committed to the branch by `render-og.yml` and rode the rebase-merge. The `workflow_dispatch` `slug` input is the manual recovery lever — re-drives poll → dispatch for one post. One-way link, no write-back. Uses `secrets.LPG_DISPATCH_TOKEN` only.                                                                                                                                               |
+| `version-bump.yml`       | `push` → `main` (`paths-ignore: ci-snapshot.json`, `project-stats.json`, `testStats.ts`, `public/og/**`) | Reads the merged commits via Conventional Commits — `feat`→minor, `fix`/`perf`→patch, `feat!`/`BREAKING CHANGE`→major, anything else→no bump — then `npm version <level> --no-git-tag-version` and commits the bump back to `main`. The bump commit deliberately omits `[skip ci]` (Cloudflare Pages honors it, which would stop the footer version from ever deploying); its `chore(release)` subject re-runs this workflow once as a no-op rather than looping. The `paths-ignore` keeps the generated-file refreshes (ci-snapshot, project-stats, test stats, OG images) from triggering a bump.                                                                                                                                                                                                                                                                                                                                       |
 
 Playwright projects (see `playwright.config.ts`) route specs by `testMatch` so each spec runs only where it's meaningful:
 

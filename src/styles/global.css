@@ -98,3 +98,40 @@
     animation-duration: 180ms;
   }
 }
+
+/* Live-stats loading skeleton. Stat values are server-rendered with the
+   committed baseline and tagged .stat-skeleton; the hydration script removes the
+   class once /api/* resolves (fresh) or times out (baseline). Only active when
+   JS is present (html.js) so no-JS visitors keep the baseline text visible. */
+.js .stat-skeleton {
+  color: transparent !important;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--catppuccin-color-surface0) 25%,
+    var(--catppuccin-color-surface1) 37%,
+    var(--catppuccin-color-surface0) 63%
+  );
+  background-size: 400% 100%;
+  animation: stat-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Hide glyph/child content (e.g. the run squares) while skeletonised. */
+.js .stat-skeleton * {
+  visibility: hidden;
+}
+
+@keyframes stat-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .stat-skeleton {
+    animation: none;
+  }
+}
