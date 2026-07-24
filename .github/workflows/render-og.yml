@@ -5,8 +5,16 @@ name: Render OG images
 # post. This replaces the old post-merge render+push in publish-linkedin.yml,
 # which pushed public/og/SLUG.png straight to main and raced the version-bump
 # commit (issue #199). The PR branch (claude/...) is not covered by the
-# protected-branches ruleset (it targets the default branch only), so the
-# built-in GITHUB_TOKEN with contents:write can push the PNGs back — no PAT.
+# protected-branches ruleset (it targets the default branch only), so the push
+# needs no ruleset bypass.
+#
+# The push uses an ephemeral GitHub App installation token (not the built-in
+# GITHUB_TOKEN): a commit pushed with GITHUB_TOKEN cannot re-trigger workflows
+# (Actions loop-guard), so ci.yml / playwright.yml would go stale on the PNG
+# commit's head SHA and block a non-admin/auto merge. An App token DOES
+# re-trigger the required checks, and it is per-run + scoped + expiring — no
+# standing PAT (issue #201). The App needs only `contents:write` on this repo,
+# no ruleset bypass. Provisioned via vars.CI_BOT_APP_ID + secrets.CI_BOT_PRIVATE_KEY.
 #
 # Triggers on both posts and og-snippets, so an OG-snippet edit on an existing
 # post re-renders its image too (not added-only). Renders every post and commits
@@ -33,15 +41,29 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
-    # Skip fork PRs: their GITHUB_TOKEN is read-only, so the push back would fail.
+    # Skip fork PRs: repo secrets (CI_BOT_PRIVATE_KEY) aren't exposed to fork
+    # PRs, so the token mint would fail — and a fork branch isn't pushable anyway.
     # The blog routine only ever opens same-repo claude/ branches.
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
+      # Ephemeral GitHub App installation token — re-triggers the required
+      # checks on the PNG commit (GITHUB_TOKEN cannot). Expires with the job.
+      - name: Mint GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.CI_BOT_APP_ID }}
+          private-key: ${{ secrets.CI_BOT_PRIVATE_KEY }}
+          # Least privilege: scope the token to exactly what the push needs,
+          # independent of what the App installation is granted.
+          permission-contents: write
+
       - uses: actions/checkout@v7
         with:
           # Check out the PR head branch (not the merge ref) so the commit lands
-          # on it; default GITHUB_TOKEN credentials persist for the push back.
+          # on it; the App token's credentials persist for the push back.
           ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -80,9 +102,15 @@ jobs:
           node scripts/og/render.mjs
 
       - name: Commit changed OG images to the PR branch
+        env:
+          # Attribute the commit to the App's bot identity. The numeric user id
+          # keeps the author matched to the App account rather than a generic bot.
+          APP_SLUG: ${{ steps.app-token.outputs.app-slug }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bot_id="$(gh api "/users/${APP_SLUG}[bot]" --jq .id)"
+          git config user.name "${APP_SLUG}[bot]"
+          git config user.email "${bot_id}+${APP_SLUG}[bot]@users.noreply.github.com"
           git add public/og
           if git diff --cached --quiet; then
             echo "No OG image changes. Nothing to commit."
