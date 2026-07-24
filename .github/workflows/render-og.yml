@@ -1,0 +1,95 @@
+name: Render OG images
+
+# Renders each blog post's OG snippet image at PR time and commits the PNGs to
+# the PR branch, so they ride the rebase-merge into main atomically with the
+# post. This replaces the old post-merge render+push in publish-linkedin.yml,
+# which pushed public/og/SLUG.png straight to main and raced the version-bump
+# commit (issue #199). The PR branch (claude/...) is not covered by the
+# protected-branches ruleset (it targets the default branch only), so the
+# built-in GITHUB_TOKEN with contents:write can push the PNGs back — no PAT.
+#
+# Triggers on both posts and og-snippets, so an OG-snippet edit on an existing
+# post re-renders its image too (not added-only). Renders every post and commits
+# only what changed, so new, edited, and snippet-changed posts are all covered
+# without diff parsing. Hand-written posts (no OG snippet) still get an image via
+# the pickHeroFence() fallback in the /blog/SLUG/og route.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/content/posts/**'
+      - 'src/og-snippets/**'
+
+permissions:
+  contents: write
+
+# One render per PR branch: a rapid second push (synchronize) cancels the
+# in-flight run so two jobs can't race the commit+push to the same branch.
+concurrency:
+  group: render-og-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    # Skip fork PRs: their GITHUB_TOKEN is read-only, so the push back would fail.
+    # The blog routine only ever opens same-repo claude/ branches.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Check out the PR head branch (not the merge ref) so the commit lands
+          # on it; default GITHUB_TOKEN credentials persist for the push back.
+          ref: ${{ github.head_ref }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install chromium --with-deps
+
+      - name: Build site and render OG images
+        run: |
+          pnpm build
+          pnpm preview &
+          # Wait for the preview server to bind before Playwright connects — a
+          # blind sleep races a slow bind and fails the render.
+          for i in $(seq 1 30); do
+            if curl -sf -o /dev/null http://localhost:4322/; then
+              echo "Preview server up."
+              break
+            fi
+            if [ "$i" -eq 30 ]; then
+              echo "Preview server never bound on :4322 after 30s." >&2
+              exit 1
+            fi
+            sleep 1
+          done
+          # No --slug: render every post. Deterministic output means only the
+          # new/edited slug's PNG actually changes; the commit step no-ops otherwise.
+          node scripts/og/render.mjs
+
+      - name: Commit changed OG images to the PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/og
+          if git diff --cached --quiet; then
+            echo "No OG image changes. Nothing to commit."
+            exit 0
+          fi
+          # --no-verify skips husky hooks (lint-staged, pre-push typecheck) — they
+          # add nothing to a bot PNG commit. version-bump.yml paths-ignores
+          # public/og/** so the merged PNG never triggers a version bump.
+          git commit --no-verify -m "chore(og): render OG images"
+          git push --no-verify

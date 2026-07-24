@@ -125,18 +125,22 @@ const accent = TAG_ACCENT[post.data.tag] ?? 'lavender';
     overflow: hidden;
   }
 
+  /* Content-sized, not stretched: hug the code width and centre the block in
+     the free space above the footer so short snippets don't leave a tall empty
+     frame (flex-grow) or a lopsided gap. */
   #og-card :global(.expressive-code) {
-    margin: 0;
-    flex: 1 1 auto;
-  }
-
-  #og-card :global(.expressive-code pre) {
-    font-size: 16px;
-    line-height: 1.6;
+    flex: 0 0 auto;
+    width: fit-content;
+    max-width: 100%;
+    margin: auto;
+    /* EC sizes the code text via its own token, not `pre { font-size }`, so
+       bump the token (scoped here, not the global ec.config) to fill the card. */
+    --ec-codeFontSize: 22px;
+    --ec-codeLineHt: 1.5;
   }
 
   #og-card :global(.expressive-code .title) {
-    font-size: 15px;
+    font-size: 19px;
   }
 
   #og-card .foot {
