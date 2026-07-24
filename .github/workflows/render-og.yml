@@ -41,7 +41,8 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
-    # Skip fork PRs: their GITHUB_TOKEN is read-only, so the push back would fail.
+    # Skip fork PRs: repo secrets (CI_BOT_PRIVATE_KEY) aren't exposed to fork
+    # PRs, so the token mint would fail — and a fork branch isn't pushable anyway.
     # The blog routine only ever opens same-repo claude/ branches.
     if: github.event.pull_request.head.repo.full_name == github.repository
     steps:
@@ -53,6 +54,9 @@ jobs:
         with:
           app-id: ${{ vars.CI_BOT_APP_ID }}
           private-key: ${{ secrets.CI_BOT_PRIVATE_KEY }}
+          # Least privilege: scope the token to exactly what the push needs,
+          # independent of what the App installation is granted.
+          permission-contents: write
 
       - uses: actions/checkout@v7
         with:
