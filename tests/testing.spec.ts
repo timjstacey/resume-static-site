@@ -1,9 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { getTesting, getCiSnapshot } from '../src/lib/data';
+import { getTesting } from '../src/lib/data';
 import { TEST_STATS } from '../src/lib/testStats';
 
 const { routing, workflows } = getTesting();
-const ci = getCiSnapshot();
 
 test.describe('Testing dashboard', () => {
   test.beforeEach(async ({ page }) => {
@@ -14,10 +13,20 @@ test.describe('Testing dashboard', () => {
     await expect(page.getByRole('heading', { name: /its own test report/ })).toBeVisible();
   });
 
-  test('CI strip shows live snapshot values', async ({ page }) => {
-    await expect(page.getByText(`#${ci.sha}`)).toBeVisible();
-    await expect(page.getByText(ci.commitMessage)).toBeVisible();
-    await expect(page.getByText(ci.passing ? 'passing' : 'failing', { exact: true })).toBeVisible();
+  test('CI strip renders a well-shaped CI signal', async ({ page }) => {
+    // Values hydrate from /api/ci-snapshot on the preview deploy (fresh) or fall
+    // back to the committed baseline locally — so assert shape, not pinned
+    // values. Locators target the data-ci-* contract hooks the hydration script
+    // drives (mono strip text has no meaningful role); toHaveText auto-retries,
+    // so a mid-assert hydration swap is fine — both states match the shape.
+    // Scope to <main>: the footer (contentinfo) shares data-ci-branch.
+    const strip = page.getByRole('main');
+    await expect(strip.locator('[data-ci-branch]')).toHaveText('main');
+    await expect(strip.locator('[data-ci-sha]')).toHaveText(/^#[0-9a-f]{7}$/);
+    await expect(strip.locator('[data-ci-message]')).toHaveText(/\S/);
+    // regex (not string) → no whitespace normalization; the badge is rendered
+    // with surrounding template whitespace, so tolerate it.
+    await expect(strip.locator('[data-ci-passing]')).toHaveText(/^\s*(passing|failing)\s*$/);
   });
 
   test('stat strip shows unit + e2e counts', async ({ page }) => {

@@ -1,7 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { getProjects } from '../src/lib/data';
 import { PROJECT_FILTERS } from '../src/lib/projectFilters';
-import { daysAgo } from '../src/lib/format';
 import type { Project } from '../src/lib/schemas';
 
 // Throws at module load if YAML is missing or fails schema validation.
@@ -27,11 +26,6 @@ function expectedNames(filter: string): string[] {
 // URL matcher per filter: 'all' clears the param, others set ?tag=<filter>.
 function urlFor(filter: string): RegExp {
   return filter === 'all' ? /\/projects\/?$/ : new RegExp(`\\?tag=${filter}`);
-}
-
-// Mirror ProjectCard's data-updated: whole days since updatedAt, no date sorts last.
-function updatedDays(p: Project): number {
-  return p.updatedAt ? daysAgo(p.updatedAt) : 99999;
 }
 
 function visibleNames(page: Page): Promise<string[]> {
@@ -85,15 +79,20 @@ test.describe('Projects page', () => {
   });
 
   test('sort toggles project order by recency', async ({ page }) => {
-    const byRecency = [...projects].sort((a, b) => updatedDays(a) - updatedDays(b)).map((p) => p.name);
-
+    // updatedAt hydrates live on the preview (fresh) or from the baseline
+    // locally, so the concrete order isn't predictable — assert the toggle
+    // *reverses* whatever order is shown. Wait for hydration to settle (the
+    // stat skeleton is removed once /api/project-stats resolves or times out)
+    // so the captured order is stable before toggling.
+    await expect(page.locator('[data-project-stats]').first()).not.toHaveClass(/stat-skeleton/);
     await expect(page.getByTestId('sort-arrow')).toHaveText('↓');
-    expect(await visibleNames(page)).toEqual(byRecency);
+    const descOrder = await visibleNames(page);
+    expect(descOrder.length).toBeGreaterThan(1);
 
     await page.getByRole('button', { name: 'sort: updated' }).click();
     await expect(page.getByTestId('sort-arrow')).toHaveText('↑');
     // poll: the reorder runs inside a View Transition (async commit).
-    await expect.poll(async () => await visibleNames(page)).toEqual([...byRecency].reverse());
+    await expect.poll(async () => await visibleNames(page)).toEqual([...descOrder].reverse());
   });
 });
 
