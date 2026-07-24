@@ -282,6 +282,11 @@ src/
     posts/*.md          # blog posts — frontmatter (title/date/tag/readMins/preview) + body
   og-snippets/
     *.ts                # hand-authored OG code snippets (one per post, SLUG.ts); imported ?raw by og.astro
+  scripts/              # client entrypoints imported by .astro <script> blocks (page-specific DOM glue, kept out of src/lib so the 100% coverage gate stays on pure logic)
+    hydrate.ts          # shared live-stats hydration: fetch once (deduped) + apply + clear skeletons
+    footer-ci.ts        # Footer CI block hydration (scoped to <footer>)
+    testing-ci.ts       # /testing CI strip + gate/layer duration hydration (scoped to <main>)
+    projects.ts         # /projects filter + recency sort + project-stats hydration
   pages/
     index.astro
     resume.astro
@@ -323,7 +328,7 @@ src/
     ciSnapshot.ts       # pure transforms to build a CiSnapshot from raw GitHub Actions API data; used by the ci-snapshot edge function (unit-tested)
     projectStats.ts     # pure transforms to build ProjectStats from raw GitHub repos API data; used by the project-stats edge function (unit-tested)
     repoList.ts         # REPO_URLS list feeding the project-stats function, drift-guarded against projects.yml by its test (unit-tested)
-    statsClient.ts      # fetchJsonWithTimeout() — AbortController + timeout client helper for hydrating live stats over the SSG baseline (unit-tested)
+    statsClient.ts      # fetchJsonWithTimeout() + fetchStatsOnce() (per-URL in-flight dedupe) — client helpers for hydrating live stats over the SSG baseline (unit-tested)
     copy.ts             # Page heading strings shared between pages + tests
     testStats.ts        # Generated test counts surfaced on /testing — `pnpm stats:refresh` (auto-run on spec changes by refresh-test-stats.yml)
     *.test.ts           # vitest unit tests colocated with each lib module

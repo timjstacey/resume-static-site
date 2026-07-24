@@ -40,28 +40,5 @@ const ctpV = v('@catppuccin/tailwindcss');
 </footer>
 
 <script>
-  // Hydrate the CI block with live values from the edge function over the
-  // committed baseline. On timeout/failure the skeleton is simply removed,
-  // revealing the server-rendered baseline. Fetch + timeout live in the
-  // unit-tested statsClient; this is thin DOM glue.
-  import { fetchJsonWithTimeout, STATS_TIMEOUT_MS } from '../lib/statsClient';
-  import type { CiSnapshot } from '../lib/schemas';
-
-  const status = document.querySelector<HTMLElement>('[data-ci-status]');
-  const word = document.querySelector<HTMLElement>('[data-ci-word]');
-  const branch = document.querySelector<HTMLElement>('[data-ci-branch]');
-  const deploy = document.querySelector<HTMLElement>('[data-ci-deploy]');
-
-  (async () => {
-    const ci = await fetchJsonWithTimeout<CiSnapshot>('/api/ci-snapshot', STATS_TIMEOUT_MS);
-    if (ci) {
-      if (word) word.textContent = ci.passing ? 'green' : 'failing';
-      if (branch) branch.textContent = ci.branch;
-      if (deploy) deploy.textContent = ci.lastDeployAgo;
-      status?.classList.toggle('text-ctp-green', ci.passing);
-      status?.classList.toggle('text-ctp-red', !ci.passing);
-    }
-    status?.classList.remove('stat-skeleton');
-    deploy?.classList.remove('stat-skeleton');
-  })();
+  import '../scripts/footer-ci';
 </script>
