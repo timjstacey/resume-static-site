@@ -20,11 +20,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Ephemeral GitHub App installation token — replaces the standing admin PAT
+      # (#201). The App is a ruleset bypass actor, so its per-run, scoped token
+      # can push the refreshed testStats.ts to main. Same App as render-og /
+      # version-bump (vars.CI_BOT_APP_ID + secrets.CI_BOT_PRIVATE_KEY).
+      - name: Mint GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.CI_BOT_APP_ID }}
+          private-key: ${{ secrets.CI_BOT_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: actions/checkout@v7
         with:
-          # Admin PAT: pushing to main needs to bypass the branch ruleset, the
-          # same way version-bump.yml does.
-          token: ${{ secrets.VERSION_BUMP_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4

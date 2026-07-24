@@ -21,15 +21,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Ephemeral GitHub App installation token — replaces the standing admin PAT
+      # (#201). The default GITHUB_TOKEN cannot push to main (the ruleset blocks
+      # it); the App is a ruleset bypass actor, so its per-run, scoped, expiring
+      # token can push the bump commit. Provisioned via vars.CI_BOT_APP_ID +
+      # secrets.CI_BOT_PRIVATE_KEY (same App as render-og).
+      - name: Mint GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.CI_BOT_APP_ID }}
+          private-key: ${{ secrets.CI_BOT_PRIVATE_KEY }}
+          permission-contents: write
+
       - uses: actions/checkout@v7
         with:
           # Need history back to the previous push to read the merged commits.
           fetch-depth: 0
-          # Admin PAT: the default GITHUB_TOKEN cannot push to main (ruleset
-          # pull_request rule + classic required checks block it). An admin
-          # bypasses classic protection (enforce_admins=false) and matches the
-          # "Repository admin" entry on the ruleset bypass list.
-          token: ${{ secrets.VERSION_BUMP_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v7
