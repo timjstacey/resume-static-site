@@ -33,12 +33,6 @@ if (postSlug) {
       expect(box?.height).toBe(630);
     });
 
-    test('og-card contains a footer with the brand domain', async ({ page }) => {
-      await page.goto(`/blog/${postSlug}/og`);
-      const card = page.getByTestId('og-card');
-      await expect(card.getByText('tim.sillysamoyed.com/blog')).toBeVisible();
-    });
-
     test('html element has mocha class for always-dark rendering', async ({ page }) => {
       await page.goto(`/blog/${postSlug}/og`);
       const html = page.locator('html');

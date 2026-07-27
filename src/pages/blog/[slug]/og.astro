@@ -85,13 +85,23 @@ const accent = TAG_ACCENT[post.data.tag] ?? 'lavender';
   </head>
   <body>
     <div id="og-card" data-testid="og-card" style={`border-top-color: var(--catppuccin-color-${accent})`}>
-      <Code code={snippetCode} lang={snippetLang} title={snippetTitle} frame="code" />
-      <div class="foot">
-        <span class="dot" style={`background: var(--catppuccin-color-${accent})`}></span>
-        <span class="headline">{headline}</span>
-        <span class="brand">tim.sillysamoyed.com/blog</span>
-      </div>
+      <Code code={snippetCode} lang={snippetLang} title={snippetTitle} frame="code" wrap preserveIndent />
     </div>
+    <script is:inline>
+      // Auto-fit: `wrap` on the code block stops horizontal cropping, but a tall
+      // (or heavily wrapped) snippet can still overflow the fixed-height card and
+      // get clipped by `overflow: hidden`. Shrink the EC code font until the code
+      // fits the 630px card. Runs synchronously before the render screenshot
+      // (forced reflow per step), so output is deterministic for the same snippet.
+      (function () {
+        const card = document.getElementById('og-card');
+        const ec = card && card.querySelector('.expressive-code');
+        if (!card || !ec) return;
+        for (let size = 22; size >= 11 && card.scrollHeight > card.clientHeight; size--) {
+          ec.style.setProperty('--ec-codeFontSize', size - 1 + 'px');
+        }
+      })();
+    </script>
   </body>
 </html>
 
@@ -126,8 +136,8 @@ const accent = TAG_ACCENT[post.data.tag] ?? 'lavender';
   }
 
   /* Content-sized, not stretched: hug the code width and centre the block in
-     the free space above the footer so short snippets don't leave a tall empty
-     frame (flex-grow) or a lopsided gap. */
+     the card so short snippets don't leave a tall empty frame (flex-grow) or a
+     lopsided gap. */
   #og-card :global(.expressive-code) {
     flex: 0 0 auto;
     width: fit-content;
@@ -141,31 +151,5 @@ const accent = TAG_ACCENT[post.data.tag] ?? 'lavender';
 
   #og-card :global(.expressive-code .title) {
     font-size: 19px;
-  }
-
-  #og-card .foot {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 21px;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: var(--catppuccin-color-text);
-  }
-
-  #og-card .foot .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 3px;
-    flex: 0 0 auto;
-  }
-
-  #og-card .foot .brand {
-    margin-left: auto;
-    font-family: ui-monospace, monospace;
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    color: var(--catppuccin-color-overlay1);
   }
 </style>
