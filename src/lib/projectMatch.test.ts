@@ -30,23 +30,35 @@ describe('tagParam', () => {
 });
 
 describe('compareByUpdated', () => {
+  const key = (days: number, name = 'x') => ({ days, name });
+
   it('desc puts the more recent (smaller days-ago) first', () => {
-    expect(compareByUpdated(2, 10, true)).toBeLessThan(0);
-    expect(compareByUpdated(10, 2, true)).toBeGreaterThan(0);
+    expect(compareByUpdated(key(2), key(10), true)).toBeLessThan(0);
+    expect(compareByUpdated(key(10), key(2), true)).toBeGreaterThan(0);
   });
 
   it('asc reverses the order', () => {
-    expect(compareByUpdated(2, 10, false)).toBeGreaterThan(0);
-    expect(compareByUpdated(10, 2, false)).toBeLessThan(0);
+    expect(compareByUpdated(key(2), key(10), false)).toBeGreaterThan(0);
+    expect(compareByUpdated(key(10), key(2), false)).toBeLessThan(0);
   });
 
-  it('is stable (0) for equal recency', () => {
-    expect(compareByUpdated(5, 5, true)).toBe(0);
-    expect(compareByUpdated(5, 5, false)).toBe(0);
+  it('breaks a same-day tie by name, flipping with the direction', () => {
+    expect(compareByUpdated(key(0, 'alpha'), key(0, 'beta'), true)).toBeLessThan(0);
+    expect(compareByUpdated(key(0, 'alpha'), key(0, 'beta'), false)).toBeGreaterThan(0);
+    expect(compareByUpdated(key(5, 'same'), key(5, 'same'), true)).toBe(0);
   });
 
   it('sorts a list most-recent-first under desc', () => {
-    const days = [10, 2, 99999, 5];
-    expect([...days].sort((a, b) => compareByUpdated(a, b, true))).toEqual([2, 5, 10, 99999]);
+    const days = [10, 2, 99999, 5].map((d) => key(d));
+    expect([...days].sort((a, b) => compareByUpdated(a, b, true)).map((k) => k.days)).toEqual([2, 5, 10, 99999]);
+  });
+
+  // The grid's contract: toggling the control reverses what's on screen. With
+  // tied days-ago a stable sort would leave the tied pair in place and break it.
+  it('toggling direction exactly reverses a list containing a tie', () => {
+    const keys = [key(0, 'LinkedIn Post Generator'), key(0, 'Resume Static Site'), key(60, 'Agent Sandbox')];
+    const descOrder = [...keys].sort((a, b) => compareByUpdated(a, b, true)).map((k) => k.name);
+    const ascOrder = [...keys].sort((a, b) => compareByUpdated(a, b, false)).map((k) => k.name);
+    expect(ascOrder).toEqual([...descOrder].reverse());
   });
 });

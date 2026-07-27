@@ -57,12 +57,11 @@ const grid = document.getElementById('project-grid');
 const sortBtn = document.getElementById('sort-btn');
 const arrow = document.getElementById('sort-arrow');
 let desc = true; // ↓ = most recent first
+function sortKey(card: HTMLElement) {
+  return { days: Number(card.getAttribute('data-updated')), name: card.getAttribute('aria-label') ?? '' };
+}
 function sort() {
-  const ordered = cards
-    .slice()
-    .sort((a, b) =>
-      compareByUpdated(Number(a.getAttribute('data-updated')), Number(b.getAttribute('data-updated')), desc)
-    );
+  const ordered = cards.slice().sort((a, b) => compareByUpdated(sortKey(a), sortKey(b), desc));
   for (const card of ordered) grid?.appendChild(card);
   if (arrow) arrow.textContent = desc ? '↓' : '↑';
 }
