@@ -247,3 +247,14 @@
   applied: '2026-07-23'
   status: Applied
   notes: 'Applied via LinkedIn'
+
+- company: Accenture
+  role: Automation Engineer
+  applied: '2026-07-27'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
+- company: Talent
+  role: Senior QA Engineer (Automation)
+  applied: '2026-06-18'
+  status: Applied
