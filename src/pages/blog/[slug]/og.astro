@@ -97,7 +97,7 @@ const accent = TAG_ACCENT[post.data.tag] ?? 'lavender';
         const card = document.getElementById('og-card');
         const ec = card && card.querySelector('.expressive-code');
         if (!card || !ec) return;
-        for (let size = 22; size >= 11 && card.scrollHeight > card.clientHeight; size--) {
+        for (let size = 22; size > 11 && card.scrollHeight > card.clientHeight; size--) {
           ec.style.setProperty('--ec-codeFontSize', size - 1 + 'px');
         }
       })();
