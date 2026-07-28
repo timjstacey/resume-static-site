@@ -28,7 +28,7 @@ linkedinPost: |
 
   Then the finding that changed my mind. Emanuel, Harrington and Pallais studied engineers at a Fortune 500 firm with two headquarters buildings. Engineers whose whole team sat in one building got 23.9 percent more code review comments than engineers on teams split across both. Both groups were in an office. The split-team engineers commuted and got nothing for it. The gains land on junior engineers, and senior engineers write less code when they sit near their teams.
 
-  So the thing worth measuring is whether your team is in the room, not whether you are in a building. Two days a week beside people who report to a different roster is the arm that got nothing.
+  So the thing worth measuring is whether your team is in the room with you. Two days a week beside people who report to a different roster is the arm that got nothing.
 
   I have written up the full audit of my own post, including where the sourcing was weak.
 
@@ -53,7 +53,7 @@ return-to-office mandates fail on the evidence their own advocates cite. It foun
 audience. So I asked for the opposite case: take the same research, go hunting for the
 rebuttal, and come back with sources or come back empty.
 
-It came back with sources. Two of my load-bearing claims took damage. The one that
+It came back with sources. Three of my load-bearing claims took damage. The one that
 survived cut the argument into a better shape than the one I published.
 
 ## The trial I cited ran three days in the office
@@ -119,7 +119,8 @@ without measurement.
 The 22 percent worth quoting comes from Emanuel, Harrington and Pallais, who studied
 software engineers at a Fortune 500 firm from 2019 to 2024. The firm's campus had two
 headquarters buildings a few blocks apart, which handed the researchers a natural
-experiment in proximity. Engineers whose entire team sat in one building received
+experiment in proximity. Engineers whose entire team sat in one building received 22
+percent more feedback than engineers with distant teammates, and
 [23.9 percent more comments on their
 code](https://leaddev.com/velocity/physical-proximity-boosts-engineering-collaboration-harvard-study-finds)
 than engineers on teams split across both buildings.
