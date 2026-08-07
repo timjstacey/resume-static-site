@@ -306,3 +306,14 @@
   applied: '2026-08-04'
   status: Applied
   notes: 'Applied via LinkedIn'
+
+- company: ASX
+  role: Test Engineer
+  applied: '2026-08-07'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
+- company: Ideas Lab
+  role: Quality Engineering (Cold Outreach)
+  applied: '2026-08-04'
+  status: Applied
