@@ -337,3 +337,16 @@
   applied: '2026-08-18'
   status: Applied
   notes: 'Applied via Seek'
+
+- company: Sirius Technology
+  role: QA Engineer
+  url: https://au.seek.com/job/94127620
+  applied: '2026-08-23'
+  status: Applied
+  notes: 'Applied via email to recruiter'
+
+- company: VeriPark
+  role: Lead Quality Assurance Engineer
+  applied: '2026-08-23'
+  status: Applied
+  notes: 'Applied via LinkedIn'
