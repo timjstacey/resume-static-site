@@ -16,11 +16,14 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   maxFailures: process.env.CI ? 10 : 0,
+  // The HTML report must not be written into `outputDir` (default: test-results/).
+  // The reporter clears its outputFolder before writing, so aiming it at
+  // test-results/ deletes the run's own screenshots, traces and error-context.md
+  // before CI can upload them (#220). Keep the two directories separate.
+  // `github` on CI annotates the failing line inline on the PR; `list` locally.
   reporter: [
-    ['list'],
-    ['html', { outputFolder: 'test-results', open: process.env.CI ? 'never' : 'on-failure' }],
-    ['json'],
-    ['junit'],
+    process.env.CI ? ['github'] : ['list'],
+    ['html', { outputFolder: 'playwright-report', open: process.env.CI ? 'never' : 'on-failure' }],
   ],
   use: {
     baseURL,

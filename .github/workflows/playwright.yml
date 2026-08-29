@@ -43,8 +43,13 @@ jobs:
         env:
           PLAYWRIGHT_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.base_url || steps.preview.outputs.url }}
 
+      # Both directories: playwright-report/ is the HTML report, test-results/ is
+      # where the run writes per-test screenshots, traces and error-context.md.
+      # They must stay separate — see the reporter comment in playwright.config.ts (#220).
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-report
-          path: test-results/
+          path: |
+            playwright-report/
+            test-results/
