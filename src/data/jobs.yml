@@ -192,7 +192,7 @@
 - company: Business Fitness
   role: SDET Lead
   applied: '2026-06-26'
-  status: Interviewing
+  status: Rejected
 
 - company: Australian Electoral Commission (via Azooa)
   role: Automation Tester (LH-07129, Indigo Program)
@@ -387,3 +387,23 @@
   role: Senior Test Analysts – Generative AI & Test Automation
   applied: '2026-09-16'
   status: Applied
+
+- company: Reapit
+  role: Senior QA Automation Engineer - Contract
+  url: https://au.seek.com/job/94418029
+  applied: '2026-09-16'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: The Lottery Corporation
+  role: Test Engineer
+  url: https://au.seek.com/job/94400215
+  applied: '2026-09-16'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: Deputy
+  role: Lead QA Engineer
+  applied: '2026-09-16'
+  status: Applied
+  notes: 'Applied via LinkedIn'
