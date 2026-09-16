@@ -350,3 +350,40 @@
   applied: '2026-08-23'
   status: Applied
   notes: 'Applied via LinkedIn'
+
+- company: Cairns Regional Council
+  role: Senior Test Analyst
+  applied: '2026-09-16'
+  status: Applied
+
+- company: Recruitment Hive
+  role: Automation Test Analyst
+  url: https://au.seek.com/job/92200977
+  applied: '2026-05-25'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: Recruitment Hive
+  role: Senior Test Automation Engineer
+  url: https://au.seek.com/job/92218862
+  applied: '2026-05-25'
+  status: Applied
+  notes: 'Applied via Seek'
+
+- company: DXC Luxoft
+  role: Playwright Automation QA Consultant
+  url: https://career.luxoft.com/jobs/playwright-automation-qa-consultant-27242
+  applied: '2026-09-16'
+  status: Applied
+  notes: 'Applied via Luxoft careers site'
+
+- company: Squiz
+  role: Quality Engineer
+  applied: '2026-09-16'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
+- company: BLACKROC
+  role: Senior Test Analysts – Generative AI & Test Automation
+  applied: '2026-09-16'
+  status: Applied
