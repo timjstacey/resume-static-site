@@ -401,3 +401,9 @@
   applied: '2026-09-16'
   status: Applied
   notes: 'Applied via Seek'
+
+- company: Deputy
+  role: Lead QA Engineer
+  applied: '2026-09-16'
+  status: Applied
+  notes: 'Applied via LinkedIn'
