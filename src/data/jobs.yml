@@ -328,7 +328,7 @@
   role: Senior QA Engineer
   url: https://au.seek.com/job/93830618
   applied: '2026-08-08'
-  status: Applied
+  status: Screening
   notes: 'Applied via Seek'
 
 - company: Cape York Partnership
@@ -405,5 +405,17 @@
 - company: Deputy
   role: Lead QA Engineer
   applied: '2026-09-16'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
+- company: Wayfaring
+  role: Software Engineer in Test/QA Automation Engineer
+  applied: '2026-09-21'
+  status: Applied
+  notes: 'Applied via LinkedIn'
+
+- company: Cavum Consulting
+  role: Automation Test Analyst (Azure)
+  applied: '2026-09-21'
   status: Applied
   notes: 'Applied via LinkedIn'
