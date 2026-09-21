@@ -15,77 +15,110 @@ experience:
     start: '2022-10'
     end: '2026-06'
     bullets:
-      - Built company E2E automation capability from scratch, a TypeScript framework covering web, API, and mobile across 11 repositories
-      - Shifted complex validation out of brittle UI tests into API and service layers using database and messaging integrations
-      - Grew automated E2E coverage from zero across 11 repos with dedicated CI pipelines per microservice
-      - Cut release progression time from days to hours through automation coverage and tighter release validation
-      - Migrated the team from Cypress to Playwright and introduced performance testing with Grafana k6
-      - 'Set engineering standards across the QE function: strict typing, ESLint, Prettier, git hooks, and PR review'
-      - Lead a team of three, hands-on in a delivery squad
+      - Built and owned a central TypeScript E2E framework in Bitbucket (Playwright, Appium, WebdriverIO, Grafana k6) covering web, API, and mobile
+      - Took automated E2E coverage from zero to 11 repositories, with a dedicated suite per microservice running on deployment in Bitbucket Pipelines
+      - Moved validation out of brittle UI tests and into the API and service layers
+      - Dispatched test runs from Bitbucket Pipelines to AWS CodeBuild so suites ran inside the VPC with direct MySQL and MongoDB access for data setup
+      - Led the Cypress to Playwright migration, splitting UI from API concerns and cutting full regression from about 45 minutes to under 5, so it ran on every DEV and QA deployment
+      - Cut release progression from days to hours on the back of that coverage
+      - Rebuilt API suites service by service (challenge, team, user, payment, product catalogue, tournament), each wired into its own deployment pipeline
+      - Built a mock of a third-party publisher's game result API to drop the dependency on live partner test accounts and open up load testing of tournament close-out
+      - Wrote Grafana k6 scenarios for game result scoring and tournament close-out at scale, then set throughput and latency baselines and alert thresholds from the runs
+      - 'Owned automation standards: published conventions in Confluence and enforced them in CI with ESLint, Prettier, strict TypeScript, git hooks, and SonarCloud duplication checks'
+      - Led a QE capability of 3 testers, including 2 offshore QA engineers in Vietnam, while staying hands-on in an embedded delivery squad
+      - Mentored junior testers and drove framework adoption until developers ran suites themselves and opened PRs against the test code
+      - Wrote the squad's quality definition of done, owned the test strategy, and delivered quality for paid entry, Battlefield 6 tournaments, lobby tournaments, and head-to-head challenges
   - company: Entain Australia
     role: Lead Quality Engineer
     start: '2022-03'
     end: '2022-10'
     bullets:
-      - Built automated regression capability for a Vue-based application with no existing E2E coverage
-      - Designed an API-stubbing approach enabling the full app and test suite to run locally without a live backend
-      - Embedded Cypress into the UI codebase and integrated it into GitLab pipelines
-      - Brought parallel execution down to under 5 minutes per run
-      - Added LCOV reporting to make test coverage visible and actionable
-      - Mentored manual testers into automation practice
+      - Introduced a Cypress E2E regression suite embedded in the UI codebase of a Vue application
+      - Stubbed the APIs so developers could run the app and suite locally without a live backend
+      - Ran regression in GitLab pipelines on deployment, with parallel execution under 5 minutes
+      - Added LCOV reporting to make coverage visible
+      - Evaluated Cypress, Playwright, and Selenium and recommended the framework approach the wider team adopted
+      - Pushed shift-left practice and stronger developer-owned unit tests across the Go APIs
+      - Mentored junior BAs and testers, bringing manual testers into automation
   - company: Aurizon
     role: Lead Quality Engineer
     start: '2021-06'
     end: '2022-03'
     bullets:
-      - Led QE for a greenfield programme through backend stack shifts from JavaScript to TypeScript to C#
-      - Built a Cypress suite mocking unavailable APIs, maintaining frontend regression coverage against a stubbed environment
-      - Supported existing API schema validation with Supertest and Joi, and consumer-driven contract testing with Pact
-      - Integrated regression into CI via GitHub Actions and Jenkins with webhook-driven execution on deployment
-      - Used Kubernetes cluster access, log tailing, and port forwarding for hands-on environment troubleshooting
+      - Led QE for a greenfield programme with 3 testers
+      - Built a Cypress regression suite that mocked unavailable backend APIs, so I could keep validating Jira acceptance criteria against the frontend
+      - Started migrating the existing WebdriverIO frameworks to Cypress
+      - Added API schema validation with Supertest and Joi, and consumer-driven contract testing with Pact
+      - Ran regression in CI through GitHub Actions and Jenkins
+      - Used Kubernetes cluster access and log tailing to troubleshoot environments
   - company: CitrusAd
     role: Quality Engineer
     start: '2020-07'
     end: '2021-05'
     bullets:
-      - Joined a newly formed QA capability at an early-stage startup and built automated coverage from scratch using Selenium, Java, and REST Assured
-      - Built E2E flows combining PostgreSQL data setup, API execution, and Selenium UI validation
-      - Stood up an on-prem Jenkins instance for regression scheduling before any CI pipeline existed
-      - Migrated to Jenkins on Google Cloud with CTO sign-off, codifying pipelines in Groovy
-      - Added initial performance testing capability using Gatling
+      - Joined an early-stage startup with no QA function and helped build its automated testing capability
+      - Contributed to framework design and development in Selenium, Java, and REST Assured, with SOAP UI and TestNG/JUnit
+      - Built E2E flows combining PostgreSQL data setup, API-driven workflow execution, and Selenium UI validation
+      - Provisioned test environments by hand with Terraform before any deployment automation existed
+      - Stood up on-prem Jenkins to schedule regression, then moved to Jenkins on Google Cloud with pipelines codified in Groovy
+      - Added initial performance testing with Gatling
   - company: Repeat.gg
     role: Quality Engineer (Contract)
     start: '2020-04'
     end: '2020-05'
     bullets:
-      - Delivered a working Cypress framework, baseline coverage across core workflows, and a structured handover in a 4-week engagement
+      - Defined an initial test strategy and introduced Cypress into the existing project in a 4-week contract
+      - Backfilled functional and regression coverage across the key workflows and advised on CI/CD integration
+      - Handed the framework and test approach over to the development team
   - company: Flight Centre
     role: Quality Engineer
     start: '2018-03'
     end: '2020-03'
     bullets:
-      - Maintained and extended Selenium/Java/Cucumber regression coverage across 3 Agile streams on the SOAR booking engine
-      - Supported multiple Flight Centre brands across AU, NZ, and CA in a Jenkins CI environment
+      - Built and maintained UI regression coverage with Selenium, Java, REST Assured, and Cucumber BDD across 3 Agile streams on the SOAR booking engine
+      - 'Reviewed overnight regression runs across multiple brands: investigated failures, raised defects, and maintained tests'
+      - Tested SOAP services with SOAP UI and ran suites with TestNG/JUnit on Jenkins
   - company: Ministry of Business, Innovation and Employment
-    role: Senior Test Analyst
+    role: Senior Test Analyst | Automation Tester
     start: '2016-03'
     end: '2018-03'
     bullets:
-      - Transitioned from manual testing into automation, building Selenium WebDriver and Cucumber coverage across government registry platforms
+      - Moved from manual testing into automation and established the team's early Selenium capability
+      - Built E2E UI automation with Selenium WebDriver and Cucumber across government registry platforms
+      - Tested SOAP services with SOAP UI and TestNG/JUnit
       - Coordinated test activities with vendors and project managers
+  - company: Clearpoint (Global Dairy Trade)
+    role: Senior Test Analyst
+    start: '2015-09'
+    end: '2016-03'
+    bullets:
+      - Coordinated testing across agile workstreams, including a live auction platform and online marketplace
+      - Owned UAT planning, system handover, and release coordination
+  - company: Ministry of Business, Innovation and Employment
+    role: Test Analyst | Application Support (Contract)
+    start: '2012-06'
+    end: '2015-09'
+    bullets:
+      - Moved from application support into a dedicated testing role, supporting UAT and system integration testing across government registry platforms
+      - Worked with external vendors on fix validation, database changes, and releases
 skills:
   - category: Quality Engineering
     items:
       [
         Test Automation,
         End-to-End Testing,
+        UI Testing,
         API Testing,
         Mobile Testing,
+        Regression Testing,
         Performance Testing,
         Contract Testing,
-        CI/CD Test Integration,
+        Test Strategy,
         Automation Framework Design,
+        CI/CD Test Integration,
         Release Validation,
+        Developer Enablement,
+        AI-Enabled Testing,
       ]
   - category: Automation Tools
     items:
@@ -99,14 +132,35 @@ skills:
         REST Assured,
         Supertest,
         Pact,
+        Postman,
+        SOAP UI,
+        TestNG,
+        JUnit,
         Grafana k6,
         Gatling,
       ]
+  - category: AI-Assisted Engineering
+    items: [Claude Code, LLM agents, MCP servers, Agent skills and hooks, AI-assisted test authoring, AI code review]
   - category: Languages & Frameworks
-    items: [TypeScript, JavaScript, Java, Node.js, Scala, SQL, Groovy]
+    items: [TypeScript, JavaScript, Java, Node.js, Scala, SQL]
   - category: CI/CD & DevOps
-    items: [GitHub Actions, GitLab CI/CD, Bitbucket Pipelines, Jenkins, Terraform, Kubernetes, Docker]
+    items:
+      [
+        Bitbucket Pipelines,
+        AWS CodeBuild,
+        GitHub Actions,
+        GitLab CI/CD,
+        Jenkins,
+        Groovy,
+        Terraform,
+        Ansible,
+        Kubernetes,
+        Docker,
+      ]
   - category: Cloud & Data
-    items: [AWS, EC2, Lambda, API Gateway, Google Cloud Platform, PostgreSQL, MySQL, MongoDB, Kafka, Firebase]
+    items:
+      [AWS, Lambda, API Gateway, Google Cloud Platform, Cloudflare, PostgreSQL, MySQL, MongoDB, Kafka, MQTT, Firebase]
+  - category: Tooling
+    items: [Linux, Bash/Zsh, Shell scripting]
   - category: Collaboration
     items: [Jira, Confluence, Git, Agile/Scrum]
