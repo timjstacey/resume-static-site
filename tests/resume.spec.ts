@@ -41,9 +41,11 @@ test.describe('Resume page', () => {
   test.describe('experience role cards', () => {
     for (const exp of resume.experience) {
       test(`${exp.company} — ${exp.role}`, async ({ page }) => {
-        const card = page.getByRole('article', { name: exp.company });
+        // Filter by role heading: one company can appear more than once (e.g. MBIE).
+        const card = page
+          .getByRole('article', { name: exp.company })
+          .filter({ has: page.getByRole('heading', { level: 2, name: exp.role, exact: true }) });
         await expect(card).toBeVisible();
-        await expect(card.getByRole('heading', { level: 2 })).toContainText(exp.role);
       });
     }
   });
