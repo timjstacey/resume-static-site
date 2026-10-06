@@ -24,6 +24,8 @@ const epicPillStyle =
   `background: color-mix(in srgb, var(--catppuccin-color-${epic}) 22%, transparent)`;
 
 const labelStatus: JobStatus = job.status;
+// Closed hunts are anonymised: an empty company drops every employer reference.
+const anon = job.company === '';
 ---
 
 <article
@@ -32,29 +34,36 @@ const labelStatus: JobStatus = job.status;
     'shadow-[0_1px_0_rgba(0,0,0,0.4)]',
     isClosed && 'opacity-[0.78]',
   ]}
-  aria-label={`${job.role} at ${job.company}, ${labelStatus}, ${job.applied}`}
+  aria-label={anon
+    ? `${job.role}, ${labelStatus}, ${job.applied}`
+    : `${job.role} at ${job.company}, ${labelStatus}, ${job.applied}`}
   data-column={isClosed ? 'closed' : job.status.toLowerCase()}
-  data-company={job.company}
+  data-company={anon ? undefined : job.company}
   data-priority={prioKey}
   data-source={source}
-  data-search={`${job.role} ${job.company}`.toLowerCase()}
+  data-search={`${job.role} ${job.company}`.trim().toLowerCase()}
 >
   <div class="flex items-center justify-between gap-2">
-    <span
-      class="inline-flex max-w-[170px] items-center gap-1.5 overflow-hidden rounded-[3px] py-0.5 pr-2 pl-1.5 font-mono text-[10.5px] font-semibold tracking-[0.06em] text-ellipsis whitespace-nowrap uppercase"
-      style={epicPillStyle}
-      title={job.company}
-    >
-      <span
-        class="h-1.5 w-1.5 shrink-0 rounded-[1px]"
-        style={`background: var(--catppuccin-color-${epic})`}
-        aria-hidden="true"></span>
-      {job.company}
-    </span>
+    {
+      !anon && (
+        <span
+          class="inline-flex max-w-[170px] items-center gap-1.5 overflow-hidden rounded-[3px] py-0.5 pr-2 pl-1.5 font-mono text-[10.5px] font-semibold tracking-[0.06em] text-ellipsis whitespace-nowrap uppercase"
+          style={epicPillStyle}
+          title={job.company}
+        >
+          <span
+            class="h-1.5 w-1.5 shrink-0 rounded-[1px]"
+            style={`background: var(--catppuccin-color-${epic})`}
+            aria-hidden="true"
+          />
+          {job.company}
+        </span>
+      )
+    }
     {
       sub && (
         <span
-          class="shrink-0 rounded-[3px] px-1.5 py-0.5 font-mono text-[9.5px] font-semibold tracking-[0.06em] uppercase"
+          class="ml-auto shrink-0 rounded-[3px] px-1.5 py-0.5 font-mono text-[9.5px] font-semibold tracking-[0.06em] uppercase"
           style={`color: var(--catppuccin-color-${sub.color}); background: color-mix(in srgb, var(--catppuccin-color-${sub.color}) 22%, transparent)`}
         >
           {sub.label}

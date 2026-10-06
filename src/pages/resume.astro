@@ -2,10 +2,12 @@
 import Base from '../layouts/Base.astro';
 import SectionLabel from '../components/SectionLabel.astro';
 import Button from '../components/Button.astro';
-import { getResume } from '../lib/data';
+import { getHunt, getResume } from '../lib/data';
+import { availability } from '../lib/jobhunt';
 import { fmtYM } from '../lib/format';
 
 const resume = getResume();
+const avail = availability(getHunt());
 
 // Derive display slug for company (e.g. "Sony Interactive Entertainment" → "sony-interactive-entertainment")
 function companySlug(name: string) {
@@ -56,7 +58,9 @@ function padIndex(n: number) {
         <div class="flex gap-3">
           <span class="w-16 shrink-0 text-ctp-overlay2">status</span>
           <span class="text-ctp-subtext0">:</span>
-          <span style="color: var(--catppuccin-color-green)">● open · available now</span>
+          <span style={`color: var(--catppuccin-color-${avail.accent})`} data-testid="availability-status"
+            >● {avail.open ? 'open · available now' : avail.caption}</span
+          >
         </div>
         <!-- email (not in data — use contact fields we have) -->
         {

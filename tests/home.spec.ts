@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parse } from 'yaml';
-import { getResume, getProjects, getJobs } from '../src/lib/data';
+import { getResume, getProjects, getJobs, getHunt } from '../src/lib/data';
 import { activePipeline, yearsOfExp } from '../src/lib/stats';
+import { availability, huntRetro } from '../src/lib/jobhunt';
 import { TEST_STATS } from '../src/lib/testStats';
 
 // Throws at module load if YAML is missing or fails schema validation.
@@ -19,6 +20,12 @@ const latestPosts = readdirSync(POSTS_DIR)
   .map((f) => parse(readFileSync(`${POSTS_DIR}/${f}`, 'utf-8').split('---')[1]!) as { title: string; date: string })
   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+const hunt = getHunt();
+const pipelineStat: [string, string] =
+  hunt.state === 'closed'
+    ? ['Response rate', `${huntRetro(jobs, hunt.closedAt).responseRate}%`]
+    : ['Active pipeline', String(activePipeline(jobs))];
+
 test.describe('Home page', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -27,7 +34,9 @@ test.describe('Home page', () => {
   test('hero heading + availability card render', async ({ page }) => {
     await expect(page.getByRole('heading', { name: /Lead SDET/ })).toBeVisible();
     await expect(page.getByTestId('availability-label')).toHaveText('availability.json');
-    await expect(page.getByTestId('availability-date')).toHaveText('Now');
+    const avail = availability(hunt);
+    await expect(page.getByTestId('availability-date')).toHaveText(avail.headline);
+    await expect(page.getByTestId('availability-badge')).toHaveText(avail.badge);
   });
 
   test('stats strip shows derived counts from data', async ({ page }) => {
@@ -35,7 +44,7 @@ test.describe('Home page', () => {
       ['Years experience', String(yearsOfExp(resume.experience))],
       ['Projects', String(projects.length)],
       ['Roles applied for', String(jobs.length)],
-      ['Active pipeline', String(activePipeline(jobs))],
+      pipelineStat,
     ];
     for (const [label, value] of stats) {
       await expect(page.locator(`[data-stat-label="${label}"] [data-stat-value]`)).toHaveText(value);

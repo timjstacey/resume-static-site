@@ -35,6 +35,13 @@ export const JobSchema = z.object({
 
 export const JobsSchema = z.array(JobSchema);
 
+// --- Hunt ---
+
+export const HuntSchema = z.discriminatedUnion('state', [
+  z.object({ state: z.literal('active') }),
+  z.object({ state: z.literal('closed'), closedAt: yamlDate, availableFrom: yamlDate.optional() }),
+]);
+
 // --- Projects ---
 
 export const ProjectStatusSchema = z.enum(['active', 'wip', 'archived']);
@@ -182,6 +189,7 @@ export const CiSnapshotSchema = z.object({
 export type JobStatus = z.infer<typeof JobStatusSchema>;
 export type JobSource = z.infer<typeof JobSourceSchema>;
 export type Job = z.infer<typeof JobSchema>;
+export type Hunt = z.infer<typeof HuntSchema>;
 export type ProjectStatus = z.infer<typeof ProjectStatusSchema>;
 export type Project = z.infer<typeof ProjectSchema>;
 export type ProjectStats = z.infer<typeof ProjectStatsSchema>;

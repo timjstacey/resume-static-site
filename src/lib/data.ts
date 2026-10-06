@@ -3,13 +3,14 @@ import { join } from 'node:path';
 import { parse } from 'yaml';
 import {
   CiSnapshotSchema,
+  HuntSchema,
   JobsSchema,
   ProjectsSchema,
   ProjectStatsSchema,
   ResumeSchema,
   TestingSchema,
 } from './schemas';
-import type { CiSnapshot, Job, JobSource, JobStatus, Project, ProjectStats, Resume, Testing } from './schemas';
+import type { CiSnapshot, Hunt, Job, JobSource, JobStatus, Project, ProjectStats, Resume, Testing } from './schemas';
 
 function dataPath(filename: string): string {
   return join(process.cwd(), 'src', 'data', filename);
@@ -61,13 +62,27 @@ export function deriveSource(job: Job): JobSource | undefined {
   return undefined;
 }
 
-export function getJobs(): Job[] {
-  const now = new Date();
-  return JobsSchema.parse(loadYaml('jobs.yml')).map((j) => ({
-    ...j,
-    status: effectiveJobStatus(j, now),
-    source: deriveSource(j),
-  }));
+export function getHunt(): Hunt {
+  return HuntSchema.parse(loadYaml('hunt.yml'));
+}
+
+// The clock the ghost rule runs against: frozen at closedAt once the hunt is closed.
+export function huntClock(hunt: Hunt, now: Date): Date {
+  if (hunt.state === 'active') return now;
+  return new Date(hunt.closedAt + 'T00:00:00Z');
+}
+
+// Strip everything that identifies the employer (closed hunts are anonymised).
+export function redactJob(job: Job): Job {
+  return { ...job, company: '', url: undefined, notes: undefined };
+}
+
+export function getJobs(now: Date = new Date(), hunt: Hunt = getHunt()): Job[] {
+  const clock = huntClock(hunt, now);
+  return JobsSchema.parse(loadYaml('jobs.yml')).map((j) => {
+    const job = { ...j, status: effectiveJobStatus(j, clock), source: deriveSource(j) };
+    return hunt.state === 'closed' ? redactJob(job) : job;
+  });
 }
 
 export function getTesting(): Testing {

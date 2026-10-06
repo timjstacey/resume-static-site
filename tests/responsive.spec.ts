@@ -1,6 +1,8 @@
 import { test, expect, type Page } from '@playwright/test';
 import { readFileSync, readdirSync } from 'node:fs';
 import { parse } from 'yaml';
+import { getHunt } from '../src/lib/data';
+import { JOBS_ACTIVE_HEADING, JOBS_RETRO_HEADING } from '../src/lib/copy';
 
 // Include the newest post's detail page — its code blocks are the likeliest
 // source of horizontal overflow on a phone.
@@ -49,7 +51,9 @@ test.describe('Responsive layout — mobile (375px)', () => {
 
   test('board title visible on jobs page', async ({ page }) => {
     await page.goto('/job-hunt');
-    await expect(page.getByRole('heading', { name: 'Active Pipeline' })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: getHunt().state === 'closed' ? JOBS_RETRO_HEADING : JOBS_ACTIVE_HEADING })
+    ).toBeVisible();
   });
 
   // Mobile-only: each board column header becomes a keyboard-operable accordion

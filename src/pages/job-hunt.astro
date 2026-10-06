@@ -2,12 +2,28 @@
 import Base from '../layouts/Base.astro';
 import Button from '../components/Button.astro';
 import JiraColumn from '../components/JiraColumn.astro';
-import { getJobs } from '../lib/data';
-import { STATUS_COLUMNS, columnOf, withKeys } from '../lib/jobhunt';
+import StatStrip from '../components/StatStrip.astro';
+import StatCard from '../components/StatCard.astro';
+import { getHunt, getJobs } from '../lib/data';
+import { STATUS_COLUMNS, columnOf, huntRetro, withKeys } from '../lib/jobhunt';
+import { JOBS_ACTIVE_HEADING, JOBS_RETRO_HEADING } from '../lib/copy';
 import type { ColumnId } from '../lib/jobhunt';
 import type { Job } from '../lib/schemas';
 
+const hunt = getHunt();
+const closed = hunt.state === 'closed';
 const jobs = withKeys(getJobs());
+const heading = closed ? JOBS_RETRO_HEADING : JOBS_ACTIVE_HEADING;
+const retro = hunt.state === 'closed' ? huntRetro(jobs, hunt.closedAt) : undefined;
+const closedOn =
+  hunt.state === 'closed'
+    ? new Date(`${hunt.closedAt}T00:00:00Z`).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+        timeZone: 'UTC',
+      })
+    : '';
 
 // Bucket by board column, newest application first within each column.
 const byColumn = new Map<ColumnId, (Job & { key: number })[]>(STATUS_COLUMNS.map((c) => [c.id, []]));
@@ -23,7 +39,7 @@ const inFlight = jobs.filter((j) => j.status === 'Applied').length;
 const screening = jobs.filter((j) => j.status === 'Screening').length;
 
 // Filter dropdown options, derived from the data.
-const companies = [...new Set(jobs.map((j) => j.company))].sort();
+const companies = closed ? [] : [...new Set(jobs.map((j) => j.company))].sort();
 const sources = [...new Set(jobs.map((j) => j.source ?? 'Other'))].sort();
 const priorities = ['highest', 'high', 'medium', 'low'];
 
@@ -34,7 +50,12 @@ const avatars: { label: string; accent: string }[] = [
 ];
 ---
 
-<Base title="Job Hunt" description="Active job-search pipeline as a JIRA-style kanban board.">
+<Base
+  title="Job Hunt"
+  description={closed
+    ? 'Retrospective of a closed job-search sprint as a JIRA-style board.'
+    : 'Active job-search pipeline as a JIRA-style kanban board.'}
+>
   <section class="border-b border-ctp-surface0 bg-ctp-mantle px-10 pt-6">
     <!-- breadcrumb -->
     <nav class="inline-flex items-center gap-1.5 font-mono text-[12px] text-ctp-overlay1" aria-label="Breadcrumb">
@@ -48,7 +69,7 @@ const avatars: { label: string; accent: string }[] = [
       <span aria-hidden="true">›</span>
       <span>boards</span>
       <span aria-hidden="true">›</span>
-      <span class="text-ctp-text">Active Pipeline</span>
+      <span class="text-ctp-text">{heading}</span>
     </nav>
 
     <!-- title row -->
@@ -56,21 +77,41 @@ const avatars: { label: string; accent: string }[] = [
       <div>
         <div class="mb-2 flex flex-wrap items-center gap-3">
           <span class="text-[18px] text-ctp-yellow" aria-hidden="true">★</span>
-          <h1 class="font-display text-[32px] font-bold tracking-[-0.02em] text-ctp-text">Active Pipeline</h1>
+          <h1 class="font-display text-[32px] font-bold tracking-[-0.02em] text-ctp-text">{heading}</h1>
           <span
             class="rounded border border-ctp-surface1 bg-ctp-surface0 px-2.5 py-1 font-mono text-[11px] tracking-[0.04em] text-ctp-subtext0"
           >
-            Sprint 4 · 12d remaining
+            {closed ? `Sprint 4 · closed ${closedOn}` : 'Sprint 4 · 12d remaining'}
           </span>
         </div>
         <div class="flex flex-wrap items-center gap-4 font-mono text-[12px] text-ctp-subtext0">
           <span>{total} issues</span>
           <span class="text-ctp-overlay1" aria-hidden="true">·</span>
-          <span class="text-ctp-blue">● {inFlight} in flight</span>
-          <span class="text-ctp-overlay1" aria-hidden="true">·</span>
-          <span class="text-ctp-peach">● {screening} screening</span>
-          <span class="text-ctp-overlay1" aria-hidden="true">·</span>
-          <span>last updated 2h ago by tim</span>
+          {
+            retro ? (
+              <>
+                <span class="text-ctp-green">
+                  ● {retro.offers} {retro.offers === 1 ? 'offer' : 'offers'}
+                </span>
+                <span class="text-ctp-overlay1" aria-hidden="true">
+                  ·
+                </span>
+                <span class="text-ctp-peach">● {retro.openAtClose} open at close</span>
+              </>
+            ) : (
+              <>
+                <span class="text-ctp-blue">● {inFlight} in flight</span>
+                <span class="text-ctp-overlay1" aria-hidden="true">
+                  ·
+                </span>
+                <span class="text-ctp-peach">● {screening} screening</span>
+                <span class="text-ctp-overlay1" aria-hidden="true">
+                  ·
+                </span>
+                <span>last updated 2h ago by tim</span>
+              </>
+            )
+          }
         </div>
       </div>
 
@@ -88,11 +129,45 @@ const avatars: { label: string; accent: string }[] = [
             ))
           }
         </div>
-        <Button class="px-3.5 py-2 text-[13px]">Complete sprint</Button>
+        {
+          closed ? (
+            <span
+              class="rounded border border-ctp-green px-3.5 py-2 font-mono text-[13px] font-semibold text-ctp-green"
+              data-testid="sprint-complete"
+            >
+              ✓ Sprint complete
+            </span>
+          ) : (
+            <Button class="px-3.5 py-2 text-[13px]">Complete sprint</Button>
+          )
+        }
         <Button variant="ghost" class="px-3 py-2 text-[13px]">ⓘ Insights</Button>
         <Button variant="ghost" class="px-3 py-2 text-[13px]" aria-label="More board actions">⋯</Button>
       </div>
     </div>
+
+    {
+      retro && (
+        <section class="mt-6" aria-label="Sprint retro stats">
+          <StatStrip class="border border-ctp-surface0">
+            <StatCard index="01" value={retro.total} label="Applications" />
+            <StatCard index="02" value={`${retro.responseRate}%`} label="Response rate" alt />
+            <StatCard index="03" value={retro.interviews} label="Interviews" />
+            <StatCard index="04" value={retro.daysToClose} label="Days searching" alt />
+          </StatStrip>
+          <p
+            class="mt-3 flex flex-wrap gap-x-5 gap-y-1 font-mono text-[12px] text-ctp-subtext0"
+            data-testid="retro-sources"
+          >
+            {retro.bySource.map((s) => (
+              <span>
+                {s.source} {s.applied} sent · {s.responses} {s.responses === 1 ? 'reply' : 'replies'}
+              </span>
+            ))}
+          </p>
+        </section>
+      )
+    }
 
     <!-- filter bar -->
     <div class="mt-6 flex flex-wrap items-center gap-2.5 pb-4">
@@ -109,20 +184,28 @@ const avatars: { label: string; accent: string }[] = [
         />
       </label>
 
-      <div class="relative inline-flex">
-        <select
-          id="filter-epic"
-          aria-label="Filter by company"
-          class="max-w-[150px] cursor-pointer appearance-none truncate rounded border border-ctp-surface1 bg-ctp-mantle py-[7px] pr-8 pl-3 font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
-        >
-          <option value="">EPIC</option>
-          {companies.map((c) => <option value={c}>{c}</option>)}
-        </select>
-        <span
-          class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[9px] text-ctp-overlay1"
-          aria-hidden="true">▾</span
-        >
-      </div>
+      {
+        !closed && (
+          <div class="relative inline-flex">
+            <select
+              id="filter-epic"
+              aria-label="Filter by company"
+              class="max-w-[150px] cursor-pointer appearance-none truncate rounded border border-ctp-surface1 bg-ctp-mantle py-[7px] pr-8 pl-3 font-mono text-[11.5px] tracking-[0.04em] text-ctp-subtext0 transition-colors hover:border-ctp-overlay0"
+            >
+              <option value="">EPIC</option>
+              {companies.map((c) => (
+                <option value={c}>{c}</option>
+              ))}
+            </select>
+            <span
+              class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[9px] text-ctp-overlay1"
+              aria-hidden="true"
+            >
+              ▾
+            </span>
+          </div>
+        )
+      }
 
       <div class="relative inline-flex">
         <select

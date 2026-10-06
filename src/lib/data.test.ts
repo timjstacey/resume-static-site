@@ -5,6 +5,9 @@ import {
   getResume,
   getProjects,
   getJobs,
+  getHunt,
+  huntClock,
+  redactJob,
   effectiveJobStatus,
   deriveSource,
   getTesting,
@@ -12,7 +15,7 @@ import {
   getProjectStats,
   mergeProjectStats,
 } from './data';
-import type { Job, Project, ProjectStats } from './schemas';
+import type { Hunt, Job, Project, ProjectStats } from './schemas';
 
 function makeJob(overrides: Partial<Job> = {}): Job {
   return { company: 'Acme', role: 'Engineer', applied: '2026-01-01', status: 'Applied', ...overrides };
@@ -55,7 +58,7 @@ describe('getProjects', () => {
 
 describe('getJobs', () => {
   it('returns non-empty array of valid jobs', () => {
-    const jobs = getJobs();
+    const jobs = getJobs(new Date('2026-10-07T00:00:00Z'), { state: 'active' });
     expect(jobs.length).toBeGreaterThan(0);
     for (const j of jobs) {
       expect(j.company).toBeTruthy();
@@ -190,5 +193,101 @@ describe('mergeProjectStats', () => {
         expect(p.updatedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
       }
     }
+  });
+});
+
+const CLOSED: Hunt = { state: 'closed', closedAt: '2026-10-07' };
+const ACTIVE: Hunt = { state: 'active' };
+
+describe('getHunt', () => {
+  it('parses the repo hunt.yml into a valid Hunt', () => {
+    const hunt = getHunt();
+    expect(['active', 'closed']).toContain(hunt.state);
+    if (hunt.state === 'closed') expect(hunt.closedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('huntClock', () => {
+  it('returns closedAt at UTC midnight when closed', () => {
+    const clock = huntClock(CLOSED, new Date('2030-01-01T12:00:00Z'));
+    expect(clock.toISOString()).toBe('2026-10-07T00:00:00.000Z');
+  });
+
+  it('returns now when active', () => {
+    const now = new Date('2030-01-01T12:00:00Z');
+    expect(huntClock(ACTIVE, now)).toBe(now);
+  });
+});
+
+describe('redactJob', () => {
+  it('blanks company, url and notes, keeping everything else', () => {
+    const job = makeJob({
+      company: 'Secret Co',
+      url: 'https://secret.example',
+      notes: 'Applied via Seek',
+      source: 'Seek',
+      role: 'QA Lead',
+      status: 'Rejected',
+    });
+    const r = redactJob(job);
+    expect(r.company).toBe('');
+    expect(r.url).toBeUndefined();
+    expect(r.notes).toBeUndefined();
+    expect(r.role).toBe('QA Lead');
+    expect(r.status).toBe('Rejected');
+    expect(r.applied).toBe('2026-01-01');
+    expect(r.source).toBe('Seek');
+  });
+
+  it('does not mutate the input', () => {
+    const job = makeJob({ url: 'https://x.example', notes: 'n' });
+    redactJob(job);
+    expect(job.company).toBe('Acme');
+    expect(job.url).toBe('https://x.example');
+    expect(job.notes).toBe('n');
+  });
+});
+
+describe('getJobs(now, hunt)', () => {
+  const raw = parse(readFileSync('src/data/jobs.yml', 'utf-8')) as {
+    company: string;
+    applied: string;
+    status: string;
+  }[];
+  const DAY = 86400 * 1000;
+
+  it('closed: blanks company/url/notes on every job but keeps a derived source', () => {
+    const jobs = getJobs(new Date('2030-01-01T00:00:00Z'), CLOSED);
+    expect(jobs).toHaveLength(raw.length);
+    for (const j of jobs) {
+      expect(j.company).toBe('');
+      expect(j.url).toBeUndefined();
+      expect(j.notes).toBeUndefined();
+    }
+    expect(jobs.some((j) => j.source !== undefined)).toBe(true);
+  });
+
+  it('closed: freezes the ghost clock at closedAt regardless of now', () => {
+    const far = getJobs(new Date('2035-01-01T00:00:00Z'), CLOSED);
+    const near = getJobs(new Date('2026-10-07T00:00:00Z'), CLOSED);
+    expect(far.map((j) => j.status)).toEqual(near.map((j) => j.status));
+    const closedMs = new Date('2026-10-07T00:00:00Z').getTime();
+    raw.forEach((r, i) => {
+      if (r.status !== 'Applied') return;
+      const age = (closedMs - new Date(r.applied).getTime()) / DAY;
+      expect(far[i]!.status).toBe(age >= 28 ? 'Ghosted' : 'Applied');
+    });
+  });
+
+  it('active: keeps company and ages Applied against now', () => {
+    const early = getJobs(new Date('2026-05-19T00:00:00Z'), ACTIVE);
+    const late = getJobs(new Date('2035-01-01T00:00:00Z'), ACTIVE);
+    expect(early.map((j) => j.company)).toEqual(raw.map((r) => r.company));
+    expect(late.every((j) => j.status !== 'Applied')).toBe(true);
+    expect(early.some((j) => j.status === 'Applied')).toBe(true);
+  });
+
+  it('zero-arg call still works', () => {
+    expect(getJobs().length).toBe(raw.length);
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CiRunSchema,
   CiSnapshotSchema,
+  HuntSchema,
   JobSchema,
   JobSourceSchema,
   JobStatusSchema,
@@ -348,5 +349,38 @@ describe('CiSnapshotSchema', () => {
   it('rejects a gates duration that is not a string', () => {
     const bad = { ...validSnapshot, gates: { 'ci.yml': { Lint: 11 } } };
     expect(() => CiSnapshotSchema.parse(bad)).toThrow();
+  });
+});
+
+describe('HuntSchema', () => {
+  it('accepts an active hunt', () => {
+    expect(HuntSchema.parse({ state: 'active' })).toEqual({ state: 'active' });
+  });
+  it('accepts a closed hunt with closedAt', () => {
+    expect(HuntSchema.parse({ state: 'closed', closedAt: '2026-10-07' })).toEqual({
+      state: 'closed',
+      closedAt: '2026-10-07',
+    });
+  });
+  it('accepts an optional availableFrom on a closed hunt', () => {
+    expect(HuntSchema.parse({ state: 'closed', closedAt: '2026-10-07', availableFrom: '2027-04-27' })).toEqual({
+      state: 'closed',
+      closedAt: '2026-10-07',
+      availableFrom: '2027-04-27',
+    });
+  });
+  it('rejects a malformed availableFrom', () => {
+    expect(HuntSchema.safeParse({ state: 'closed', closedAt: '2026-10-07', availableFrom: 'April' }).success).toBe(
+      false
+    );
+  });
+  it('rejects a closed hunt missing closedAt', () => {
+    expect(HuntSchema.safeParse({ state: 'closed' }).success).toBe(false);
+  });
+  it('rejects an unknown state', () => {
+    expect(HuntSchema.safeParse({ state: 'paused' }).success).toBe(false);
+  });
+  it('rejects a malformed closedAt date', () => {
+    expect(HuntSchema.safeParse({ state: 'closed', closedAt: '07/10/2026' }).success).toBe(false);
   });
 });

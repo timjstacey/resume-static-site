@@ -85,7 +85,7 @@ Import the global stylesheet in `src/layouts/Base.astro`. Use `ctp-` prefixed ut
 | Withdrawn    | Overlay2 `#9399b2` | User withdrew                |
 | Ghosted      | Mauve `#cba6f7`    | No response after follow-ups |
 
-`Applied` entries auto-promote to `Ghosted` at render time when `today - applied >= 28 days`. YAML is not mutated — `getJobs()` in `src/lib/data.ts` derives the display status via `effectiveJobStatus(job, now)`. Reserve `lastContact` (optional field, unused in v1) for future mid-funnel auto-ghosting.
+`Applied` entries auto-promote to `Ghosted` at render time when `today - applied >= 28 days`. YAML is not mutated — `getJobs()` in `src/lib/data.ts` derives the display status via `effectiveJobStatus(job, now)`. A closed hunt (`hunt.yml`) freezes this ghost clock at `closedAt` and redacts company names. Reserve `lastContact` (optional field, unused in v1) for future mid-funnel auto-ghosting.
 
 ## Data Files
 
@@ -96,9 +96,10 @@ src/data/
   resume.yml      # experience, education, skills, contact
   projects.yml    # project name, description, URL, tags, status
   jobs.yml        # job applications + status
+  hunt.yml        # job-hunt board mode (active | closed + closedAt)
 ```
 
-Zod schemas in `src/lib/schemas.ts` validate all three at build time. Build fails on invalid data.
+Zod schemas in `src/lib/schemas.ts` validate them (plus `hunt.yml`) at build time. Build fails on invalid data.
 
 ### jobs.yml entry shape
 
@@ -137,6 +138,20 @@ skills:
   - category: Languages
     items: []
 ```
+
+### hunt.yml shape
+
+```yaml
+state: closed # active | closed
+closedAt: '2026-10-07' # required when closed; quoted YYYY-MM-DD
+availableFrom: '2027-04-27' # optional, closed only — drives home/resume availability copy
+```
+
+`closed` turns `/job-hunt` into an anonymised retrospective: `getJobs()` blanks
+`company`/`url`/`notes` (no employer name reaches the HTML) and the home stat
+switches to "Response rate". `availability()` (`lib/jobhunt.ts`) turns `availableFrom` into the
+home availability card + resume status line ("BOOKED · available from …"). To reopen the hunt, set
+`state: active` and delete `closedAt` + `availableFrom`.
 
 ### projects.yml entry shape
 
@@ -301,19 +316,20 @@ src/
     resume.yml
     projects.yml
     jobs.yml
+    hunt.yml            # job-hunt board mode: active | closed (+ closedAt)
     testing.yml         # /testing routing matrix + CI gate pipelines
     ci-snapshot.json    # SSG baseline: CI signals (branch/sha/last-10-runs/p50/p95 + per-step gate durations) — hydrated live by /api/ci-snapshot; refresh baseline with pnpm ci:refresh
     project-stats.json  # SSG baseline: GitHub stars/forks/updatedAt per repo — hydrated live by /api/project-stats; refresh baseline with pnpm projects:refresh
   lib/
     schemas.ts          # Zod schemas + inferred types for all data files
-    data.ts             # getResume/getProjects/getJobs/getTesting/getCiSnapshot/getProjectStats loaders + mergeProjectStats
+    data.ts             # getResume/getProjects/getJobs/getHunt/getTesting/getCiSnapshot/getProjectStats loaders + mergeProjectStats + huntClock/redactJob (closed-hunt freeze + anonymise)
     posts.ts            # getPosts() — blog content-collection loader (date-desc)
     nav.ts              # NAV_ITEMS + isActivePath() + trapFocusTarget() — mobile-drawer focus-trap math (unit-tested)
     links.ts            # isExternalUrl() — external-link detection for new-tab handling in Button (unit-tested)
     ciGates.ts          # stepDuration() — resolve a /testing gate step's real duration from ci-snapshot `gates` (unit-tested)
     format.ts           # fmtYM() YYYY-MM → "Jan 2023"; daysAgo()/fmtRelative() ISO date → recency + "2d ago"
     stats.ts            # activePipeline(), yearsOfExp() — home-page stats
-    jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys + jobCardMatches/anyJobFilterActive + isIllegalMove — board logic, filter predicate, read-only-drag rule (unit-tested)
+    jobhunt.ts          # priorityFor/epicColorFor/columnOf/jobKey/withKeys + jobCardMatches/anyJobFilterActive + isIllegalMove + huntRetro/availability — board logic, filter predicate, read-only-drag rule, closed-hunt retro stats (unit-tested)
     blog.ts             # hashtagCounts() + archive() — blog sidebar aggregation
     blogPagination.ts   # pageView()/pageCount()/inWindow() — /blog published-list paging math (unit-tested)
     toc.ts              # activeHeadingId() + pinExpired() — post TOC scrollspy selection + pin-window timing (unit-tested)

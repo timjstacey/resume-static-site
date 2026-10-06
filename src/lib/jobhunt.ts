@@ -1,4 +1,4 @@
-import type { Job, JobStatus } from './schemas';
+import type { Hunt, Job, JobStatus } from './schemas';
 
 // Catppuccin accent KEYS (not hex) so components resolve them via `ctp-*`
 // classes and the theme picker keeps working across all flavours.
@@ -143,4 +143,102 @@ export function withKeys(jobs: Job[]): (Job & { key: number })[] {
   const ordered = [...jobs].sort((a, b) => a.applied.localeCompare(b.applied));
   const keyOf = new Map(ordered.map((j, i) => [j, i + 1] as const));
   return jobs.map((j) => ({ ...j, key: keyOf.get(j)! }));
+}
+
+export interface HuntRetro {
+  total: number;
+  responses: number;
+  responseRate: number;
+  interviews: number;
+  offers: number;
+  openAtClose: number;
+  daysToClose: number;
+  bySource: { source: string; applied: number; responses: number }[];
+}
+
+const RESPONDED: JobStatus[] = ['Screening', 'Interviewing', 'Offered', 'Rejected'];
+const INTERVIEWED: JobStatus[] = ['Screening', 'Interviewing', 'Offered'];
+const OPEN: JobStatus[] = ['Applied', 'Screening', 'Interviewing'];
+
+// Retrospective numbers for a closed hunt: funnel counts, days from first
+// application to close, and a per-source breakdown.
+export function huntRetro(jobs: Job[], closedAt: string): HuntRetro {
+  const total = jobs.length;
+  const responses = jobs.filter((j) => RESPONDED.includes(j.status)).length;
+  const earliest = jobs.map((j) => j.applied).sort()[0];
+  const daysToClose = earliest
+    ? Math.floor((Date.parse(`${closedAt}T00:00:00Z`) - Date.parse(`${earliest}T00:00:00Z`)) / 86_400_000)
+    : 0;
+
+  const sources = new Map<string, { source: string; applied: number; responses: number }>();
+  for (const j of jobs) {
+    const source = j.source ?? 'Other';
+    const row = sources.get(source) ?? { source, applied: 0, responses: 0 };
+    row.applied += 1;
+    if (RESPONDED.includes(j.status)) row.responses += 1;
+    sources.set(source, row);
+  }
+
+  return {
+    total,
+    responses,
+    responseRate: total === 0 ? 0 : Math.round((responses / total) * 100),
+    interviews: jobs.filter((j) => INTERVIEWED.includes(j.status)).length,
+    offers: jobs.filter((j) => j.status === 'Offered').length,
+    openAtClose: jobs.filter((j) => OPEN.includes(j.status)).length,
+    daysToClose,
+    bySource: [...sources.values()].sort((a, b) => b.applied - a.applied || a.source.localeCompare(b.source)),
+  };
+}
+
+// Availability copy for the home "availability.json" card and the resume status
+// line. An active hunt is open now; a closed one is booked until `availableFrom`.
+export interface Availability {
+  open: boolean;
+  accent: CtpAccent;
+  badge: string;
+  headline: string;
+  caption: string;
+  notice: string;
+}
+
+function fmtDay(iso: string, withYear: boolean): string {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    ...(withYear && { year: 'numeric' }),
+    timeZone: 'UTC',
+  });
+}
+
+export function availability(hunt: Hunt): Availability {
+  if (hunt.state === 'active') {
+    return {
+      open: true,
+      accent: 'green',
+      badge: 'OPEN',
+      headline: 'Now',
+      caption: 'open to offers',
+      notice: 'available now',
+    };
+  }
+  if (!hunt.availableFrom) {
+    return {
+      open: false,
+      accent: 'yellow',
+      badge: 'BOOKED',
+      headline: 'Booked',
+      caption: 'not taking offers',
+      notice: 'n/a',
+    };
+  }
+  const full = fmtDay(hunt.availableFrom, true);
+  return {
+    open: false,
+    accent: 'yellow',
+    badge: 'BOOKED',
+    headline: fmtDay(hunt.availableFrom, false),
+    caption: `available from ${full}`,
+    notice: `from ${full}`,
+  };
 }
