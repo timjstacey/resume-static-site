@@ -1,0 +1,6 @@
+# Job-hunt board mode. `closed` freezes the board at closedAt and hides company names.
+# `availableFrom` (optional, closed only) drives the home/resume availability copy.
+# To reopen the hunt: set `state: active` and delete `closedAt` + `availableFrom`.
+state: closed
+closedAt: '2026-10-07'
+availableFrom: '2027-04-27'

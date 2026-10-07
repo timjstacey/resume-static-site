@@ -1,10 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { NAV_ITEMS } from '../src/lib/nav';
+import { getHunt } from '../src/lib/data';
 
 // Structural accessibility: landmarks, heading rank, and accessible names.
 // These are engine-invariant (same DOM everywhere), so they run once on the
 // content project — the engine-varying keyboard/focus a11y lives in the
 // nav / theme-picker specs (a11y projects) and responsive.spec (mobile).
+const companyFilterCount = getHunt().state === 'active' ? 1 : 0;
 const routes = NAV_ITEMS.map((n) => n.href);
 
 test.describe('Accessibility — landmarks & headings', () => {
@@ -25,7 +27,8 @@ test.describe('Accessibility — job-hunt board controls', () => {
 
   test('every filter control has an accessible name', async ({ page }) => {
     await expect(page.getByRole('searchbox', { name: 'Search this board' })).toBeVisible();
-    await expect(page.getByRole('combobox', { name: 'Filter by company' })).toBeVisible();
+    // The company filter is removed once the hunt is closed (anonymised board).
+    await expect(page.getByRole('combobox', { name: 'Filter by company' })).toHaveCount(companyFilterCount);
     await expect(page.getByRole('combobox', { name: 'Filter by priority' })).toBeVisible();
     await expect(page.getByRole('combobox', { name: 'Filter by source' })).toBeVisible();
   });

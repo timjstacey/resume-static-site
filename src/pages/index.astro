@@ -7,10 +7,11 @@ import TerminalWindow from '../components/TerminalWindow.astro';
 import StatStrip from '../components/StatStrip.astro';
 import StatCard from '../components/StatCard.astro';
 import PostCard from '../components/PostCard.astro';
-import { getResume, getProjects, getJobs } from '../lib/data';
+import { getResume, getProjects, getJobs, getHunt } from '../lib/data';
 import { getPosts } from '../lib/posts';
 import { fmtYM } from '../lib/format';
 import { activePipeline, yearsOfExp } from '../lib/stats';
+import { availability, huntRetro } from '../lib/jobhunt';
 import { TEST_STATS } from '../lib/testStats';
 
 const resume = getResume();
@@ -20,6 +21,9 @@ const posts = (await getPosts()).slice(0, 3);
 
 const years = yearsOfExp(resume.experience);
 const pipeline = activePipeline(jobs);
+const hunt = getHunt();
+const retro = hunt.state === 'closed' ? huntRetro(jobs, hunt.closedAt) : undefined;
+const avail = availability(hunt);
 const current = resume.experience[0];
 
 const fmtDate = (d: Date) => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
@@ -80,22 +84,29 @@ const meta = current
       <Card class="p-7">
         <div class="flex items-center justify-between">
           <span class="mono-caption text-ctp-overlay2" data-testid="availability-label">availability.json</span>
-          <span class="flex items-center gap-2 font-mono text-[11px] text-ctp-green">
-            <span class="h-2 w-2 rounded-full bg-ctp-green shadow-[0_0_8px_var(--catppuccin-color-green)]"></span>OPEN
+          <span
+            class="flex items-center gap-2 font-mono text-[11px]"
+            style={`color: var(--catppuccin-color-${avail.accent})`}
+            data-testid="availability-badge"
+          >
+            <span
+              class="h-2 w-2 rounded-full"
+              style={`background: var(--catppuccin-color-${avail.accent}); box-shadow: 0 0 8px var(--catppuccin-color-${avail.accent})`}
+            ></span>{avail.badge}
           </span>
         </div>
         <div
           class="mt-6 font-display text-[56px] leading-none font-bold tracking-[-0.03em] text-ctp-peach"
           data-testid="availability-date"
         >
-          Now
+          {avail.headline}
         </div>
-        <div class="mt-2 font-mono text-sm text-ctp-subtext1">open to offers</div>
+        <div class="mt-2 font-mono text-sm text-ctp-subtext1">{avail.caption}</div>
         <div class="my-6 border-t border-dashed border-ctp-surface1"></div>
         <dl class="grid grid-cols-2 gap-4 font-mono text-[12.5px]">
           <div><dt class="text-ctp-overlay2">type</dt><dd class="mt-1 text-ctp-text">perm · contract</dd></div>
           <div><dt class="text-ctp-overlay2">location</dt><dd class="mt-1 text-ctp-text">remote · worldwide</dd></div>
-          <div><dt class="text-ctp-overlay2">notice</dt><dd class="mt-1 text-ctp-text">available now</dd></div>
+          <div><dt class="text-ctp-overlay2">notice</dt><dd class="mt-1 text-ctp-text">{avail.notice}</dd></div>
           <div>
             <dt class="text-ctp-overlay2">contact</dt><dd class="mt-1 text-ctp-teal">
               {resume.contact.email ?? 'github ↗'}
@@ -111,7 +122,13 @@ const meta = current
     <StatCard index="00" value={years} label="Years experience" />
     <StatCard index="01" value={projects.length} label="Projects" alt />
     <StatCard index="02" value={jobs.length} label="Roles applied for" />
-    <StatCard index="03" value={pipeline} label="Active pipeline" alt />
+    {
+      retro ? (
+        <StatCard index="03" value={`${retro.responseRate}%`} label="Response rate" alt />
+      ) : (
+        <StatCard index="03" value={pipeline} label="Active pipeline" alt />
+      )
+    }
   </StatStrip>
 
   <!-- ABOUT + CURRENT ROLE -->

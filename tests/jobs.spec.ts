@@ -1,9 +1,16 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
-import { getJobs } from '../src/lib/data';
-import { withKeys, columnOf, STATUS_COLUMNS, priorityFor } from '../src/lib/jobhunt';
+import { readFileSync } from 'node:fs';
+import { parse } from 'yaml';
+import { getHunt, getJobs } from '../src/lib/data';
+import { withKeys, columnOf, STATUS_COLUMNS, priorityFor, huntRetro } from '../src/lib/jobhunt';
+import { JobSourceSchema } from '../src/lib/schemas';
+import { JOBS_ACTIVE_HEADING, JOBS_RETRO_HEADING } from '../src/lib/copy';
 
 // Throws at module load if YAML is missing or fails schema validation.
+const hunt = getHunt();
 const jobs = withKeys(getJobs());
+// Narrowed for TS: only the closed-mode describe reads it (skipped when active).
+const closedAt = hunt.state === 'closed' ? hunt.closedAt : '';
 
 function columnLabel(id: string): string {
   return STATUS_COLUMNS.find((c) => c.id === id)!.label;
@@ -18,6 +25,8 @@ function noun(n: number): string {
 }
 
 function cardLabel(job: (typeof jobs)[number]): string {
+  // Closed hunts are anonymised (empty company) — no "at <company>" segment.
+  if (!job.company) return `${job.role}, ${job.status}, ${job.applied}`;
   return `${job.role} at ${job.company}, ${job.status}, ${job.applied}`;
 }
 
@@ -29,12 +38,16 @@ const closedJob = jobs.find((j) => columnOf(j.status) === 'closed');
 const emptyColumn = STATUS_COLUMNS.find((c) => countIn(c.id) === 0);
 
 test.describe('Job Hunt board', () => {
+  // The company filter/search and active heading only exist while the hunt is open.
+  // eslint-disable-next-line playwright/no-skipped-test -- mode-conditional skip (hunt.yml)
+  test.skip(hunt.state !== 'active', 'hunt is closed — see the closed-mode describe');
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/job-hunt');
   });
 
   test('renders the board chrome', async ({ page }) => {
-    await expect(page.getByRole('heading', { name: 'Active Pipeline' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: JOBS_ACTIVE_HEADING })).toBeVisible();
     await expect(page.getByText(`${jobs.length} issues`)).toBeVisible();
   });
 
@@ -112,6 +125,91 @@ test.describe('Job Hunt board', () => {
     await expect(page.locator(shown())).not.toHaveCount(jobs.length);
     await page.getByRole('button', { name: '✕ clear' }).click();
     await expect(page.locator(shown())).toHaveCount(jobs.length);
+  });
+});
+
+test.describe('Job Hunt board — closed retro', () => {
+  // eslint-disable-next-line playwright/no-skipped-test -- mode-conditional skip (hunt.yml)
+  test.skip(hunt.state !== 'closed', 'hunt is active — see the active-mode describe');
+
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/job-hunt');
+  });
+
+  test('shows the retro heading and closed sprint chrome', async ({ page }) => {
+    await expect(page.getByRole('heading', { name: JOBS_RETRO_HEADING })).toBeVisible();
+    await expect(page.getByText(`${jobs.length} issues`)).toBeVisible();
+    await expect(page.getByTestId('sprint-complete')).toBeVisible();
+  });
+
+  test('retro stats region shows values derived from the data', async ({ page }) => {
+    const retro = huntRetro(jobs, closedAt);
+    const region = page.getByRole('region', { name: 'Sprint retro stats' });
+    const stats: [string, string][] = [
+      ['Applications', String(retro.total)],
+      ['Response rate', `${retro.responseRate}%`],
+      ['Interviews', String(retro.interviews)],
+      ['Days searching', String(retro.daysToClose)],
+    ];
+    for (const [label, value] of stats) {
+      await expect(region.locator(`[data-stat-label="${label}"] [data-stat-value]`)).toHaveText(value);
+    }
+    for (const row of retro.bySource) {
+      await expect(page.getByTestId('retro-sources')).toContainText(
+        `${row.source} ${row.applied} sent · ${row.responses} ${row.responses === 1 ? 'reply' : 'replies'}`
+      );
+    }
+  });
+
+  test('the EPIC (company) filter is absent but the other filters remain', async ({ page }) => {
+    await expect(page.getByRole('combobox', { name: 'Filter by company' })).toHaveCount(0);
+    await expect(page.getByRole('combobox', { name: 'Filter by priority' })).toBeVisible();
+    await expect(page.getByRole('combobox', { name: 'Filter by source' })).toBeVisible();
+  });
+
+  test('source filter still narrows the anonymised board', async ({ page }) => {
+    const source = jobs[0]!.source ?? 'Other';
+    const expected = jobs.filter((j) => (j.source ?? 'Other') === source).length;
+    await page.getByRole('combobox', { name: 'Filter by source' }).selectOption(source);
+    // Visible cards by the filter's contract attr (filtered-out cards get `hidden`).
+    await expect(page.locator('article[data-search]:visible')).toHaveCount(expected);
+  });
+
+  test('every card carries the redacted accessible label', async ({ page }) => {
+    await expect(page.getByRole('article')).toHaveCount(jobs.length);
+    const counts = new Map<string, number>();
+    for (const job of jobs) {
+      expect(cardLabel(job)).not.toContain(' at ');
+      counts.set(cardLabel(job), (counts.get(cardLabel(job)) ?? 0) + 1);
+    }
+    for (const [name, n] of counts) {
+      await expect(page.getByRole('article', { name, exact: true })).toHaveCount(n);
+    }
+  });
+
+  test('no company name leaks into the rendered HTML', async ({ page }) => {
+    const raw = parse(readFileSync('src/data/jobs.yml', 'utf-8')) as { company: string }[];
+    // A company that is also an application source (e.g. "Jobgether") legitimately
+    // appears as a source chip, filter option and per-source stat — a substring check
+    // can't tell that from a leak, so those are covered by the structural assertions
+    // below (no company attribute, no epic pill title) instead.
+    const sources = new Set(JobSourceSchema.options.map((o) => o.toLowerCase()));
+    const companies = [...new Set(raw.map((j) => j.company.toLowerCase()))].filter((c) => !sources.has(c));
+    // Scoped to the page header + board (<main> sections), not page.content(): short
+    // names like "ABC" collide with inline-script/hash text in <head> and the footer.
+    const html = (
+      await page.locator('main > section').evaluateAll((els) => els.map((e) => e.outerHTML).join('\n'))
+    ).toLowerCase();
+    await expect(page.locator('[data-company]')).toHaveCount(0);
+    for (const company of companies) {
+      expect(html, `leaked "${company}"`).not.toContain(company);
+    }
+    // Whole-document sweep (head, meta, scripts, footer) for names distinctive
+    // enough not to collide with incidental text.
+    const doc = (await page.content()).toLowerCase();
+    for (const company of companies.filter((c) => c.length > 6)) {
+      expect(doc, `leaked "${company}" outside the board`).not.toContain(company);
+    }
   });
 });
 

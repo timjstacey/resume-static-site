@@ -68,7 +68,7 @@ src/
   components/    Nav, ThemePicker, StatusBadge, JobCard, ProjectCard, ResumeSection
   og-snippets/   per-post code snippets for OG images (SLUG.ts, imported ?raw)
   pages/         index, resume, projects, job-hunt, testing; blog/[slug]/{index,og}
-  data/          resume.yml, projects.yml, jobs.yml — content lives here
+  data/          resume.yml, projects.yml, jobs.yml, hunt.yml — content lives here
   lib/           schemas (Zod), data loaders, nav helper, date format, stats
 tests/           Playwright E2E specs
 scripts/ci/      CI helper scripts (CF preview wait, CLAUDE.md drift check)
