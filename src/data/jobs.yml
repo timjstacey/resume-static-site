@@ -451,3 +451,10 @@
   role: Senior SDET
   applied: '2026-09-29'
   status: Applied
+
+- company: Think Wink
+  role: QA Engineer
+  url: https://au.seek.com/job/95418884
+  applied: '2026-10-24'
+  status: Applied
+  notes: 'Applied via Seek'
